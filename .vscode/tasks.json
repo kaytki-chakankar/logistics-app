@@ -1,0 +1,15 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Flutter Web - Fixed Port",
+      "type": "shell",
+      "command": "flutter run -d chrome --web-hostname localhost --web-port 5000",
+      "problemMatcher": [],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      }
+    }
+  ]
+}

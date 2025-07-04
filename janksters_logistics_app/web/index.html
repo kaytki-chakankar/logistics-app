@@ -19,13 +19,36 @@
   <title>janksters_logistics_app</title>
   <link rel="manifest" href="manifest.json" />
 
-  <!-- New Google Identity Services script (GIS) -->
+  <!-- Google Identity Services (GIS) -->
   <script src="https://accounts.google.com/gsi/client" async defer></script>
 
-  <!-- Add your client ID here as a meta tag -->
+  <!-- Meta tag for your client ID -->
   <meta name="google-signin-client_id" content="941525240383-t1vl6hgksu496pj5kg1cmriu6ltofqnk.apps.googleusercontent.com" />
+
+  <script>
+    function handleCredentialResponse(response) {
+      window.postMessage({credential: response.credential}, "*");
+    }
+  </script>
 </head>
 <body>
   <script src="flutter_bootstrap.js" async></script>
+
+  <div id="flutter_view">
+    <!-- Google Sign-In Button -->
+    <div id="g_id_onload"
+         data-client_id="941525240383-t1vl6hgksu496pj5kg1cmriu6ltofqnk.apps.googleusercontent.com"
+         data-context="signin"
+         data-ux_mode="popup"
+         data-callback="handleCredentialResponse">
+    </div>
+    <div class="g_id_signin"
+         data-type="standard"
+         data-shape="rectangular"
+         data-theme="outline"
+         data-text="sign_in_with"
+         data-size="large">
+    </div>
+  </div>
 </body>
 </html>

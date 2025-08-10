@@ -42,7 +42,7 @@ class AuthenticationWrapper extends StatelessWidget {
           if (user == null) {
             return const SignInPage(); // Not signed in
           } else {
-            return AttendancePage(email: user.email!); // Signed in, go to attendance
+            return const AttendancePage(); 
           }
         }
 

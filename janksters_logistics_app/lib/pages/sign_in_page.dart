@@ -1,6 +1,6 @@
+
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_auth_web/firebase_auth_web.dart';
 import 'attendance_page.dart';
 
 class SignInPage extends StatefulWidget {
@@ -14,27 +14,33 @@ class _SignInPageState extends State<SignInPage> {
   bool isSigningIn = false;
 
   Future<void> signInWithGoogle() async {
+    if (isSigningIn) return; // Prevent duplicate calls
     setState(() => isSigningIn = true);
+
     try {
       final googleProvider = GoogleAuthProvider();
+
       final userCredential =
           await FirebaseAuth.instance.signInWithPopup(googleProvider);
-
       final user = userCredential.user;
 
       if (!mounted) return;
+
       if (user != null) {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-            builder: (_) => AttendancePage(email: user.email ?? ''),
+            builder: (_) => const AttendancePage(), // No need to pass email manually
           ),
         );
       }
     } catch (e) {
       print('Google sign-in error: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Sign-in failed. Please try again.')),
+      );
     } finally {
-      setState(() => isSigningIn = false);
+      if (mounted) setState(() => isSigningIn = false);
     }
   }
 
@@ -45,9 +51,10 @@ class _SignInPageState extends State<SignInPage> {
       body: Center(
         child: isSigningIn
             ? const CircularProgressIndicator()
-            : ElevatedButton(
+            : ElevatedButton.icon(
+                icon: const Icon(Icons.login),
+                label: const Text('Sign in with Google'),
                 onPressed: signInWithGoogle,
-                child: const Text('Sign in with Google'),
               ),
       ),
     );

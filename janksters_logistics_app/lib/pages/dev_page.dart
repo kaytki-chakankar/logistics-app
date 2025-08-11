@@ -22,7 +22,8 @@ class _DeveloperPageState extends State<DeveloperPage> {
 
     try {
       final encodedDate = Uri.encodeComponent(date);
-      final url = Uri.parse('http://localhost:3000/attendance/flagged?date=$encodedDate');
+      // Use "sheet" query param to match backend
+      final url = Uri.parse('http://localhost:3000/attendance/flagged?sheet=$encodedDate');
       final response = await http.get(url);
 
       if (response.statusCode == 200) {
@@ -146,22 +147,31 @@ class _DeveloperPageState extends State<DeveloperPage> {
                 ),
               ),
             const SizedBox(height: 12),
-            if (flaggedEmails.isNotEmpty) ...[
-              const Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  'Flagged Emails:',
-                  style: TextStyle(fontWeight: FontWeight.bold),
+            if (flaggedEmails.isNotEmpty)
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Flagged Emails:',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 8),
+                    Expanded(
+                      child: ListView.builder(
+                        itemCount: flaggedEmails.length,
+                        itemBuilder: (context, index) {
+                          final email = flaggedEmails[index];
+                          return Align(
+                            alignment: Alignment.centerLeft,
+                            child: Text(email),
+                          );
+                        },
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              const SizedBox(height: 8),
-              ...flaggedEmails.map(
-                (email) => Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(email),
-                ),
-              ),
-            ],
           ],
         ),
       ),

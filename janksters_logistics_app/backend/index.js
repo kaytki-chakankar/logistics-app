@@ -160,56 +160,36 @@ app.get('/attendance/update', async (req, res) => {
 
 //returns the flagged emails from the sheet 
 app.get('/attendance/flagged', async (req, res) => {
-  console.log('HIT /attendance/flagged');
+  const sheetName = req.query.sheet; // date string, e.g. "1/9/2025"
+  if (!sheetName) {
+    return res.status(400).json({ error: 'Sheet name (date) required as ?sheet=...' });
+  }
+
   try {
-    const response = await sheets.spreadsheets.values.get({
-      spreadsheetId: SPREADSHEET_ID,
-      range: RANGE,
-    });
+    const MASTER_JSON_PATH = path.join(__dirname, 'attendance_master.json');
+    if (!fs.existsSync(MASTER_JSON_PATH)) {
+      return res.status(500).json({ error: 'Master attendance file not found.' });
+    }
 
-    const rows = response.data.values || [];
-
-    const attendanceMap = new Map();
-
-    rows.forEach(row => {
-      const email = row[1]?.trim().toLowerCase();
-      if (!email) return;
-
-      if (!attendanceMap.has(email)) {
-        attendanceMap.set(email, []);
-      }
-      attendanceMap.get(email).push(row);
-    });
-
+    const masterData = JSON.parse(fs.readFileSync(MASTER_JSON_PATH, 'utf8'));
     const results = [];
 
-    attendanceMap.forEach((userRows, email) => {
+    Object.entries(masterData).forEach(([email, meetings]) => {
+      // Find the meeting entry for this sheetName (date)
+      const meetingForDate = meetings.find(m => {
+        // date might be stored as "1/9/2025" or as a full timestamp string,
+        // so do a simple inclusion check or parse date from the string
+        return m.date === sheetName || m.date.startsWith(sheetName);
+      });
+
       let flagged = false;
-      let totalMinutesAttended = 0;
+      let totalHoursAttended = 0;
 
-      if (userRows.length !== 2) {
+      if (meetingForDate.error) {
         flagged = true;
-      } else if (userRows.some(row => row[2] && row[2].trim() !== '')) {
-        flagged = true;
+      } else {
+        totalHoursAttended = meetingForDate.durationHours || 0;
       }
-
-      if (userRows.length === 2) {
-        const [startStr, endStr] = [userRows[0][0], userRows[1][0]];
-        const startTime = new Date(startStr);
-        const endTime = new Date(endStr);
-
-        if (!isNaN(startTime.getTime()) && !isNaN(endTime.getTime())) {
-          const durationMs = Math.abs(endTime - startTime);
-          totalMinutesAttended = (durationMs / (1000 * 60));
-          if (140 <= totalMinutesAttended && totalMinutesAttended <= 160) {
-            totalMinutesAttended = 150;
-          }
-        } else {
-          flagged = true;
-        }
-      }
-
-      const totalHoursAttended = parseFloat((totalMinutesAttended / 60).toFixed(2));
 
       results.push({
         email,
@@ -218,19 +198,13 @@ app.get('/attendance/flagged', async (req, res) => {
       });
     });
 
-    // Save to CSV
-    const csvFields = ['email', 'totalHoursAttended', 'flagged'];
-    const csv = parse(results, { fields: csvFields });
-    const outputPath = path.join(__dirname, 'processed_attendance.csv');
-    fs.writeFileSync(outputPath, csv);
-
-    console.log(`✅ Wrote attendance to ${outputPath}`);
-    res.json({ message: 'Attendance processed and written to CSV.', results });
+    res.json({ results });
   } catch (error) {
-    console.error('❌ Error processing attendance:', error);
-    res.status(500).json({ error: 'Unable to process attendance.' });
+    console.error('❌ Error fetching flagged attendance:', error);
+    res.status(500).json({ error: 'Unable to fetch flagged attendance.' });
   }
 });
+
 
 // Get attendance for a single user by email
 // Get attendance stats for one email
@@ -406,9 +380,6 @@ app.get('/attendance/:email', async (req, res) => {
 //     res.status(500).json({ error: 'Failed to write master attendance.' });
 //   }
 // });
-
-
-
 
 
 app.listen(PORT, () => {

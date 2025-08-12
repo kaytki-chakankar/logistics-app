@@ -23,7 +23,7 @@ class _DeveloperPageState extends State<DeveloperPage> {
     try {
       final encodedDate = Uri.encodeComponent(date);
       // Use "sheet" query param to match backend
-      final url = Uri.parse('http://localhost:3000/attendance/flagged?sheet=$encodedDate');
+      final url = Uri.parse('https://logistics-app-backend-o9t7.onrender.com/attendance/flagged?sheet=$encodedDate');
       final response = await http.get(url);
 
       if (response.statusCode == 200) {
@@ -71,7 +71,7 @@ class _DeveloperPageState extends State<DeveloperPage> {
 
     try {
       final encodedSheet = Uri.encodeComponent(sheetName);
-      final url = Uri.parse('http://localhost:3000/attendance/update?sheet=$encodedSheet');
+      final url = Uri.parse('https://logistics-app-backend-o9t7.onrender.com/attendance/update?sheet=$encodedSheet');
       final response = await http.get(url);
 
       if (response.statusCode == 200) {

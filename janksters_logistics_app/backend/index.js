@@ -20,6 +20,9 @@ const sheets = google.sheets({ version: 'v4', auth });
 const SPREADSHEET_ID = '1Id2lRQbEzeTJwza9LPYUeSJOhUvfUduTi_inNMeBaS8';
 const RANGE = '1/9/2025!A2:C1000';
 
+app.get('/healthz', (req, res) => {
+  res.status(200).send('OK');
+});
 
 //updates the master attendance json based on a given sheet
 app.get('/attendance/update', async (req, res) => {
@@ -383,5 +386,5 @@ app.get('/attendance/:email', async (req, res) => {
 
 
 app.listen(PORT, () => {
-  console.log(`🚀 Backend running on http://localhost:${PORT}`);
+  console.log(`🚀 Backend running`);
 });

@@ -8,7 +8,11 @@ const { parse } = require('json2csv'); // Make sure you run: npm install json2cs
 const app = express();
 const PORT = 3000;
 
-app.use(cors());
+app.use(cors({
+  origin: 'https://janksters-logistics.web.app', 
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+}));
 
 const auth = new google.auth.GoogleAuth({
   keyFile: 'service-account.json',

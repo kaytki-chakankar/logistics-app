@@ -3,16 +3,22 @@ const cors = require('cors');
 const { google } = require('googleapis');
 const fs = require('fs');
 const path = require('path');
-const { parse } = require('json2csv'); // Make sure you run: npm install json2csv
+const { parse } = require('json2csv');
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
-app.use(cors({
-  origin: 'https://janksters-logistics.web.app', 
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-}));
+app.use(cors());
+
+// Hardcode the Render URL here
+const BASE_URL = 'https://logistics-app-backend-o9t7.onrender.com';
+
+// OAuth2 client setup with hardcoded redirect URI
+const oAuth2Client = new google.auth.OAuth2(
+  process.env.CLIENT_ID,
+  process.env.CLIENT_SECRET,
+  `${BASE_URL}/oauth2callback`
+);
 
 const auth = new google.auth.GoogleAuth({
   keyFile: 'service-account.json',

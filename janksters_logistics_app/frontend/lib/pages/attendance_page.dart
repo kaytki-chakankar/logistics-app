@@ -66,7 +66,7 @@ class _AttendancePageState extends State<AttendancePage> {
       errorMessage = '';
     });
 
-    final url = Uri.parse('http://localhost:3000/attendance/$userEmail');
+    final url = Uri.parse('https://logistics-app-backend-o9t7.onrender.com/attendance/$userEmail');
 
     try {
       final response = await http.get(url);

@@ -1,1 +1,16 @@
-{"flutter":{"platforms":{"android":{"default":{"projectId":"janksters-logistics","appId":"1:235386524486:android:916b76ae5d1e6645a1cb47","fileOutput":"android/app/google-services.json"}},"ios":{"default":{"projectId":"janksters-logistics","appId":"1:235386524486:ios:aa2d79979c75b08ea1cb47","uploadDebugSymbols":false,"fileOutput":"ios/Runner/GoogleService-Info.plist"}},"macos":{"default":{"projectId":"janksters-logistics","appId":"1:235386524486:ios:aa2d79979c75b08ea1cb47","uploadDebugSymbols":false,"fileOutput":"macos/Runner/GoogleService-Info.plist"}},"dart":{"lib/firebase_options.dart":{"projectId":"janksters-logistics","configurations":{"android":"1:235386524486:android:916b76ae5d1e6645a1cb47","ios":"1:235386524486:ios:aa2d79979c75b08ea1cb47","macos":"1:235386524486:ios:aa2d79979c75b08ea1cb47","web":"1:235386524486:web:09f4d0dd47a24b2fa1cb47","windows":"1:235386524486:web:70075a455b5a4eb0a1cb47"}}}}}}
+{
+  "hosting": {
+    "public": "build/web",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ]
+  }
+}

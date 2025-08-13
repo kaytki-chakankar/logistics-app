@@ -6,16 +6,16 @@ class LinksPage extends StatelessWidget {
 
   static const List<Map<String, String>> links = [
     {
-      'title': 'Team Google Drive',
-      'url': 'https://drive.google.com/drive/folders/...',
+      'title': 'Leadership Drive',
+      'url': 'https://drive.google.com/drive/folders/0ANydg9_JDsrrUk9PVA',
     },
     {
-      'title': 'Meeting Schedule',
-      'url': 'https://docs.google.com/spreadsheets/d/...',
+      'title': 'Team Calendar',
+      'url': 'https://docs.google.com/spreadsheets/d/1VH-h4vqi3WZ0dV_-8Qf2T6R2lpBFExDJWNmpr447Zds/edit?gid=0#gid=0',
     },
     {
-      'title': 'Club Website',
-      'url': 'https://example.com',
+      'title': 'Team Website',
+      'url': 'https://team1967.ndsj.org',
     },
   ];
 

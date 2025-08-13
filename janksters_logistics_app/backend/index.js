@@ -10,15 +10,15 @@ const PORT = process.env.PORT || 3000;
 
 app.use(cors());
 
-// Hardcode the Render URL here
-const BASE_URL = 'https://logistics-app-backend-o9t7.onrender.com';
+// // Hardcode the Render URL here
+// const BASE_URL = 'https://logistics-app-backend-o9t7.onrender.com';
 
-// OAuth2 client setup with hardcoded redirect URI
-const oAuth2Client = new google.auth.OAuth2(
-  process.env.CLIENT_ID,
-  process.env.CLIENT_SECRET,
-  `${BASE_URL}/oauth2callback`
-);
+// // OAuth2 client setup with hardcoded redirect URI
+// const oAuth2Client = new google.auth.OAuth2(
+//   process.env.CLIENT_ID,
+//   process.env.CLIENT_SECRET,
+//   `${BASE_URL}/oauth2callback`
+// );
 
 const auth = new google.auth.GoogleAuth({
   keyFile: 'service-account.json',
@@ -53,19 +53,18 @@ app.get('/attendance/update', async (req, res) => {
       masterData = JSON.parse(raw);
     }
 
+    // 1) Get attendance data from the requested sheet
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId: SPREADSHEET_ID,
       range: RANGE,
     });
 
     const rows = response.data.values || [];
-    console.log(`📊 Rows pulled from sheet: ${rows.length}`);
-    console.log('🧾 Sample row data:', rows.slice(0, 3));
-
     if (rows.length === 0) {
       return res.status(404).json({ error: 'No data found in the sheet. Check sheet name or content.' });
     }
 
+    // 2) Build the attendanceMap of emails and timestamps
     const attendanceMap = new Map();
     rows.forEach(row => {
       const timestamp = row[0];
@@ -73,15 +72,12 @@ app.get('/attendance/update', async (req, res) => {
       const comment = row[2]?.trim();
       if (!email || !timestamp) return;
 
-      if (!attendanceMap.has(email)) {
-        attendanceMap.set(email, []);
-      }
+      if (!attendanceMap.has(email)) attendanceMap.set(email, []);
       attendanceMap.get(email).push({ timestamp, comment });
     });
 
-    const flaggedEmails = [];
+    // 3) Determine the currentSessionDate from first entry timestamp
     let currentSessionDate = null;
-
     for (let [_, entries] of attendanceMap) {
       if (entries.length > 0) {
         const ts = new Date(entries[0].timestamp);
@@ -94,6 +90,7 @@ app.get('/attendance/update', async (req, res) => {
       return res.status(400).json({ error: 'Could not determine session date from entries.' });
     }
 
+    // 4) Check if this session has already been logged
     const alreadyLogged = Object.values(masterData).some(userMeetings =>
       userMeetings.some(meeting => meeting.date === currentSessionDate)
     );
@@ -102,7 +99,33 @@ app.get('/attendance/update', async (req, res) => {
       return res.status(400).json({ error: `Attendance for ${currentSessionDate} has already been logged.` });
     }
 
-    // Process attendees
+    // *** NEW STEP: Get meeting hours for this session from the "hours" sheet ***
+
+    const hoursSheetResponse = await sheets.spreadsheets.values.get({
+      spreadsheetId: SPREADSHEET_ID,
+      range: `hours!1:2`,
+    });
+
+    const hoursSheetValues = hoursSheetResponse.data.values || [];
+    const dateRow = hoursSheetValues[0] || [];
+    const hoursRow = hoursSheetValues[1] || [];
+
+    const sessionColIndex = dateRow.findIndex(dateStr => dateStr === currentSessionDate);
+
+    let officialMeetingHours = 0;
+    if (sessionColIndex >= 0 && hoursRow[sessionColIndex]) {
+      officialMeetingHours = parseFloat(hoursRow[sessionColIndex]);
+      if (isNaN(officialMeetingHours)) officialMeetingHours = 0;
+    }
+
+    console.log(`Meeting date: ${currentSessionDate}, official meeting hours from "hours" sheet: ${officialMeetingHours}`);
+
+    if (officialMeetingHours === 0) {
+      console.warn('Warning: Official meeting hours is zero or missing for this session date.');
+    }
+
+    const flaggedEmails = [];
+
     attendanceMap.forEach((entries, email) => {
       const sorted = entries.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
       const meetings = [];
@@ -137,11 +160,23 @@ app.get('/attendance/update', async (req, res) => {
         }
 
         let durationMin = Math.abs(endTime - startTime) / (1000 * 60);
+
         if (140 <= durationMin && durationMin <= 160) durationMin = 150;
+
+        let durationHours = parseFloat((durationMin / 60).toFixed(2));
+
+        // Adjust duration if close to officialMeetingHours ± 0.2h
+        if (officialMeetingHours > 0) {
+          const diff = durationHours - officialMeetingHours;
+          if (Math.abs(diff) <= 0.2) {
+            durationHours = officialMeetingHours;
+          }
+          // else leave durationHours as is
+        }
 
         meetings.push({
           date: dateOnly,
-          durationHours: parseFloat((durationMin / 60).toFixed(2)),
+          durationHours,
         });
       }
 
@@ -149,7 +184,7 @@ app.get('/attendance/update', async (req, res) => {
       masterData[email].push(...meetings);
     });
 
-    // 👇 NEW SECTION — mark absentees with 0 hours
+    // Mark absentees with 0 hours
     const fullRoster = Object.keys(masterData);
     fullRoster.forEach(email => {
       const hasLogged = masterData[email]?.some(m => m.date === currentSessionDate);

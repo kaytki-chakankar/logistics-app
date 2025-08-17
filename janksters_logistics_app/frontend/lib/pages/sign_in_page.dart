@@ -14,7 +14,7 @@ class _SignInPageState extends State<SignInPage> {
   bool isSigningIn = false;
 
   Future<void> signInWithGoogle() async {
-    if (isSigningIn) return; // Prevent duplicate calls
+    if (isSigningIn) return; // prevent duplicate calls
     setState(() => isSigningIn = true);
 
     try {
@@ -30,7 +30,7 @@ class _SignInPageState extends State<SignInPage> {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-            builder: (_) => const AttendancePage(), // No need to pass email manually
+            builder: (_) => const AttendancePage(), 
           ),
         );
       }

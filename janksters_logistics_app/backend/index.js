@@ -55,7 +55,7 @@ app.get('/attendance/update', async (req, res) => {
       masterData = JSON.parse(raw);
     }
 
-    // 1) Get attendance data from the requested sheet
+    // get attendance data from the requested sheet
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId: SPREADSHEET_ID,
       range: RANGE,
@@ -66,7 +66,7 @@ app.get('/attendance/update', async (req, res) => {
       return res.status(404).json({ error: 'No data found in the sheet. Check sheet name or content.' });
     }
 
-    // 2) Build the attendanceMap of emails and timestamps
+    // build the attendanceMap of emails and timestamps
     const attendanceMap = new Map();
     rows.forEach(row => {
       const timestamp = row[0];
@@ -78,7 +78,7 @@ app.get('/attendance/update', async (req, res) => {
       attendanceMap.get(email).push({ timestamp, comment });
     });
 
-    // 3) Determine the currentSessionDate from first entry timestamp
+    // determine the currentSessionDate from first entry timestamp
     let currentSessionDate = null;
     for (let [_, entries] of attendanceMap) {
       if (entries.length > 0) {
@@ -92,7 +92,7 @@ app.get('/attendance/update', async (req, res) => {
       return res.status(400).json({ error: 'Could not determine session date from entries.' });
     }
 
-    // 4) Check if this session has already been logged
+    // check if this session has already been logged
     const alreadyLogged = Object.values(masterData).some(userMeetings =>
       userMeetings.some(meeting => meeting.date === currentSessionDate)
     );
@@ -101,7 +101,7 @@ app.get('/attendance/update', async (req, res) => {
       return res.status(400).json({ error: `Attendance for ${currentSessionDate} has already been logged.` });
     }
 
-    // *** NEW STEP: Get meeting hours for this session from the "hours" sheet ***
+    //get meeting hours for this session from the "hours" sheet ***
 
     const hoursSheetResponse = await sheets.spreadsheets.values.get({
       spreadsheetId: SPREADSHEET_ID,
@@ -167,7 +167,7 @@ app.get('/attendance/update', async (req, res) => {
 
         let durationHours = parseFloat((durationMin / 60).toFixed(2));
 
-        // Adjust duration if close to officialMeetingHours ± 0.2h
+        // adjust duration if close to officialMeetingHours ± 0.2h
         if (officialMeetingHours > 0) {
           const diff = durationHours - officialMeetingHours;
           if (Math.abs(diff) <= 0.2) {
@@ -199,11 +199,11 @@ app.get('/attendance/update', async (req, res) => {
     });
 
     fs.writeFileSync(MASTER_JSON_PATH, JSON.stringify(masterData, null, 2));
-    console.log(`✅ Updated master attendance for sheet: ${sheetName}`);
+    console.log(`Updated master attendance for sheet: ${sheetName}`);
     res.json({ message: `Master attendance updated from sheet: ${sheetName}`, flaggedEmails });
 
   } catch (error) {
-    console.error('❌ Error updating master attendance:', error);
+    console.error('Error updating master attendance:', error);
     res.status(500).json({ error: 'Unable to update master attendance.' });
   }
 });
@@ -270,8 +270,7 @@ app.get('/attendance/flagged', async (req, res) => {
 });
 
 
-// Get attendance for a single user by email
-// Get attendance stats for one email
+// get attendance for a single user by email
 app.get('/attendance/:email', async (req, res) => {
   console.log('HIT /attendance/:email for:', req.params.email);
   const email = req.params.email?.toLowerCase();
@@ -286,61 +285,15 @@ app.get('/attendance/:email', async (req, res) => {
     const masterData = JSON.parse(fs.readFileSync(masterPath, 'utf8'));
     const userData = masterData[email] || [];
 
-    // 1️⃣ Find latest meeting date in master JSON
-    let latestDate = null;
-    for (const meetings of Object.values(masterData)) {
-      for (const m of meetings) {
-        if (m.date && !m.error) {
-          const d = new Date(m.date);
-          if (!latestDate || d > latestDate) {
-            latestDate = d;
-          }
-        }
-      }
-    }
-    if (!latestDate) {
-      return res.status(400).json({ error: 'No valid meeting dates found in master.' });
-    }
+    // total meeting hours so far
+    const totalMeetingHours = 2.5;
 
-    // 2️⃣ Pull the first two rows from your MeetingHours sheet
-    const HOURS_RANGE = `hours!1:2`; // <-- adjust "MeetingHours" to your tab name
-    const hoursResp = await sheets.spreadsheets.values.get({
-      spreadsheetId: SPREADSHEET_ID,
-      range: HOURS_RANGE,
-    });
-
-    const values = hoursResp.data.values || [];
-    const datesRow = values[0] || [];
-    const hoursRow = values[1] || [];
-
-    // 3️⃣ Build date-hours pairs from columns
-    const hoursData = [];
-    for (let col = 0; col < datesRow.length; col++) {
-      const dateStr = datesRow[col];
-      const hoursVal = parseFloat(hoursRow[col]) || 0;
-      if (dateStr) {
-        hoursData.push({
-          date: dateStr,
-          hours: hoursVal
-        });
-      }
-    }
-
-    // 4️⃣ Sum meeting hours up to latest date
-    const totalMeetingHours = hoursData.reduce((sum, entry) => {
-      const entryDate = new Date(entry.date);
-      if (entryDate <= latestDate) {
-        return sum + entry.hours;
-      }
-      return sum;
-    }, 0);
-
-    // 5️⃣ Total attended hours for this user
+    // total attended hours for this user
     const totalHoursAttended = userData.reduce(
       (sum, m) => sum + (m.durationHours || 0), 0
     );
 
-    // 6️⃣ Calculate attendance percentage
+    // calculate attendance percentage
     const attendancePercentage = totalMeetingHours > 0
       ? parseFloat(((totalHoursAttended / totalMeetingHours) * 100).toFixed(2))
       : 0;
@@ -354,7 +307,7 @@ app.get('/attendance/:email', async (req, res) => {
     });
 
   } catch (err) {
-    console.error('❌ Error fetching attendance percentage:', err);
+    console.error('Error fetching attendance percentage:', err);
     res.status(500).json({ error: 'Unable to fetch attendance data.' });
   }
 });
@@ -437,10 +390,10 @@ app.get('/attendance/:email', async (req, res) => {
 //     const MASTER_JSON_PATH = path.join(__dirname, 'attendance_master.json');
 //     fs.writeFileSync(MASTER_JSON_PATH, JSON.stringify(masterData, null, 2));
 //     console.log(JSON.stringify(masterData[email], null, 2)); // log just one email’s data
-//     console.log(`✅ Wrote master attendance to ${MASTER_JSON_PATH}`);
+//     console.log(`Wrote master attendance to ${MASTER_JSON_PATH}`);
 //     res.json({ message: 'Master attendance written successfully.', file: MASTER_JSON_PATH });
 //   } catch (error) {
-//     console.error('❌ Error writing master attendance:', error);
+//     console.error('Error writing master attendance:', error);
 //     res.status(500).json({ error: 'Failed to write master attendance.' });
 //   }
 // });

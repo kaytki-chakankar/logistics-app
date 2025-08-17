@@ -24,7 +24,6 @@ class LinksPage extends StatelessWidget {
     if (await canLaunchUrl(uri)) {
       await launchUrl(uri, mode: LaunchMode.externalApplication);
     } else {
-      // For simplicity, you could add a snackbar or dialog here instead of throw
       throw 'Could not launch $url';
     }
   }

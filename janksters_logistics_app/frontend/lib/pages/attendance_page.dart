@@ -28,7 +28,7 @@ class _AttendancePageState extends State<AttendancePage> {
     'kchakankar27@ndsj.org',
   ];
 
-  // Team theme colors
+  // team theme colors
   final Color primaryRed = const Color(0xFFE30F13);
   final Color accentRed = const Color(0xFF6C1016);
   final Color backgroundWhite = Colors.white;

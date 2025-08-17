@@ -41,22 +41,7 @@ app.get('/attendance/update', async (req, res) => {
     return res.status(400).json({ error: 'Sheet name required as ?sheet=...' });
   }
   const path = require('path');
-const fs = require('fs');
-
-app.get('/attendance/master/download', (req, res) => {
-  const filePath = path.join(__dirname, 'attendance_master.json');
-
-  if (fs.existsSync(filePath)) {
-    res.download(filePath, 'attendance_master.json', (err) => {
-      if (err) {
-        console.error('Error sending file:', err);
-        res.status(500).send('Error downloading file');
-      }
-    });
-  } else {
-    res.status(404).send('Master attendance file not found');
-  }
-});
+  const fs = require('fs');
 
   console.log(`📥 HIT /attendance/update for sheet: "${sheetName}"`);
   const RANGE = `${sheetName}!A2:C1000`;
@@ -220,6 +205,20 @@ app.get('/attendance/master/download', (req, res) => {
   } catch (error) {
     console.error('❌ Error updating master attendance:', error);
     res.status(500).json({ error: 'Unable to update master attendance.' });
+  }
+});
+app.get('/attendance/master/download', (req, res) => {
+  const filePath = path.join(__dirname, 'attendance_master.json');
+
+  if (fs.existsSync(filePath)) {
+    res.download(filePath, 'attendance_master.json', (err) => {
+      if (err) {
+        console.error('Error sending file:', err);
+        res.status(500).send('Error downloading file');
+      }
+    });
+  } else {
+    res.status(404).send('Master attendance file not found');
   }
 });
 

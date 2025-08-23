@@ -38,6 +38,7 @@ class _AttendancePageState extends State<AttendancePage> {
   void initState() {
     super.initState();
     userEmail = FirebaseAuth.instance.currentUser?.email?.toLowerCase();
+    userEmail = "nrallapalli28@ndsj.org";
     _loadCachedAttendance();
     fetchAttendance();
   }

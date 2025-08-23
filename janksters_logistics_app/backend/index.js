@@ -287,7 +287,11 @@ app.get('/attendance/:email', async (req, res) => {
 
     // total meeting hours so far
     const totalMeetingHours = 2.5;
+    const isRookie = userData.some(entry => entry.rookie === true);
 
+    if (isRookie) {
+      totalMeetingHours = totalMeetingHours - 2.5
+    }
     // total attended hours for this user
     const totalHoursAttended = userData.reduce(
       (sum, m) => sum + (m.durationHours || 0), 0

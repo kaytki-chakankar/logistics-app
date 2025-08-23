@@ -286,7 +286,7 @@ app.get('/attendance/:email', async (req, res) => {
     const userData = masterData[email] || [];
 
     // total meeting hours so far
-    const totalMeetingHours = 2.5;
+    const totalMeetingHours = 7.5;
     const isRookie = userData.some(entry => entry.rookie === true);
 
     if (isRookie) {

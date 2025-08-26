@@ -38,7 +38,7 @@ class _AttendancePageState extends State<AttendancePage> {
   void initState() {
     super.initState();
     userEmail = FirebaseAuth.instance.currentUser?.email?.toLowerCase();
-    //userEmail = "nrallapalli28@ndsj.org";
+    // userEmail = "nrallapalli28@ndsj.org";
     _loadCachedAttendance();
     fetchAttendance();
   }
@@ -52,7 +52,9 @@ class _AttendancePageState extends State<AttendancePage> {
         setState(() {
           totalHours = (cachedData['totalHours'] as num?)?.toDouble() ?? 0.0;
           attendancePercentage = (cachedData['attendancePercentage'] as num?)?.toDouble() ?? 0.0;
-          meetings = cachedData['meetings'] ?? [];
+          meetings = (cachedData['meetings'] as List<dynamic>?)
+                  ?.where((m) => m['date'] != null && m['durationHours'] != null)
+                  .toList() ?? [];
           errorMessage = 'Showing cached data';
         });
       } catch (_) {
@@ -86,7 +88,9 @@ class _AttendancePageState extends State<AttendancePage> {
         setState(() {
           totalHours = (data['totalHours'] as num?)?.toDouble() ?? 0.0;
           attendancePercentage = (data['attendancePercentage'] as num?)?.toDouble() ?? 0.0;
-          meetings = data['meetings'] ?? [];
+          meetings = (data['meetings'] as List<dynamic>?)
+                  ?.where((m) => m['date'] != null && m['durationHours'] != null)
+                  .toList() ?? [];
           errorMessage = '';
         });
 

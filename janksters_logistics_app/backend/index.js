@@ -283,28 +283,29 @@ app.get('/attendance/:email', async (req, res) => {
     }
 
     const masterData = JSON.parse(fs.readFileSync(masterPath, 'utf8'));
-    const userData = masterData[email] || [];
+    let userData = masterData[email] || [];
 
-    // total meeting hours so far
-    let totalMeetingHours = 7.5;
+    // check if user is a rookie
     const isRookie = userData.some(entry => entry.rookie === true);
 
-    if (isRookie) {
-      totalMeetingHours = totalMeetingHours - 2.5
-    }
-    // total attended hours for this user
-    const totalHoursAttended = userData.reduce(
-      (sum, m) => sum + (m.durationHours || 0), 0
-    );
+    // filter out the rookie object, keep only actual meetings with date and durationHours
+    const meetings = userData.filter(m => m.date && typeof m.durationHours === 'number');
 
-    // calculate attendance percentage
+    // total meeting hours
+    let totalMeetingHours = 7.5;
+    if (isRookie) totalMeetingHours -= 2.5;
+
+    // total hours attended
+    const totalHoursAttended = meetings.reduce((sum, m) => sum + m.durationHours, 0);
+
+    // attendance percentage
     const attendancePercentage = totalMeetingHours > 0
       ? parseFloat(((totalHoursAttended / totalMeetingHours) * 100).toFixed(2))
       : 0;
 
     res.json({
       email,
-      meetings: userData,
+      meetings,
       totalHoursAttended,
       totalMeetingHours,
       attendancePercentage
@@ -315,6 +316,8 @@ app.get('/attendance/:email', async (req, res) => {
     res.status(500).json({ error: 'Unable to fetch attendance data.' });
   }
 });
+
+
 
 
 

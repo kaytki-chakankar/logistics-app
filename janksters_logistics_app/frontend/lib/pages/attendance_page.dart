@@ -38,7 +38,7 @@ class _AttendancePageState extends State<AttendancePage> {
   void initState() {
     super.initState();
     userEmail = FirebaseAuth.instance.currentUser?.email?.toLowerCase();
-    // userEmail = "acoquilla27@ndsj.org";
+    userEmail = "acoquilla27@ndsj.org"; 
     _loadCachedAttendance();
     fetchAttendance();
   }
@@ -50,15 +50,16 @@ class _AttendancePageState extends State<AttendancePage> {
       try {
         final cachedData = json.decode(cached);
         setState(() {
-          totalHours = (cachedData['totalHours'] as num?)?.toDouble() ?? 0.0;
+          totalHours = (cachedData['totalHoursAttended'] as num?)?.toDouble() ?? 0.0;
           attendancePercentage = (cachedData['attendancePercentage'] as num?)?.toDouble() ?? 0.0;
-        meetings = (cachedData['meetings'] as List<dynamic>?)
-            ?.where((m) => m['date'] != null && (m.containsKey('durationHours') || m['error'] == true))
-            .toList() ?? [];
+          meetings = (cachedData['meetings'] as List<dynamic>?)
+              ?.where((m) => m['date'] != null && (m.containsKey('durationHours') || m['error'] == true || m['error']?.toString() == 'true'))
+              .toList() ?? [];
           errorMessage = 'Showing cached data';
         });
-      } catch (_) {
-        // ignore cache parse errors silently
+        print('Loaded cached meetings: $meetings');
+      } catch (e) {
+        print('Failed to parse cached attendance: $e');
       }
     }
   }
@@ -86,13 +87,15 @@ class _AttendancePageState extends State<AttendancePage> {
         if (!mounted) return;
 
         setState(() {
-          totalHours = (data['totalHours'] as num?)?.toDouble() ?? 0.0;
+          totalHours = (data['totalHoursAttended'] as num?)?.toDouble() ?? 0.0;
           attendancePercentage = (data['attendancePercentage'] as num?)?.toDouble() ?? 0.0;
           meetings = (data['meetings'] as List<dynamic>?)
-              ?.where((m) => m['date'] != null && (m.containsKey('durationHours') || m['error'] == true))
+              ?.where((m) => m['date'] != null && (m.containsKey('durationHours') || m['error'] == true || m['error']?.toString() == 'true'))
               .toList() ?? [];
           errorMessage = '';
         });
+
+        print('Fetched meetings: $meetings');
 
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString('attendanceData', response.body);
@@ -108,11 +111,14 @@ class _AttendancePageState extends State<AttendancePage> {
         try {
           final cachedData = json.decode(cached);
           setState(() {
-            totalHours = (cachedData['totalHours'] as num?)?.toDouble() ?? 0.0;
+            totalHours = (cachedData['totalHoursAttended'] as num?)?.toDouble() ?? 0.0;
             attendancePercentage = (cachedData['attendancePercentage'] as num?)?.toDouble() ?? 0.0;
-            meetings = cachedData['meetings'] ?? [];
+            meetings = (cachedData['meetings'] as List<dynamic>?)
+                ?.where((m) => m['date'] != null && (m.containsKey('durationHours') || m['error'] == true || m['error']?.toString() == 'true'))
+                .toList() ?? [];
             errorMessage = 'Showing cached data (offline or error)';
           });
+          print('Loaded cached meetings after fetch error: $meetings');
         } catch (e) {
           setState(() {
             errorMessage = 'Error fetching attendance: $e';
@@ -261,7 +267,7 @@ class _AttendancePageState extends State<AttendancePage> {
                           percentage: attendancePercentage ?? 0,
                           primaryRed: primaryRed,
                           accentRed: accentRed,
-                          size: 240, // big size circle
+                          size: 240,
                           label: 'Attendance',
                         ),
                         const SizedBox(height: 24),
@@ -285,7 +291,7 @@ class _AttendancePageState extends State<AttendancePage> {
                                     final date = meeting['date'] ?? 'Unknown date';
                                     final duration = (meeting['durationHours'] ?? 0.0) as double;
 
-                                    if (meeting['error'] == true) {
+                                    if (meeting['error'] == true || meeting['error']?.toString() == 'true') {
                                       final reason = meeting['reason'] ?? 'Flagged entry';
                                       return ListTile(
                                         leading: Icon(Icons.warning, color: primaryRed),

@@ -289,15 +289,18 @@ app.get('/attendance/:email', async (req, res) => {
     const isRookie = userData.some(entry => entry.rookie === true);
 
     // filter out the rookie object, keep only actual meetings with date and durationHours
-    const meetings = userData.filter(m => m.date && typeof m.durationHours === 'number');
+    const meetings = userData.filter(m => m.date && (typeof m.durationHours === 'number' || m.error === true));
+    console.log(meetings)
 
     // total meeting hours
     let totalMeetingHours = 12;
     if (isRookie) totalMeetingHours -= 2.5;
 
     // total hours attended
-    const totalHoursAttended = meetings.reduce((sum, m) => sum + m.durationHours, 0);
-
+    const totalHoursAttended = meetings.reduce(
+      (sum, m) => sum + (typeof m.durationHours === 'number' ? m.durationHours : 0),
+      0
+    );
     // attendance percentage
     const attendancePercentage = totalMeetingHours > 0
       ? parseFloat(((totalHoursAttended / totalMeetingHours) * 100).toFixed(2))

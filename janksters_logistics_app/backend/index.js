@@ -293,7 +293,7 @@ app.get('/attendance/:email', async (req, res) => {
     console.log(meetings)
 
     // total meeting hours
-    let totalMeetingHours = 37;
+    let totalMeetingHours = 42;
     if (isRookie) totalMeetingHours -= 2.5;
 
     // total hours attended

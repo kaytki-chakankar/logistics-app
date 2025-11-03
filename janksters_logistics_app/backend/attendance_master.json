@@ -144,8 +144,7 @@
     },
     {
       "date": "10/2/2025",
-      "error": true,
-      "reason": "3:30-?"
+      "durationHours": 2.5
     },
     {
       "date": "10/7/2025",
@@ -662,7 +661,7 @@
     },
     {
       "date": "9/30/2025",
-      "durationHours": 0
+      "durationHours": 2.5
     },
     {
       "date": "10/2/2025",
@@ -674,7 +673,7 @@
     },
     {
       "date": "10/9/2025",
-      "durationHours": 0
+      "durationHours": 2.5
     },
     {
       "date": "10/14/2025",
@@ -928,8 +927,7 @@
     },
     {
       "date": "9/30/2025",
-      "error": true,
-      "reason": "3:30-?"
+      "durationHours": 2.5
     },
     {
       "date": "10/2/2025",
@@ -941,8 +939,7 @@
     },
     {
       "date": "10/9/2025",
-      "error": true,
-      "reason": "3:30-?"
+      "durationHours": 2.5
     },
     {
       "date": "10/14/2025",
@@ -1196,8 +1193,7 @@
     },
     {
       "date": "10/2/2025",
-      "error": true,
-      "reason": "?-6:00"
+      "durationHours": 2.5
     },
     {
       "date": "10/7/2025",
@@ -1284,8 +1280,7 @@
     },
     {
       "date": "10/2/2025",
-      "error": true,
-      "reason": "3:30-?"
+      "durationHours": 2.5
     },
     {
       "date": "10/7/2025",
@@ -1293,8 +1288,7 @@
     },
     {
       "date": "10/9/2025",
-      "error": true,
-      "reason": "3:30-?"
+      "durationHours": 2.5
     },
     {
       "date": "10/14/2025",
@@ -1458,8 +1452,7 @@
     },
     {
       "date": "9/30/2025",
-      "error": true,
-      "reason": "3:30-?"
+     "durationHours": 2.5
     },
     {
       "date": "10/2/2025",
@@ -1892,8 +1885,7 @@
     },
     {
       "date": "9/30/2025",
-      "error": true,
-      "reason": "3:30-?"
+      "durationHours": 2.5
     },
     {
       "date": "10/2/2025",
@@ -1905,8 +1897,7 @@
     },
     {
       "date": "10/9/2025",
-      "error": true,
-      "reason": "3:30-?"
+      "durationHours": 2.5
     },
     {
       "date": "10/14/2025",
@@ -1988,7 +1979,7 @@
     },
     {
       "date": "10/7/2025",
-      "durationHours": 0
+      "durationHours": 2.5
     },
     {
       "date": "10/9/2025",
@@ -2512,12 +2503,11 @@
     },
     {
       "date": "9/30/2025",
-      "durationHours": 3.5
+      "durationHours": 2.5
     },
     {
       "date": "10/2/2025",
-      "error": true,
-      "reason": "?-6:00"
+     "durationHours": 2.5
     },
     {
       "date": "10/7/2025",
@@ -2612,8 +2602,7 @@
     },
     {
       "date": "10/9/2025",
-      "error": true,
-      "reason": "3:30-?"
+      "durationHours": 2.5
     },
     {
       "date": "10/14/2025",
@@ -2782,8 +2771,7 @@
     },
     {
       "date": "10/2/2025",
-      "error": true,
-      "reason": "3:45-?"
+      "durationHours": 2.5
     },
     {
       "date": "10/7/2025",
@@ -2878,8 +2866,7 @@
     },
     {
       "date": "10/9/2025",
-      "error": true,
-      "reason": "3:30-?"
+      "durationHours": 2.5
     },
     {
       "date": "10/14/2025",
@@ -3044,8 +3031,7 @@
     },
     {
       "date": "9/30/2025",
-      "error": true,
-      "reason": "3:30-?"
+      "durationHours": 2.5
     },
     {
       "date": "10/2/2025",
@@ -3306,8 +3292,7 @@
     },
     {
       "date": "9/30/2025",
-      "error": true,
-      "reason": "3:30-?"
+      "durationHours": 2.5
     },
     {
       "date": "10/2/2025",
@@ -3836,8 +3821,7 @@
     },
     {
       "date": "9/30/2025",
-      "error": true,
-      "reason": "3:30-?"
+      "durationHours": 2.5
     },
     {
       "date": "10/2/2025",
@@ -3931,7 +3915,7 @@
     },
     {
       "date": "10/2/2025",
-      "durationHours": 0
+      "durationHours": 2.5
     },
     {
       "date": "10/7/2025",
@@ -4366,8 +4350,7 @@
     },
     {
       "date": "10/2/2025",
-      "error": true,
-      "reason": "?-6:00"
+      "durationHours": 2.5
     },
     {
       "date": "10/7/2025",
@@ -4375,8 +4358,7 @@
     },
     {
       "date": "10/9/2025",
-      "error": true,
-      "reason": "3:30-?"
+      "durationHours": 2.5
     },
     {
       "date": "10/14/2025",
@@ -4895,8 +4877,7 @@
     },
     {
       "date": "10/7/2025",
-      "error": true,
-      "reason": "?-6:00"
+      "durationHours": 2.5
     },
     {
       "date": "10/9/2025",
@@ -5067,8 +5048,7 @@
     },
     {
       "date": "10/2/2025",
-      "error": true,
-      "reason": "3:30-?"
+      "durationHours": 2.5
     },
     {
       "date": "10/7/2025",
@@ -5239,8 +5219,7 @@
     },
     {
       "date": "10/2/2025",
-      "error": true,
-      "reason": "3:30-?"
+      "durationHours": 2.5
     },
     {
       "date": "10/7/2025",
@@ -5501,8 +5480,7 @@
     },
     {
       "date": "10/2/2025",
-      "error": true,
-      "reason": "?-6:00"
+      "durationHours": 2.5
     },
     {
       "date": "10/7/2025",
@@ -6371,8 +6349,7 @@
     },
     {
       "date": "10/7/2025",
-      "error": true,
-      "reason": "3:30-?"
+      "durationHours": 2.5
     },
     {
       "date": "10/9/2025",

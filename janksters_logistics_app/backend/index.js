@@ -33,7 +33,7 @@ app.get('/attendance/update', async (req, res) => {
   const path = require('path');
   const fs = require('fs');
 
-  console.log(`📥 HIT /attendance/update for sheet: "${sheetName}"`);
+  console.log(`/attendance/update for sheet: "${sheetName}"`);
   const RANGE = `${sheetName}!A2:C1000`;
 
   const MASTER_JSON_PATH = path.join(__dirname, 'attendance_master.json');
@@ -230,11 +230,13 @@ app.get('/attendance/flagged', async (req, res) => {
 
     Object.entries(masterData).forEach(([email, meetings]) => {
       // Find the meeting entry for this sheetName (date)
-      const meetingForDate = meetings.find(m => {
-        // date might be stored as "1/9/2025" or as a full timestamp string,
-        // so do a simple inclusion check or parse date from the string
-        return m.date === sheetName || m.date.startsWith(sheetName);
-      });
+    const meetingForDate = meetings.find(m => {
+      if (!m.date || typeof m.date !== "string") return false;
+
+      // normalize - compare only MM/DD/YYYY portion
+      const d = m.date.split(" ")[0];  // "1/9/2025"
+      return d === sheetName;
+    });
 
       let flagged = false;
       let totalHoursAttended = 0;
@@ -280,7 +282,6 @@ app.get('/attendance/:email', async (req, res) => {
 
     // filter out the rookie object, keep only actual meetings with date and durationHours
     const meetings = userData.filter(m => m.date && (typeof m.durationHours === 'number' || m.error === true));
-    console.log(meetings)
 
     // total meeting hours
     let totalMeetingHours = 52;
@@ -400,5 +401,5 @@ app.get('/attendance/:email', async (req, res) => {
 
 
 app.listen(PORT, () => {
-  console.log(`🚀 Backend running`);
+  console.log(`Backend running`);
 });

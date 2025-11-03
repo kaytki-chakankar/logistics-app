@@ -11,7 +11,7 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 
 const auth = new google.auth.GoogleAuth({
-  keyFile: "/etc/secrets/service-account.json",
+  keyFile: "/etc/secrets/jankster-logistics-app-9940db536b1a.json",
   scopes: ['https://www.googleapis.com/auth/spreadsheets'],
 });
 

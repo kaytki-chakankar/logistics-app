@@ -4,6 +4,10 @@ node_modules/
 # Environment variables
 .env
 
+# Service account location
+backend/keys/
+service-account.json
+
 # OS files
 .DS_Store
 

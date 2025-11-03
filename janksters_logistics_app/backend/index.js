@@ -7,6 +7,7 @@ const { parse } = require('json2csv');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+require("dotenv").config();
 
 app.use(cors());
 
@@ -21,7 +22,7 @@ app.use(cors());
 // );
 
 const auth = new google.auth.GoogleAuth({
-  keyFile: 'service-account.json',
+  keyFile: process.env.GOOGLE_APPLICATION_CREDENTIALS,
   scopes: ['https://www.googleapis.com/auth/spreadsheets'],
 });
 

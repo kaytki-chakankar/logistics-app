@@ -7,22 +7,11 @@ const { parse } = require('json2csv');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-require("dotenv").config();
 
 app.use(cors());
 
-// // Hardcode the Render URL here
-// const BASE_URL = 'https://logistics-app-backend-o9t7.onrender.com';
-
-// // OAuth2 client setup with hardcoded redirect URI
-// const oAuth2Client = new google.auth.OAuth2(
-//   process.env.CLIENT_ID,
-//   process.env.CLIENT_SECRET,
-//   `${BASE_URL}/oauth2callback`
-// );
-
 const auth = new google.auth.GoogleAuth({
-  keyFile: process.env.GOOGLE_APPLICATION_CREDENTIALS,
+  keyFile: '/var/run/secrets/service-account.json', // path to the secret file
   scopes: ['https://www.googleapis.com/auth/spreadsheets'],
 });
 

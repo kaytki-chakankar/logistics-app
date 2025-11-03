@@ -91,8 +91,7 @@ app.get('/attendance/update', async (req, res) => {
       return res.status(400).json({ error: `Attendance for ${currentSessionDate} has already been logged.` });
     }
 
-    //get meeting hours for this session from the "hours" sheet ***
-
+    // get meeting hours for this session from the "hours" sheet
     const hoursSheetResponse = await sheets.spreadsheets.values.get({
       spreadsheetId: SPREADSHEET_ID,
       range: `hours!1:2`,
@@ -111,7 +110,6 @@ app.get('/attendance/update', async (req, res) => {
     }
 
     console.log(`Meeting date: ${currentSessionDate}, official meeting hours from "hours" sheet: ${officialMeetingHours}`);
-
     if (officialMeetingHours === 0) {
       console.warn('Warning: Official meeting hours is zero or missing for this session date.');
     }
@@ -122,55 +120,68 @@ app.get('/attendance/update', async (req, res) => {
       const sorted = entries.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
       const meetings = [];
 
-      for (let i = 0; i < sorted.length; i += 2) {
-        const start = sorted[i];
-        const end = sorted[i + 1];
-        const ts = new Date(start.timestamp);
-        const dateOnly = `${ts.getMonth() + 1}/${ts.getDate()}/${ts.getFullYear()}`;
-
-        if (!end || start.comment || end.comment) {
-          flaggedEmails.push(email);
+      // Check if the email has exactly two entries
+      if (sorted.length !== 2) {
+        flaggedEmails.push(email);
+        sorted.forEach(entry => {
+          const ts = new Date(entry.timestamp);
+          const dateOnly = `${ts.getMonth() + 1}/${ts.getDate()}/${ts.getFullYear()}`;
           meetings.push({
             date: dateOnly,
             error: true,
-            reason: 'Missing pair or comment',
+            reason: 'Incorrect number of entries for this session',
           });
-          continue;
-        }
+        });
+        return; // skip further processing
+      }
 
-        const startTime = new Date(start.timestamp);
-        const endTime = new Date(end.timestamp);
+      // Process the two entries
+      const start = sorted[0];
+      const end = sorted[1];
+      const tsStart = new Date(start.timestamp);
+      const tsEnd = new Date(end.timestamp);
+      const dateOnly = `${tsStart.getMonth() + 1}/${tsStart.getDate()}/${tsStart.getFullYear()}`;
 
-        if (isNaN(startTime) || isNaN(endTime)) {
-          flaggedEmails.push(email);
-          meetings.push({
-            date: dateOnly,
-            error: true,
-            reason: 'Invalid timestamps',
-          });
-          continue;
-        }
-
-        let durationMin = Math.abs(endTime - startTime) / (1000 * 60);
-
-        if (140 <= durationMin && durationMin <= 160) durationMin = 150;
-
-        let durationHours = parseFloat((durationMin / 60).toFixed(2));
-
-        // adjust duration if close to officialMeetingHours ± 0.2h
-        if (officialMeetingHours > 0) {
-          const diff = durationHours - officialMeetingHours;
-          if (Math.abs(diff) <= 0.2) {
-            durationHours = officialMeetingHours;
-          }
-          // else leave durationHours as is
-        }
-
+      // Check for comments
+      if (start.comment || end.comment) {
+        flaggedEmails.push(email);
         meetings.push({
           date: dateOnly,
-          durationHours,
+          error: true,
+          reason: 'Comment present in entry',
         });
+        return;
       }
+
+      // Check for invalid timestamps
+      if (isNaN(tsStart) || isNaN(tsEnd)) {
+        flaggedEmails.push(email);
+        meetings.push({
+          date: dateOnly,
+          error: true,
+          reason: 'Invalid timestamps',
+        });
+        return;
+      }
+
+      // Normal duration calculation
+      let durationMin = Math.abs(tsEnd - tsStart) / (1000 * 60);
+      if (140 <= durationMin && durationMin <= 160) durationMin = 150;
+
+      let durationHours = parseFloat((durationMin / 60).toFixed(2));
+
+      // Adjust duration if close to officialMeetingHours ± 0.2h
+      if (officialMeetingHours > 0) {
+        const diff = durationHours - officialMeetingHours;
+        if (Math.abs(diff) <= 0.2) {
+          durationHours = officialMeetingHours;
+        }
+      }
+
+      meetings.push({
+        date: dateOnly,
+        durationHours,
+      });
 
       if (!masterData[email]) masterData[email] = [];
       masterData[email].push(...meetings);
@@ -195,20 +206,6 @@ app.get('/attendance/update', async (req, res) => {
   } catch (error) {
     console.error('Error updating master attendance:', error);
     res.status(500).json({ error: 'Unable to update master attendance.' });
-  }
-});
-app.get('/attendance/master/download', (req, res) => {
-  const filePath = path.join(__dirname, 'attendance_master.json');
-
-  if (fs.existsSync(filePath)) {
-    res.download(filePath, 'attendance_master.json', (err) => {
-      if (err) {
-        console.error('Error sending file:', err);
-        res.status(500).send('Error downloading file');
-      }
-    });
-  } else {
-    res.status(404).send('Master attendance file not found');
   }
 });
 

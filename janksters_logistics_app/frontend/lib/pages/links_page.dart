@@ -14,8 +14,8 @@ class LinksPage extends StatelessWidget {
       'url': 'https://docs.google.com/spreadsheets/d/1VH-h4vqi3WZ0dV_-8Qf2T6R2lpBFExDJWNmpr447Zds/edit?gid=0#gid=0',
     },
     {
-      'title': 'Team Website',
-      'url': 'https://team1967.ndsj.org',
+      'title': 'Team Resource Website',
+      'url': 'https://sites.google.com/ndsj.org/jankster-resources/home',
     },
   ];
 

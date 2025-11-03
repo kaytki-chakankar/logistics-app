@@ -11,7 +11,7 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 
 const auth = new google.auth.GoogleAuth({
-  keyFile: '/var/run/secrets/service-account.json', // path Render gives
+  keyFile: "/etc/secrets/service-account.json",
   scopes: ['https://www.googleapis.com/auth/spreadsheets'],
 });
 

@@ -117,75 +117,70 @@ app.get('/attendance/update', async (req, res) => {
     const flaggedEmails = [];
 
     attendanceMap.forEach((entries, email) => {
-      const sorted = entries.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
-      const meetings = [];
+  const sorted = entries.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+  const meetings = [];
 
-      // Check if the email has exactly two entries
-      if (sorted.length !== 2) {
-        flaggedEmails.push(email);
-        sorted.forEach(entry => {
-          const ts = new Date(entry.timestamp);
-          const dateOnly = `${ts.getMonth() + 1}/${ts.getDate()}/${ts.getFullYear()}`;
-          meetings.push({
-            date: dateOnly,
-            error: true,
-            reason: 'Incorrect number of entries for this session',
-          });
-        });
-        return; // skip further processing
-      }
+  // check if the email has exactly two entries
+  if (sorted.length !== 2) {
+    flaggedEmails.push(email);
+    const ts = sorted[0] ? new Date(sorted[0].timestamp) : new Date();
+    const dateOnly = `${ts.getMonth() + 1}/${ts.getDate()}/${ts.getFullYear()}`;
+    meetings.push({
+      date: dateOnly,
+      error: true,
+      reason: 'Incorrect number of entries',
+    });
+  } else {
+    const start = sorted[0];
+    const end = sorted[1];
+    const ts = new Date(start.timestamp);
+    const dateOnly = `${ts.getMonth() + 1}/${ts.getDate()}/${ts.getFullYear()}`;
 
-      // Process the two entries
-      const start = sorted[0];
-      const end = sorted[1];
-      const tsStart = new Date(start.timestamp);
-      const tsEnd = new Date(end.timestamp);
-      const dateOnly = `${tsStart.getMonth() + 1}/${tsStart.getDate()}/${tsStart.getFullYear()}`;
+    // check for comments
+    if (start.comment || end.comment) {
+      flaggedEmails.push(email);
+      meetings.push({
+        date: dateOnly,
+        error: true,
+        reason: 'Comment present in entry',
+      });
+    } else {
+      const startTime = new Date(start.timestamp);
+      const endTime = new Date(end.timestamp);
 
-      // Check for comments
-      if (start.comment || end.comment) {
-        flaggedEmails.push(email);
-        meetings.push({
-          date: dateOnly,
-          error: true,
-          reason: 'Comment present in entry',
-        });
-        return;
-      }
-
-      // Check for invalid timestamps
-      if (isNaN(tsStart) || isNaN(tsEnd)) {
+      if (isNaN(startTime) || isNaN(endTime)) {
         flaggedEmails.push(email);
         meetings.push({
           date: dateOnly,
           error: true,
           reason: 'Invalid timestamps',
         });
-        return;
-      }
+      } else {
+        let durationMin = Math.abs(endTime - startTime) / (1000 * 60);
+        if (140 <= durationMin && durationMin <= 160) durationMin = 150;
 
-      // Normal duration calculation
-      let durationMin = Math.abs(tsEnd - tsStart) / (1000 * 60);
-      if (140 <= durationMin && durationMin <= 160) durationMin = 150;
+        let durationHours = parseFloat((durationMin / 60).toFixed(2));
 
-      let durationHours = parseFloat((durationMin / 60).toFixed(2));
-
-      // Adjust duration if close to officialMeetingHours ± 0.2h
-      if (officialMeetingHours > 0) {
-        const diff = durationHours - officialMeetingHours;
-        if (Math.abs(diff) <= 0.2) {
-          durationHours = officialMeetingHours;
+        // adjust duration if close to officialMeetingHours ± 0.2h
+        if (officialMeetingHours > 0) {
+          const diff = durationHours - officialMeetingHours;
+          if (Math.abs(diff) <= 0.2) {
+            durationHours = officialMeetingHours;
+          }
         }
+
+        meetings.push({
+          date: dateOnly,
+          durationHours,
+        });
       }
+    }
+  }
 
-      meetings.push({
-        date: dateOnly,
-        durationHours,
-      });
+  if (!masterData[email]) masterData[email] = [];
+  masterData[email].push(...meetings);
+});
 
-      if (!masterData[email]) masterData[email] = [];
-      masterData[email].push(...meetings);
-    });
 
     // Mark absentees with 0 hours
     const fullRoster = Object.keys(masterData);
@@ -308,7 +303,20 @@ app.get('/attendance/:email', async (req, res) => {
   }
 });
 
+app.get('/attendance/master/download', (req, res) => {
+  const filePath = path.join(__dirname, 'attendance_master.json');
 
+  if (fs.existsSync(filePath)) {
+    res.download(filePath, 'attendance_master.json', err => {
+      if (err) {
+        console.error('Error sending file:', err);
+        res.status(500).send('Error downloading file');
+      }
+    });
+  } else {
+    res.status(404).send('Master attendance file not found');
+  }
+});
 
 
 

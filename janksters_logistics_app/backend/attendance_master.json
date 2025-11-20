@@ -2871,8 +2871,7 @@
     },
     {
       "date": "10/14/2025",
-      "error": true,
-      "reason": "3:30-?"
+      "durationHours": 2.5
     },
     {
       "date": "10/16/2025",

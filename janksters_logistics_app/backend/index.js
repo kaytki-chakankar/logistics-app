@@ -276,8 +276,8 @@ app.get('/attendance/:email', async (req, res) => {
     const meetings = userData.filter(m => m.date && (typeof m.durationHours === 'number' || m.error === true));
 
     // total meeting hours
-    let totalMeetingHours = 72;
-    if (isRookie) totalMeetingHours -= 2.5;
+    let totalMeetingHours = 71;
+    if (isRookie) totalMeetingHours -= 3.5;
 
     // total hours attended
     const totalHoursAttended = meetings.reduce(

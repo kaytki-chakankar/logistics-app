@@ -131,6 +131,10 @@
     {
       "date": "12/11/2025",
       "durationHours": 2.5
+    },
+    {
+      "date": "12/17/2025",
+      "durationHours": 2.5
     }
   ],
   "adesai28@ndsj.org": [
@@ -264,6 +268,10 @@
     },
     {
       "date": "12/11/2025",
+      "durationHours": 2.5
+    },
+    {
+      "date": "12/17/2025",
       "durationHours": 2.5
     }
   ],
@@ -400,6 +408,10 @@
     {
       "date": "12/11/2025",
       "durationHours": 2.5
+    },
+    {
+      "date": "12/17/2025",
+      "durationHours": 0
     }
   ],
   "agandhi28@ndsj.org": [
@@ -535,6 +547,10 @@
     {
       "date": "12/11/2025",
       "durationHours": 2.5
+    },
+    {
+      "date": "12/17/2025",
+      "durationHours": 2.5
     }
   ],
   "asiddabathuni27@ndsj.org": [
@@ -669,6 +685,11 @@
     {
       "date": "12/11/2025",
       "durationHours": 2
+    },
+    {
+      "date": "12/17/2025",
+      "error": true,
+      "reason": "?-6:00"
     }
   ],
   "agaray28@ndsj.org": [
@@ -806,6 +827,10 @@
     {
       "date": "12/11/2025",
       "durationHours": 2.5
+    },
+    {
+      "date": "12/17/2025",
+      "durationHours": 2.5
     }
   ],
   "annalawrence27@ndsj.org": [
@@ -940,6 +965,10 @@
     {
       "date": "12/11/2025",
       "durationHours": 2
+    },
+    {
+      "date": "12/17/2025",
+      "durationHours": 2.5
     }
   ],
   "abhardwaj27@ndsj.org": [
@@ -1075,6 +1104,10 @@
     {
       "date": "12/11/2025",
       "durationHours": 2.5
+    },
+    {
+      "date": "12/17/2025",
+      "durationHours": 0
     }
   ],
   "aarjun27@ndsj.org": [
@@ -1209,6 +1242,10 @@
     {
       "date": "12/11/2025",
       "durationHours": 2.5
+    },
+    {
+      "date": "12/17/2025",
+      "durationHours": 0
     }
   ],
   "agrover28@ndsj.org": [
@@ -1348,6 +1385,10 @@
     {
       "date": "12/11/2025",
       "durationHours": 2.5
+    },
+    {
+      "date": "12/17/2025",
+      "durationHours": 2.5
     }
   ],
   "ashah27@ndsj.org": [
@@ -1482,6 +1523,10 @@
     {
       "date": "12/11/2025",
       "durationHours": 2.5
+    },
+    {
+      "date": "12/17/2025",
+      "durationHours": 0
     }
   ],
   "acoquilla27@ndsj.org": [
@@ -1617,6 +1662,11 @@
     {
       "date": "12/11/2025",
       "durationHours": 0
+    },
+    {
+      "date": "12/17/2025",
+      "error": true,
+      "reason": "?-6:00"
     }
   ],
   "amarin28@ndsj.org": [
@@ -1755,6 +1805,10 @@
     {
       "date": "12/11/2025",
       "durationHours": 2.5
+    },
+    {
+      "date": "12/17/2025",
+      "durationHours": 0
     }
   ],
   "cmanuel27@ndsj.org": [
@@ -1890,6 +1944,10 @@
     {
       "date": "12/11/2025",
       "durationHours": 2.5
+    },
+    {
+      "date": "12/17/2025",
+      "durationHours": 2.5
     }
   ],
   "dmanuel28@ndsj.org": [
@@ -2024,6 +2082,10 @@
     },
     {
       "date": "12/11/2025",
+      "durationHours": 2.5
+    },
+    {
+      "date": "12/17/2025",
       "durationHours": 2.5
     }
   ],
@@ -2162,6 +2224,10 @@
     {
       "date": "12/11/2025",
       "durationHours": 2.5
+    },
+    {
+      "date": "12/17/2025",
+      "durationHours": 0
     }
   ],
   "ebollum27@ndsj.org": [
@@ -2296,6 +2362,10 @@
     },
     {
       "date": "12/11/2025",
+      "durationHours": 2.5
+    },
+    {
+      "date": "12/17/2025",
       "durationHours": 2.5
     }
   ],
@@ -2432,6 +2502,10 @@
     {
       "date": "12/11/2025",
       "durationHours": 1.5
+    },
+    {
+      "date": "12/17/2025",
+      "durationHours": 0
     }
   ],
   "lhackel28@ndsj.org": [
@@ -2569,6 +2643,10 @@
     {
       "date": "12/11/2025",
       "durationHours": 2.5
+    },
+    {
+      "date": "12/17/2025",
+      "durationHours": 0
     }
   ],
   "hbuckner26@ndsj.org": [
@@ -2703,6 +2781,10 @@
     {
       "date": "12/11/2025",
       "durationHours": 2.5
+    },
+    {
+      "date": "12/17/2025",
+      "durationHours": 0
     }
   ],
   "ijadav27@ndsj.org": [
@@ -2837,6 +2919,10 @@
     {
       "date": "12/11/2025",
       "durationHours": 0
+    },
+    {
+      "date": "12/17/2025",
+      "durationHours": 2.5
     }
   ],
   "itee27@ndsj.org": [
@@ -2972,6 +3058,10 @@
       "date": "12/11/2025",
       "error": true,
       "reason": "3:30-?"
+    },
+    {
+      "date": "12/17/2025",
+      "durationHours": 0
     }
   ],
   "jhull28@ndsj.org": [
@@ -3109,6 +3199,10 @@
     {
       "date": "12/11/2025",
       "durationHours": 0
+    },
+    {
+      "date": "12/17/2025",
+      "durationHours": 2.5
     }
   ],
   "kailyntran27@ndsj.org": [
@@ -3247,6 +3341,10 @@
     },
     {
       "date": "12/11/2025",
+      "durationHours": 0
+    },
+    {
+      "date": "12/17/2025",
       "durationHours": 0
     }
   ],
@@ -3387,6 +3485,10 @@
     {
       "date": "12/11/2025",
       "durationHours": 0
+    },
+    {
+      "date": "12/17/2025",
+      "durationHours": 2.5
     }
   ],
   "kkamath28@ndsj.org": [
@@ -3525,6 +3627,10 @@
     {
       "date": "12/11/2025",
       "durationHours": 2.5
+    },
+    {
+      "date": "12/17/2025",
+      "durationHours": 1.75
     }
   ],
   "kchakankar27@ndsj.org": [
@@ -3658,6 +3764,10 @@
     },
     {
       "date": "12/11/2025",
+      "durationHours": 2.5
+    },
+    {
+      "date": "12/17/2025",
       "durationHours": 2.5
     }
   ],
@@ -3796,6 +3906,10 @@
       "date": "12/11/2025",
       "error": true,
       "reason": "3:30-?"
+    },
+    {
+      "date": "12/17/2025",
+      "durationHours": 2.5
     }
   ],
   "mnair28@ndsj.org": [
@@ -3931,6 +4045,10 @@
     {
       "date": "12/11/2025",
       "durationHours": 2.5
+    },
+    {
+      "date": "12/17/2025",
+      "durationHours": 2.5
     }
   ],
   "nyadeta27@ndsj.org": [
@@ -4065,6 +4183,10 @@
     {
       "date": "12/11/2025",
       "durationHours": 1.77
+    },
+    {
+      "date": "12/17/2025",
+      "durationHours": 0
     }
   ],
   "nraghavan28@ndsj.org": [
@@ -4200,6 +4322,10 @@
     {
       "date": "12/11/2025",
       "durationHours": 2.5
+    },
+    {
+      "date": "12/17/2025",
+      "durationHours": 2.5
     }
   ],
   "enguyen27@ndsj.org": [
@@ -4334,6 +4460,10 @@
     {
       "date": "12/11/2025",
       "durationHours": 2.5
+    },
+    {
+      "date": "12/17/2025",
+      "durationHours": 0
     }
   ],
   "ptran26@ndsj.org": [
@@ -4475,6 +4605,10 @@
     {
       "date": "12/11/2025",
       "durationHours": 2.5
+    },
+    {
+      "date": "12/17/2025",
+      "durationHours": 2.5
     }
   ],
   "rbhaskar28@ndsj.org": [
@@ -4611,6 +4745,10 @@
     {
       "date": "12/11/2025",
       "durationHours": 2.5
+    },
+    {
+      "date": "12/17/2025",
+      "durationHours": 0
     }
   ],
   "rcada27@ndsj.org": [
@@ -4746,6 +4884,10 @@
     {
       "date": "12/11/2025",
       "durationHours": 2.5
+    },
+    {
+      "date": "12/17/2025",
+      "durationHours": 2.5
     }
   ],
   "rpadhi28@ndsj.org": [
@@ -4879,6 +5021,10 @@
     },
     {
       "date": "12/11/2025",
+      "durationHours": 2.5
+    },
+    {
+      "date": "12/17/2025",
       "durationHours": 2.5
     }
   ],
@@ -5017,6 +5163,11 @@
     {
       "date": "12/11/2025",
       "durationHours": 2.5
+    },
+    {
+      "date": "12/17/2025",
+      "error": true,
+      "reason": "3:30-?"
     }
   ],
   "ssuresh28@ndsj.org": [
@@ -5150,6 +5301,10 @@
     },
     {
       "date": "12/11/2025",
+      "durationHours": 2.5
+    },
+    {
+      "date": "12/17/2025",
       "durationHours": 2.5
     }
   ],
@@ -5288,6 +5443,10 @@
     {
       "date": "12/11/2025",
       "durationHours": 2.5
+    },
+    {
+      "date": "12/17/2025",
+      "durationHours": 0
     }
   ],
   "ssharma28@ndsj.org": [
@@ -5424,6 +5583,10 @@
     },
     {
       "date": "12/11/2025",
+      "durationHours": 2.5
+    },
+    {
+      "date": "12/17/2025",
       "durationHours": 2.5
     }
   ],
@@ -5568,6 +5731,10 @@
     {
       "date": "12/11/2025",
       "durationHours": 2.5
+    },
+    {
+      "date": "12/17/2025",
+      "durationHours": 0
     }
   ],
   "svepa28@ndsj.org": [
@@ -5704,6 +5871,10 @@
     {
       "date": "12/11/2025",
       "durationHours": 2.5
+    },
+    {
+      "date": "12/17/2025",
+      "durationHours": 0
     }
   ],
   "shiremagalur27@ndsj.org": [
@@ -5838,6 +6009,10 @@
     },
     {
       "date": "12/11/2025",
+      "durationHours": 2.5
+    },
+    {
+      "date": "12/17/2025",
       "durationHours": 2.5
     }
   ],
@@ -5979,6 +6154,10 @@
     {
       "date": "12/11/2025",
       "durationHours": 2.5
+    },
+    {
+      "date": "12/17/2025",
+      "durationHours": 2.5
     }
   ],
   "sreenikajaini28@ndsj.org": [
@@ -6115,6 +6294,10 @@
     {
       "date": "12/11/2025",
       "durationHours": 2.5
+    },
+    {
+      "date": "12/17/2025",
+      "durationHours": 2.5
     }
   ],
   "tnulkar27@ndsj.org": [
@@ -6248,6 +6431,10 @@
     },
     {
       "date": "12/11/2025",
+      "durationHours": 2.5
+    },
+    {
+      "date": "12/17/2025",
       "durationHours": 2.5
     }
   ],
@@ -6384,6 +6571,10 @@
     {
       "date": "12/11/2025",
       "durationHours": 1.5
+    },
+    {
+      "date": "12/17/2025",
+      "durationHours": 2.5
     }
   ],
   "thensley26@ndsj.org": [
@@ -6518,6 +6709,10 @@
     {
       "date": "12/11/2025",
       "durationHours": 2.5
+    },
+    {
+      "date": "12/17/2025",
+      "durationHours": 0
     }
   ],
   "zfugman28@ndsj.org": [
@@ -6654,6 +6849,11 @@
     {
       "date": "12/11/2025",
       "durationHours": 2.5
+    },
+    {
+      "date": "12/17/2025",
+      "error": true,
+      "reason": "3:30-?"
     }
   ],
   "aparikh29@ndsj.org": [
@@ -6791,6 +6991,10 @@
     {
       "date": "12/11/2025",
       "durationHours": 2.5
+    },
+    {
+      "date": "12/17/2025",
+      "durationHours": 0
     }
   ],
   "atomar28@ndsj.org": [
@@ -6923,6 +7127,10 @@
     },
     {
       "date": "12/11/2025",
+      "durationHours": 2.5
+    },
+    {
+      "date": "12/17/2025",
       "durationHours": 2.5
     }
   ],
@@ -7060,6 +7268,10 @@
     },
     {
       "date": "12/11/2025",
+      "durationHours": 2.5
+    },
+    {
+      "date": "12/17/2025",
       "durationHours": 2.5
     }
   ],
@@ -7201,6 +7413,10 @@
       "date": "12/11/2025",
       "error": true,
       "reason": "3:30-?"
+    },
+    {
+      "date": "12/17/2025",
+      "durationHours": 2.5
     }
   ],
   "anikabajpai29@ndsj.org": [
@@ -7338,6 +7554,10 @@
     {
       "date": "12/11/2025",
       "durationHours": 2.5
+    },
+    {
+      "date": "12/17/2025",
+      "durationHours": 2.5
     }
   ],
   "azaliamartinez29@ndsj.org": [
@@ -7473,6 +7693,10 @@
     {
       "date": "12/11/2025",
       "durationHours": 2.5
+    },
+    {
+      "date": "12/17/2025",
+      "durationHours": 2.5
     }
   ],
   "estelamartinez29@ndsj.org": [
@@ -7607,6 +7831,10 @@
     },
     {
       "date": "12/11/2025",
+      "durationHours": 2.5
+    },
+    {
+      "date": "12/17/2025",
       "durationHours": 2.5
     }
   ],
@@ -7746,6 +7974,10 @@
     {
       "date": "12/11/2025",
       "durationHours": 2.5
+    },
+    {
+      "date": "12/17/2025",
+      "durationHours": 2.5
     }
   ],
   "mwu29@ndsj.org": [
@@ -7880,6 +8112,10 @@
     {
       "date": "12/11/2025",
       "durationHours": 2.5
+    },
+    {
+      "date": "12/17/2025",
+      "durationHours": 2.5
     }
   ],
   "marmstrong29@ndsj.org": [
@@ -8013,6 +8249,10 @@
     },
     {
       "date": "12/11/2025",
+      "durationHours": 2.5
+    },
+    {
+      "date": "12/17/2025",
       "durationHours": 2.5
     }
   ],
@@ -8149,6 +8389,11 @@
     {
       "date": "12/11/2025",
       "durationHours": 0
+    },
+    {
+      "date": "12/17/2025",
+      "error": true,
+      "reason": "3:30-?"
     }
   ],
   "rwoo29@ndsj.org": [
@@ -8285,6 +8530,10 @@
     {
       "date": "12/11/2025",
       "durationHours": 2.5
+    },
+    {
+      "date": "12/17/2025",
+      "durationHours": 0
     }
   ],
   "saanvishah29@ndsj.org": [
@@ -8417,6 +8666,10 @@
     },
     {
       "date": "12/11/2025",
+      "durationHours": 2.5
+    },
+    {
+      "date": "12/17/2025",
       "durationHours": 2.5
     }
   ],
@@ -8554,6 +8807,10 @@
     },
     {
       "date": "12/11/2025",
+      "durationHours": 2.5
+    },
+    {
+      "date": "12/17/2025",
       "durationHours": 2.5
     }
   ],
@@ -8693,6 +8950,10 @@
     {
       "date": "12/11/2025",
       "durationHours": 2.5
+    },
+    {
+      "date": "12/17/2025",
+      "durationHours": 2.5
     }
   ],
   "snalgonda29@ndsj.org": [
@@ -8826,6 +9087,10 @@
     {
       "date": "12/11/2025",
       "durationHours": 2.5
+    },
+    {
+      "date": "12/17/2025",
+      "durationHours": 0
     }
   ],
   "sanviprasad29@ndsj.org": [
@@ -8958,6 +9223,10 @@
     },
     {
       "date": "12/11/2025",
+      "durationHours": 2.5
+    },
+    {
+      "date": "12/17/2025",
       "durationHours": 2.5
     }
   ],
@@ -9094,6 +9363,10 @@
     {
       "date": "12/11/2025",
       "durationHours": 2.5
+    },
+    {
+      "date": "12/17/2025",
+      "durationHours": 2.5
     }
   ],
   "shriyaprasad29@ndsj.org": [
@@ -9229,6 +9502,10 @@
     {
       "date": "12/11/2025",
       "durationHours": 2.5
+    },
+    {
+      "date": "12/17/2025",
+      "durationHours": 2.5
     }
   ],
   "svijayan28@ndsj.org": [
@@ -9361,6 +9638,10 @@
     },
     {
       "date": "12/11/2025",
+      "durationHours": 2.5
+    },
+    {
+      "date": "12/17/2025",
       "durationHours": 2.5
     }
   ],
@@ -9497,6 +9778,10 @@
     {
       "date": "12/11/2025",
       "durationHours": 2.5
+    },
+    {
+      "date": "12/17/2025",
+      "durationHours": 0
     }
   ],
   "skokeny28@ndsj.org": [
@@ -9632,6 +9917,10 @@
     {
       "date": "12/11/2025",
       "durationHours": 2.5
+    },
+    {
+      "date": "12/17/2025",
+      "durationHours": 0
     }
   ],
   "tbalaji29@ndsj.org": [
@@ -9769,6 +10058,10 @@
       "date": "12/11/2025",
       "error": true,
       "reason": "3:30-?"
+    },
+    {
+      "date": "12/17/2025",
+      "durationHours": 2.5
     }
   ],
   "yhashmi29@ndsj.org": [
@@ -9903,6 +10196,10 @@
     {
       "date": "12/11/2025",
       "durationHours": 2.5
+    },
+    {
+      "date": "12/17/2025",
+      "durationHours": 0
     }
   ]
 }

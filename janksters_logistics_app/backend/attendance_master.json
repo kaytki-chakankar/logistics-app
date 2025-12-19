@@ -687,8 +687,7 @@
     },
     {
       "date": "12/16/2025",
-      "error": true,
-      "reason": "?-6:00"
+      "durationHours": 2.5
     }
   ],
   "agaray28@ndsj.org": [
@@ -1663,8 +1662,7 @@
     },
     {
       "date": "12/16/2025",
-      "error": true,
-      "reason": "?-6:00"
+      "durationHours": 2.5
     }
   ],
   "amarin28@ndsj.org": [
@@ -2913,7 +2911,7 @@
     },
     {
       "date": "12/11/2025",
-      "durationHours": 0
+      "durationHours": 2.5
     },
     {
       "date": "12/16/2025",
@@ -4456,7 +4454,7 @@
     },
     {
       "date": "12/16/2025",
-      "durationHours": 0
+      "durationHours": 2.5
     }
   ],
   "ptran26@ndsj.org": [
@@ -5427,7 +5425,7 @@
     },
     {
       "date": "12/9/2025",
-      "durationHours": 0
+      "durationHours": 2.5
     },
     {
       "date": "12/11/2025",
@@ -5641,23 +5639,19 @@
     },
     {
       "date": "10/7/2025",
-      "error": true,
-      "reason": "3:30-?"
+      "durationHours": 2.5
     },
     {
       "date": "10/9/2025",
-      "error": true,
-      "reason": "3:30-?"
+      "durationHours": 2.5
     },
     {
       "date": "10/14/2025",
-      "error": true,
-      "reason": "3:30-?"
+      "durationHours": 2.5
     },
     {
       "date": "10/16/2025",
-      "error": true,
-      "reason": "3:30-?"
+      "durationHours": 2.5
     },
     {
       "date": "10/21/2025",
@@ -5665,18 +5659,15 @@
     },
     {
       "date": "10/23/2025",
-      "error": true,
-      "reason": "3:30-?"
+      "durationHours": 2.5
     },
     {
       "date": "10/28/2025",
-      "error": true,
-      "reason": "3:30-?"
+      "durationHours": 2.5
     },
     {
       "date": "10/30/2025",
-      "error": true,
-      "reason": "?-6:00"
+      "durationHours": 2.5
     },
     {
       "date": "11/4/2025",
@@ -5684,8 +5675,7 @@
     },
     {
       "date": "11/6/2025",
-      "error": true,
-      "reason": "3:30-?"
+      "durationHours": 2.5
     },
     {
       "date": "11/11/2025",
@@ -5701,8 +5691,7 @@
     },
     {
       "date": "11/20/2025",
-      "error": true,
-      "reason": "2:30-?"
+      "durationHours": 2.5
     },
     {
       "date": "12/2/2025",
@@ -5992,7 +5981,7 @@
     },
     {
       "date": "12/9/2025",
-      "durationHours": 0
+      "durationHours": 2.5
     },
     {
       "date": "12/11/2025",
@@ -6837,8 +6826,7 @@
     },
     {
       "date": "12/16/2025",
-      "error": true,
-      "reason": "3:30-?"
+      "durationHours": 2.5
     }
   ],
   "aparikh29@ndsj.org": [
@@ -8371,8 +8359,7 @@
     },
     {
       "date": "12/16/2025",
-      "error": true,
-      "reason": "3:30-?"
+      "durationHours": 2.5
     }
   ],
   "rwoo29@ndsj.org": [

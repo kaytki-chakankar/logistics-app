@@ -326,8 +326,7 @@
     },
     {
       "date": "9/25/2025",
-      "error": true,
-      "reason": "3:30-?"
+      "durationHours": 2.5
     },
     {
       "date": "9/30/2025",
@@ -2365,8 +2364,7 @@
   "ebargas27@ndsj.org": [
     {
       "date": "8/14/2025",
-      "error": true,
-      "reason": "3:30-?"
+      "durationHours": 2.5
     },
     {
       "date": "8/19/2025",
@@ -5064,8 +5062,7 @@
     },
     {
       "date": "9/23/2025",
-      "error": true,
-      "reason": "?-6:00"
+      "durationHours": 2.5
     },
     {
       "date": "9/25/2025",

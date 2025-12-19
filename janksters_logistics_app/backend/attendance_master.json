@@ -2201,13 +2201,11 @@
     },
     {
       "date": "11/18/2025",
-      "error": true,
-      "reason": "3:30-?"
+      "durationHours": 2.5
     },
     {
       "date": "11/20/2025",
-      "error": true,
-      "reason": "2:30-?"
+      "durationHours": 2.5
     },
     {
       "date": "12/2/2025",
@@ -4027,8 +4025,7 @@
     },
     {
       "date": "11/20/2025",
-      "error": true,
-      "reason": "2:30-?"
+      "durationHours": 2.5
     },
     {
       "date": "12/2/2025",
@@ -4304,8 +4301,7 @@
     },
     {
       "date": "11/20/2025",
-      "error": true,
-      "reason": "2:30-?"
+      "durationHours": 2.5
     },
     {
       "date": "12/2/2025",
@@ -4583,8 +4579,7 @@
     },
     {
       "date": "11/18/2025",
-      "error": true,
-      "reason": "?-6:00"
+      "durationHours": 2.5
     },
     {
       "date": "11/20/2025",
@@ -5421,12 +5416,11 @@
     },
     {
       "date": "11/18/2025",
-      "durationHours": 0
+      "durationHours": 2.5
     },
     {
       "date": "11/20/2025",
-      "error": true,
-      "reason": "2:30-?"
+      "durationHours": 2.5
     },
     {
       "date": "12/2/2025",
@@ -5562,8 +5556,7 @@
     },
     {
       "date": "11/18/2025",
-      "error": true,
-      "reason": "3:30-?"
+      "durationHours": 2.5
     },
     {
       "date": "11/20/2025",
@@ -6826,8 +6819,7 @@
     },
     {
       "date": "11/18/2025",
-      "error": true,
-      "reason": "?-6:00"
+      "durationHours": 2.5
     },
     {
       "date": "11/20/2025",
@@ -7529,13 +7521,11 @@
     },
     {
       "date": "11/18/2025",
-      "error": true,
-      "reason": "3:30-?"
+      "durationHours": 2.5
     },
     {
       "date": "11/20/2025",
-      "error": true,
-      "reason": "2:30-?"
+      "durationHours": 2.5
     },
     {
       "date": "12/2/2025",
@@ -8367,8 +8357,7 @@
     },
     {
       "date": "11/18/2025",
-      "error": true,
-      "reason": "3:30-?"
+      "durationHours": 2.5
     },
     {
       "date": "11/20/2025",
@@ -8931,8 +8920,7 @@
     },
     {
       "date": "11/20/2025",
-      "error": true,
-      "reason": "2:30-?"
+      "durationHours": 2.5
     },
     {
       "date": "12/2/2025",
@@ -9340,8 +9328,7 @@
     },
     {
       "date": "11/18/2025",
-      "error": true,
-      "reason": "3:30-?"
+      "durationHours": 2.5
     },
     {
       "date": "11/20/2025",

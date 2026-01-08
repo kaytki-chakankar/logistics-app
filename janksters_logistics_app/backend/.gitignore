@@ -1,5 +1,10 @@
-# Node.js dependencies
-node_modules/
+# Node.js dependencies (backend)
+backend/node_modules
+
+# Flutter / Dart build outputs
+frontend/build/
+frontend/.dart_tool/
+frontend/.pub-cache/
 
 # Environment variables
 .env
@@ -11,8 +16,7 @@ service-account.json
 # OS files
 .DS_Store
 
-# npm debug files
+# npm / yarn debug logs
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-

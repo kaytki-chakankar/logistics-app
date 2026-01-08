@@ -1,5 +1,5 @@
 # Node.js dependencies (backend)
-backend/node_modules
+node_modules
 
 # Flutter / Dart build outputs
 frontend/build/

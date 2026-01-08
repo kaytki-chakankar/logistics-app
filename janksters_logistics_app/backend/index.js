@@ -10,7 +10,7 @@ const PORT = process.env.PORT || 3000;
 
 app.use(cors());
 app.use(express.json());
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, '../frontend/build/web')));
 
 const auth = new google.auth.GoogleAuth({
   keyFile: "/etc/secrets/service_account.json",
@@ -566,8 +566,8 @@ app.get("/attendance/team/full", (req, res) => {
   }
 });
 
-app.get('/', (req, res) => {
-  res.send('home route');
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../frontend/build/web/index.html'));
 });
 
 

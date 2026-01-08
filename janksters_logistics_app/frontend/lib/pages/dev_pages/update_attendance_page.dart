@@ -49,7 +49,8 @@ class _UpdateAttendancePageState extends State<UpdateAttendancePage> {
       final encoded = Uri.encodeComponent(date);
 
       final url = Uri.parse('https://logistics-app-backend-o9t7.onrender.com/attendance/flagged?sheet=$encoded');
-      //testing purposes only
+
+      // testing purposes only
       // final url = Uri.parse('http://localhost:3000/attendance/flagged?sheet=$encoded');
 
       final response = await http.get(url);
@@ -109,13 +110,23 @@ void loadCurrentEntry() {
 
     try {
       final url = Uri.http(
-        'localhost:3000',
+        'logistics-app-backend-o9t7.onrender.com',
         '/attendance/update',
         {
           'sheet': sheetName,
           'hours': meetingHours.toString(),
         },
       );
+
+      // testing purposes only
+      // final url = Uri.http(
+      //   'localhost:3000',
+      //   '/attendance/update',
+      //   {
+      //     'sheet': sheetName,
+      //     'hours': meetingHours.toString(),
+      //   },
+      // );
 
       print("UPDATE REQUEST URL: $url");
 
@@ -158,8 +169,8 @@ void loadCurrentEntry() {
       final encodedEmail = Uri.encodeComponent(email);
       final url = Uri.parse('https://logistics-app-backend-o9t7.onrender.com/attendance/raw/$encodedEmail?sheet=$encodedSheet');
 
-      //testing purposes only
-      //final url = Uri.parse('http://localhost:3000/attendance/raw/$encodedEmail?sheet=$encodedSheet');
+      // testing purposes only
+      // final url = Uri.parse('http://localhost:3000/attendance/raw/$encodedEmail?sheet=$encodedSheet');
 
       final r = await http.get(url);
 
@@ -189,7 +200,7 @@ void loadCurrentEntry() {
 
     final url = Uri.parse('https://logistics-app-backend-o9t7.onrender.com/attendance/resolve');
 
-    //testing purposes only
+    // testing purposes only
     // final url = Uri.parse("http://localhost:3000/attendance/resolve");
     
     final body = {

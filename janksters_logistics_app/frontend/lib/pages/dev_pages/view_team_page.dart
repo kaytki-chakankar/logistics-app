@@ -24,11 +24,11 @@ class _ViewFullTeamAttendancePageState extends State<ViewFullTeamAttendancePage>
       "http://logistics-app-backend-o9t7.onrender.com/attendance/team/full?isPreseason=${isPreseason.toString()}"
     );
 
-    //testing purposes only
+    // testing purposes only
     // final url = Uri.parse(
     //   "http://localhost:3000/attendance/team/full?isPreseason=${isPreseason.toString()}"
     // );
-    
+
     final response = await http.get(url);
 
     if (response.statusCode != 200) {

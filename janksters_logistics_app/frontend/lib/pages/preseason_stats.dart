@@ -81,10 +81,10 @@ class _PreseasonStatsState extends State<PreseasonStats> {
       errorMessage = '';
     });
 
-    final url = Uri.parse('https://logistics-app-backend-o9t7.onrender.com/attendance/preseason/$userEmail');
+    // final url = Uri.parse('https://logistics-app-backend-o9t7.onrender.com/attendance/preseason/$userEmail');
 
-    //testing purposes only
-    // final url = Uri.parse('http://localhost:3000/attendance/preseason/$userEmail');
+    // poses only
+    final url = Uri.parse('http://localhost:3000/attendance/preseason/$userEmail');
 
     try {
       final response = await http.get(url);

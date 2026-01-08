@@ -28,8 +28,8 @@ class _EditAttendancePageState extends State<EditAttendancePage> {
     final res = await http.get(
       Uri.parse('https://logistics-app-backend-o9t7.onrender.com/attendance/$email')
 
-      //testing purposes only
-      //Uri.parse("http://localhost:3000/attendance/$email"),
+      // testing purposes only
+      // Uri.parse("http://localhost:3000/attendance/$email"),
     );
 
     if (res.statusCode != 200) {
@@ -89,9 +89,9 @@ class _EditAttendancePageState extends State<EditAttendancePage> {
     final res = await http.post(
       Uri.parse('https://logistics-app-backend-o9t7.onrender.com/attendance/manual-update'),
 
-      //testing purposes only
+      // testing purposes only
       // Uri.parse("http://localhost:3000/attendance/manual-update"),
-      
+
       headers: {"Content-Type": "application/json"},
       body: jsonEncode({
         "email": email,

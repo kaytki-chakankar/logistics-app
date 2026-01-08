@@ -4,16 +4,15 @@ const { google } = require('googleapis');
 const fs = require('fs');
 const path = require('path');
 const { parse } = require('json2csv');
-
 const app = express();
+
 const PORT = process.env.PORT || 3000;
 
 app.use(cors());
-app.use(express.json()); 
-
+app.use(express.json());
 
 const auth = new google.auth.GoogleAuth({
-  credentials: JSON.parse(process.env.service_account.json),
+  keyFile: "/etc/secrets/service_account.json",
   scopes: ['https://www.googleapis.com/auth/spreadsheets'],
 });
 

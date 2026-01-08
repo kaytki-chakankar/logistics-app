@@ -4,7 +4,7 @@
     {
       "label": "Flutter Web - Fixed Port",
       "type": "shell",
-      "command": "flutter run -d chrome --web-hostname localhost --web-port 5000",
+      "command": "flutter run -d chrome --web-hostname localhost --web-port 54690",
       "problemMatcher": [],
       "group": {
         "kind": "build",

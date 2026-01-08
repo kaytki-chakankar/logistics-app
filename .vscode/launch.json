@@ -2,11 +2,11 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Flutter Web (port 5000)",
+      "name": "Flutter Web (port 54690)",
       "request": "launch",
       "type": "dart",
       "program": "janksters_logistics_app/lib/main.dart",
-      "args": ["-d", "chrome", "--web-port=5000"]
+      "args": ["-d", "chrome", "--web-port=54690"]
     }
   ]
 }

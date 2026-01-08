@@ -1,8 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-class LinksPage extends StatelessWidget {
+import 'package:firebase_auth/firebase_auth.dart';
+
+import 'dev_pages/dev_page.dart';
+import 'preseason_stats.dart';
+
+
+
+class LinksPage extends StatefulWidget {
   const LinksPage({super.key});
+
+  @override
+  State<LinksPage> createState() => _LinksPageState();
+}
+
+class _LinksPageState extends State<LinksPage> {
+  String? userEmail;
+
+  @override
+  void initState() {
+    super.initState();
+    userEmail = FirebaseAuth.instance.currentUser?.email?.toLowerCase();
+  }
 
   static const List<Map<String, String>> links = [
     {
@@ -19,6 +39,18 @@ class LinksPage extends StatelessWidget {
     },
   ];
 
+  final Color primaryRed = const Color(0xFFE30F13);
+  final Color accentRed = const Color(0xFF6C1016);
+  final Color backgroundWhite = Colors.white;
+  final Color blackText = Colors.black87;
+
+  final List<String> developerEmails = [
+    'kchakankar27@ndsj.org',
+    'aferrer@ndsj.org'
+  ];
+
+  bool get isDeveloper => developerEmails.contains(userEmail);
+
   Future<void> _openLink(String url) async {
     final uri = Uri.parse(url);
     if (await canLaunchUrl(uri)) {
@@ -28,15 +60,102 @@ class LinksPage extends StatelessWidget {
     }
   }
 
-  final Color primaryRed = const Color(0xFFE30F13);
-  final Color accentRed = const Color(0xFF6C1016);
-  final Color backgroundWhite = Colors.white;
-  final Color blackText = Colors.black87;
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: backgroundWhite,
+      drawer: Drawer(
+        child: Container(
+          color: backgroundWhite,
+          child: ListView(
+            children: [
+              DrawerHeader(
+                decoration: BoxDecoration(
+                  color: primaryRed,
+                ),
+                child: const Center(
+                  child: Text(
+                    'Navigation',
+                    style: TextStyle(
+                      fontFamily: 'Poppins',
+                      fontSize: 24,
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 1.2,
+                    ),
+                  ),
+                ),
+              ),
+              ListTile(
+                leading: Icon(Icons.home, color: primaryRed),
+                title: Text('Attendance',
+                    style: TextStyle(
+                        fontFamily: 'Poppins',
+                        color: blackText,
+                        fontWeight: FontWeight.w600)),
+                onTap: () => Navigator.pop(context),
+              ),
+              if (isDeveloper)
+                ListTile(
+                  leading: Icon(Icons.developer_mode, color: primaryRed),
+                  title: Text('Developer Tools',
+                      style: TextStyle(
+                          fontFamily: 'Poppins',
+                          color: blackText,
+                          fontWeight: FontWeight.w600)),
+                  onTap: () {
+                    Navigator.pop(context);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const DeveloperPage()),
+                    );
+                  },
+                ),
+              ListTile(
+                leading: Icon(Icons.calendar_month, color: primaryRed),
+                title: Text('Important Links',
+                    style: TextStyle(
+                        fontFamily: 'Poppins',
+                        color: blackText,
+                        fontWeight: FontWeight.w600)),
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const LinksPage()),
+                  );
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.calendar_month, color: primaryRed),
+                title: Text('Preseason Attendance',
+                    style: TextStyle(
+                        fontFamily: 'Poppins',
+                        color: blackText,
+                        fontWeight: FontWeight.w600)),
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const PreseasonStats()),
+                  );
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.logout, color: primaryRed),
+                title: Text('Logout',
+                    style: TextStyle(
+                        fontFamily: 'Poppins',
+                        color: blackText,
+                        fontWeight: FontWeight.w600)),
+                onTap: () async {
+                  await FirebaseAuth.instance.signOut();
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
       appBar: AppBar(
         backgroundColor: primaryRed,
         title: const Text(

@@ -40,7 +40,7 @@ class AuthenticationWrapper extends StatelessWidget {
           final user = snapshot.data;
 
           if (user == null) {
-            return const SignInPage(); // Not signed in
+            return const SignInPage(); 
           } else {
             return const AttendancePage(); 
           }

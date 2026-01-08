@@ -14,7 +14,7 @@ class _SignInPageState extends State<SignInPage> {
   bool isSigningIn = false;
 
   Future<void> signInWithGoogle() async {
-    if (isSigningIn) return; // prevent duplicate calls
+    if (isSigningIn) return; 
     setState(() => isSigningIn = true);
 
     try {

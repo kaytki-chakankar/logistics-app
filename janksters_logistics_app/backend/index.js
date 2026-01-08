@@ -567,6 +567,7 @@ app.get("/attendance/team/full", (req, res) => {
 });
 
 app.get('*', (req, res) => {
+  if (!req.path.startsWith('/')) return res.status(400).send('Invalid path');
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 

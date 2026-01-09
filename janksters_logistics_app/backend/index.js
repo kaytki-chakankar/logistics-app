@@ -566,6 +566,10 @@ app.get("/attendance/team/full", (req, res) => {
   }
 });
 
+app.get('/', (req, res) => {
+  res.send('backend is running');
+});
+
 
 
 // app.get('/attendance/master', async (req, res) => {

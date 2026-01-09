@@ -21,7 +21,7 @@ class _ViewFullTeamAttendancePageState extends State<ViewFullTeamAttendancePage>
 
   Future<Map<String, dynamic>> fetchFullTeamAttendance() async {
     final url = Uri.parse(
-      "http://logistics-app-backend-o9t7.onrender.com/attendance/team/full?isPreseason=${isPreseason.toString()}"
+      "https://logistics-app-backend-o9t7.onrender.com/attendance/team/full?isPreseason=${isPreseason.toString()}"
     );
 
     // testing purposes only

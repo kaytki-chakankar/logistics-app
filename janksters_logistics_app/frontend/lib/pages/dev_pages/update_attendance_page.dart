@@ -109,13 +109,14 @@ void loadCurrentEntry() {
     });
 
     try {
-      final url = Uri.http(
+      final url = Uri.https(
         'logistics-app-backend-o9t7.onrender.com',
         '/attendance/update',
         {
           'sheet': sheetName,
           'hours': meetingHours.toString(),
         },
+
       );
 
       // testing purposes only

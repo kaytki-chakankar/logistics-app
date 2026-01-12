@@ -164,16 +164,26 @@ app.get('/attendance/update', async (req, res) => {
             if (140 <= durationMin && durationMin <= 160) durationMin = 150;
 
             let durationHours = parseFloat((durationMin / 60).toFixed(2));
-
             if (officialMeetingHours > 0) {
               const diff = durationHours - officialMeetingHours;
               if (Math.abs(diff) <= 0.2) durationHours = officialMeetingHours;
             }
-
-            meetings.push({
-              date: dateOnly,
-              durationHours,
-            });
+            if (
+              officialMeetingHours > 0 &&
+              durationHours > officialMeetingHours + 1
+            ) {
+              flaggedEmails.push(email);
+              meetings.push({
+                date: dateOnly,
+                error: true,
+                reason: `Absurd duration: ${durationHours}h for a ${officialMeetingHours}h meeting`
+              });
+            } else {
+              meetings.push({
+                date: dateOnly,
+                durationHours
+              });
+            }
           }
         }
       }

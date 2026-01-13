@@ -377,6 +377,21 @@ app.get('/attendance/master/download', (req, res) => {
   }
 });
 
+app.get('/attendance/total/download', (req, res) => {
+  const filePath = path.join(__dirname, 'total_meeting_hours.json');
+
+  if (fs.existsSync(filePath)) {
+    res.download(filePath, 'total_meeting_hours.json', err => {
+      if (err) {
+        console.error('Error sending file:', err);
+        res.status(500).send('Error downloading file');
+      }
+    });
+  } else {
+    res.status(404).send('Master attendance file not found');
+  }
+});
+
 // resolves flagged emails after attendance update
 app.post("/attendance/resolve", (req, res) => {
   const { email, date, durationHours, reason, keepFlagged } = req.body;

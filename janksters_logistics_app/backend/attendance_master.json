@@ -1,73 +1,432 @@
 {
-  "abhardwaj26@ndsj.org": [],
-  "adesai28@ndsj.org": [],
-  "achaturvedi28@ndsj.org": [],
-  "agandhi28@ndsj.org": [],
-  "agaray28@ndsj.org": [],
-  "annalawrence27@ndsj.org": [],
-  "abhardwaj27@ndsj.org": [],
-  "aarjun27@ndsj.org": [],
-  "agrover28@ndsj.org": [],
-  "ashah27@ndsj.org": [],
-  "acoquilla27@ndsj.org": [],
-  "amarin28@ndsj.org": [],
-  "cmanuel27@ndsj.org": [],
-  "dmanuel28@ndsj.org": [],
-  "eyin28@ndsj.org": [],
-  "ebollum27@ndsj.org": [],
-  "ebargas27@ndsj.org": [],
-  "lhackel28@ndsj.org": [],
-  "hbuckner26@ndsj.org": [],
-  "ijadav27@ndsj.org": [],
-  "itee27@ndsj.org": [],
-  "jhull28@ndsj.org": [],
-  "kailyntran27@ndsj.org": [],
-  "kreduta28@ndsj.org": [],
-  "kkamath28@ndsj.org": [],
-  "kchakankar27@ndsj.org": [],
-  "knguyen27@ndsj.org": [],
-  "mnair28@ndsj.org": [],
-  "nyadeta27@ndsj.org": [],
-  "nraghavan28@ndsj.org": [],
-  "enguyen27@ndsj.org": [],
-  "ptran26@ndsj.org": [],
-  "rbhaskar28@ndsj.org": [],
-  "rcada27@ndsj.org": [],
-  "rpadhi28@ndsj.org": [],
-  "spuri28@ndsj.org": [],
-  "ssuresh28@ndsj.org": [],
-  "spothula28@ndsj.org": [],
-  "ssharma28@ndsj.org": [],
-  "stiwary27@ndsj.org": [],
-  "svepa28@ndsj.org": [],
-  "shiremagalur27@ndsj.org": [],
-  "sshen28@ndsj.org": [],
-  "sreenikajaini28@ndsj.org": [],
-  "tnulkar27@ndsj.org": [],
-  "ttony27@ndsj.org": [],
-  "thensley26@ndsj.org": [],
-  "zfugman28@ndsj.org": [],
-  "aparikh29@ndsj.org": [],
-  "ahui29@ndsj.org": [],
-  "ahislop29@ndsj.org": [],
-  "anikabajpai29@ndsj.org": [],
-  "azaliamartinez29@ndsj.org": [],
-  "estelamartinez29@ndsj.org": [],
-  "lmendoza29@ndsj.org": [],
-  "mwu29@ndsj.org": [],
-  "marmstrong29@ndsj.org": [],
-  "nrallapalli28@ndsj.org": [],
-  "rwoo29@ndsj.org": [],
-  "saanvishah29@ndsj.org": [],
-  "sbargal29@ndsj.org": [],
-  "sladd28@ndsj.org": [],
-  "snalgonda29@ndsj.org": [],
-  "sanviprasad29@ndsj.org": [],
-  "sagarwal29@ndsj.org": [],
-  "shriyaprasad29@ndsj.org": [],
-  "svijayan28@ndsj.org": [],
-  "saranda29@ndsj.org": [],
-  "skokeny28@ndsj.org": [],
-  "tbalaji29@ndsj.org": [],
-  "yhashmi29@ndsj.org": []
+  "abhardwaj26@ndsj.org": [
+    {
+      "date": "1/10/2026",
+      "durationHours": 10.5
+    }
+  ],
+  "adesai28@ndsj.org": [
+    {
+      "date": "1/10/2026",
+      "durationHours": 8.5
+    }
+  ],
+  "achaturvedi28@ndsj.org": [
+    {
+      "date": "1/10/2026",
+      "durationHours": 8.5
+    }
+  ],
+  "agandhi28@ndsj.org": [
+    {
+      "date": "1/10/2026",
+      "durationHours": 8.5
+    }
+  ],
+  "agaray28@ndsj.org": [
+    {
+      "date": "1/10/2026",
+      "durationHours": 8.5
+    }
+  ],
+  "annalawrence27@ndsj.org": [
+    {
+      "date": "1/10/2026",
+      "durationHours": 8.5
+    }
+  ],
+  "abhardwaj27@ndsj.org": [
+    {
+      "date": "1/10/2026",
+      "durationHours": 10.5
+    }
+  ],
+  "aarjun27@ndsj.org": [
+    {
+      "date": "1/10/2026",
+      "durationHours": 10.5
+    }
+  ],
+  "agrover28@ndsj.org": [
+    {
+      "date": "1/10/2026",
+      "durationHours": 8.5
+    }
+  ],
+  "ashah27@ndsj.org": [
+    {
+      "date": "1/10/2026",
+      "durationHours": 10.5
+    }
+  ],
+  "acoquilla27@ndsj.org": [
+    {
+      "date": "1/10/2026",
+      "durationHours": 8.5
+    }
+  ],
+  "amarin28@ndsj.org": [
+    {
+      "date": "1/10/2026",
+      "durationHours": 8.5
+    }
+  ],
+  "cmanuel27@ndsj.org": [
+    {
+      "date": "1/10/2026",
+      "durationHours": 10.5
+    }
+  ],
+  "dmanuel28@ndsj.org": [
+    {
+      "date": "1/10/2026",
+      "durationHours": 10.5
+    }
+  ],
+  "eyin28@ndsj.org": [
+    {
+      "date": "1/10/2026",
+      "durationHours": 8.5
+    }
+  ],
+  "ebollum27@ndsj.org": [
+    {
+      "date": "1/10/2026",
+      "durationHours": 8.5
+    }
+  ],
+  "ebargas27@ndsj.org": [
+    {
+      "date": "1/10/2026",
+      "durationHours": 8.5
+    }
+  ],
+  "lhackel28@ndsj.org": [
+    {
+      "date": "1/10/2026",
+      "durationHours": 8.5
+    }
+  ],
+  "hbuckner26@ndsj.org": [
+    {
+      "date": "1/10/2026",
+      "error": true,
+      "reason": "8:30-?"
+    }
+  ],
+  "ijadav27@ndsj.org": [
+    {
+      "date": "1/10/2026",
+      "durationHours": 8.5
+    }
+  ],
+  "itee27@ndsj.org": [
+    {
+      "date": "1/10/2026",
+      "durationHours": 8.5
+    }
+  ],
+  "jhull28@ndsj.org": [
+    {
+      "date": "1/10/2026",
+      "error": true,
+      "reason": "8:30-?"
+    }
+  ],
+  "kreduta28@ndsj.org": [
+    {
+      "date": "1/10/2026",
+      "durationHours": 8.5
+    }
+  ],
+  "kkamath28@ndsj.org": [
+    {
+      "date": "1/10/2026",
+      "durationHours": 10.5
+    }
+  ],
+  "kchakankar27@ndsj.org": [
+    {
+      "date": "1/10/2026",
+      "durationHours": 10.5
+    }
+  ],
+  "knguyen27@ndsj.org": [
+    {
+      "date": "1/10/2026",
+      "durationHours": 8.5
+    }
+  ],
+  "mnair28@ndsj.org": [
+    {
+      "date": "1/10/2026",
+      "durationHours": 8.5
+    }
+  ],
+  "nyadeta27@ndsj.org": [
+    {
+      "date": "1/10/2026",
+      "durationHours": 8.5
+    }
+  ],
+  "nraghavan28@ndsj.org": [
+    {
+      "date": "1/10/2026",
+      "durationHours": 8.5
+    }
+  ],
+  "enguyen27@ndsj.org": [
+    {
+      "date": "1/10/2026",
+      "durationHours": 10.5
+    }
+  ],
+  "ptran26@ndsj.org": [
+    {
+      "date": "1/10/2026",
+      "durationHours": 8.5
+    }
+  ],
+  "rbhaskar28@ndsj.org": [
+    {
+      "date": "1/10/2026",
+      "durationHours": 8.5
+    }
+  ],
+  "rcada27@ndsj.org": [
+    {
+      "date": "1/10/2026",
+      "durationHours": 8.5
+    }
+  ],
+  "rpadhi28@ndsj.org": [
+    {
+      "date": "1/10/2026",
+      "durationHours": 8.5
+    }
+  ],
+  "spuri28@ndsj.org": [
+    {
+      "date": "1/10/2026",
+      "durationHours": 8.5
+    }
+  ],
+  "ssuresh28@ndsj.org": [
+    {
+      "date": "1/10/2026",
+      "durationHours": 8.5
+    }
+  ],
+  "spothula28@ndsj.org": [
+    {
+      "date": "1/10/2026",
+      "durationHours": 8.5
+    }
+  ],
+  "ssharma28@ndsj.org": [
+    {
+      "date": "1/10/2026",
+      "durationHours": 8.5
+    }
+  ],
+  "stiwary27@ndsj.org": [
+    {
+      "date": "1/10/2026",
+      "durationHours": 8.5
+    }
+  ],
+  "svepa28@ndsj.org": [
+    {
+      "date": "1/10/2026",
+      "durationHours": 8.5
+    }
+  ],
+  "shiremagalur27@ndsj.org": [
+    {
+      "date": "1/10/2026",
+      "durationHours": 10.5
+    }
+  ],
+  "sshen28@ndsj.org": [
+    {
+      "date": "1/10/2026",
+      "durationHours": 10.5
+    }
+  ],
+  "sreenikajaini28@ndsj.org": [
+    {
+      "date": "1/10/2026",
+      "durationHours": 8.5
+    }
+  ],
+  "tnulkar27@ndsj.org": [
+    {
+      "date": "1/10/2026",
+      "durationHours": 10.5
+    }
+  ],
+  "ttony27@ndsj.org": [
+    {
+      "date": "1/10/2026",
+      "durationHours": 8.5
+    }
+  ],
+  "thensley26@ndsj.org": [
+    {
+      "date": "1/10/2026",
+      "durationHours": 10.5
+    }
+  ],
+  "zfugman28@ndsj.org": [
+    {
+      "date": "1/10/2026",
+      "durationHours": 10.5
+    }
+  ],
+  "aparikh29@ndsj.org": [
+    {
+      "date": "1/10/2026",
+      "durationHours": 7.55
+    }
+  ],
+  "ahui29@ndsj.org": [
+    {
+      "date": "1/10/2026",
+      "durationHours": 8.5
+    }
+  ],
+  "ahislop29@ndsj.org": [
+    {
+      "date": "1/10/2026",
+      "error": true,
+      "reason": "8:30-?"
+    }
+  ],
+  "anikabajpai29@ndsj.org": [
+    {
+      "date": "1/10/2026",
+      "durationHours": 8.5
+    }
+  ],
+  "azaliamartinez29@ndsj.org": [
+    {
+      "date": "1/10/2026",
+      "durationHours": 8.5
+    }
+  ],
+  "estelamartinez29@ndsj.org": [
+    {
+      "date": "1/10/2026",
+      "durationHours": 8.5
+    }
+  ],
+  "lmendoza29@ndsj.org": [
+    {
+      "date": "1/10/2026",
+      "durationHours": 8.5
+    }
+  ],
+  "mwu29@ndsj.org": [
+    {
+      "date": "1/10/2026",
+      "durationHours": 8.5
+    }
+  ],
+  "marmstrong29@ndsj.org": [
+    {
+      "date": "1/10/2026",
+      "durationHours": 8.5
+    }
+  ],
+  "nrallapalli28@ndsj.org": [
+    {
+      "date": "1/10/2026",
+      "durationHours": 7.55
+    }
+  ],
+  "rwoo29@ndsj.org": [
+    {
+      "date": "1/10/2026",
+      "error": true,
+      "reason": "8:30-?"
+    }
+  ],
+  "saanvishah29@ndsj.org": [
+    {
+      "date": "1/10/2026",
+      "durationHours": 8.5
+    }
+  ],
+  "sbargal29@ndsj.org": [
+    {
+      "date": "1/10/2026",
+      "durationHours": 7.54
+    }
+  ],
+  "sladd28@ndsj.org": [
+    {
+      "date": "1/10/2026",
+      "durationHours": 8.5
+    }
+  ],
+  "snalgonda29@ndsj.org": [
+    {
+      "date": "1/10/2026",
+      "durationHours": 8.5
+    }
+  ],
+  "sanviprasad29@ndsj.org": [
+    {
+      "date": "1/10/2026",
+      "durationHours": 8.5
+    }
+  ],
+  "sagarwal29@ndsj.org": [
+    {
+      "date": "1/10/2026",
+      "durationHours": 8.5
+    }
+  ],
+  "shriyaprasad29@ndsj.org": [
+    {
+      "date": "1/10/2026",
+      "durationHours": 8.5
+    }
+  ],
+  "svijayan28@ndsj.org": [
+    {
+      "date": "1/10/2026",
+      "durationHours": 8.5
+    }
+  ],
+  "saranda29@ndsj.org": [
+    {
+      "date": "1/10/2026",
+      "durationHours": 8.5
+    }
+  ],
+  "tbalaji29@ndsj.org": [
+    {
+      "date": "1/10/2026",
+      "durationHours": 8.5
+    }
+  ],
+  "yhashmi29@ndsj.org": [
+    {
+      "date": "1/10/2026",
+      "durationHours": 0
+    }
+  ],
+  "atomar28@ndsj.org": [
+    {
+      "date": "1/10/2026",
+      "durationHours": 8.5
+    }
+  ],
+  "asiddabathuni27@ndsj.org": [
+    {
+      "date": "1/10/2026",
+      "durationHours": 4.5
+    }
+  ]
 }

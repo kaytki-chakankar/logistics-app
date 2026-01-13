@@ -166,11 +166,11 @@ app.get('/attendance/update', async (req, res) => {
             let durationHours = parseFloat((durationMin / 60).toFixed(2));
             if (officialMeetingHours > 0) {
               const diff = durationHours - officialMeetingHours;
-              if (Math.abs(diff) <= 0.2) durationHours = officialMeetingHours;
+              if (Math.abs(diff) <= 0.5) durationHours = officialMeetingHours;
             }
             if (
               officialMeetingHours > 0 &&
-              durationHours > officialMeetingHours + 1
+              durationHours > officialMeetingHours + 0.6
             ) {
               flaggedEmails.push(email);
               meetings.push({

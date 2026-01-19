@@ -336,7 +336,13 @@ app.get('/attendance/:email', async (req, res) => {
     const masterData = JSON.parse(fs.readFileSync(masterPath, 'utf8'));
     let userData = masterData[email] || [];
 
-    const meetings = userData.filter(m => m.date && (typeof m.durationHours === 'number' || m.error === true));
+    const meetings = userData
+      .filter(m => m.date && (typeof m.durationHours === 'number' || m.error === true))
+      .sort((a, b) => {
+        const aDate = new Date(a.date);
+        const bDate = new Date(b.date);
+        return aDate - bDate; // chronological order
+      });
     let totalMeetingHours = getTotalMeetingHours();
 
     const totalHoursAttended = meetings.reduce(

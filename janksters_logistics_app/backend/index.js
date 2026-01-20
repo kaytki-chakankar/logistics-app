@@ -552,6 +552,7 @@ app.get("/attendance/team/full", (req, res) => {
 
     const master = JSON.parse(fs.readFileSync(MASTER_FILE, "utf8"));
 
+    // collect all unique dates
     const allDates = new Set();
     Object.values(master).forEach(records => {
       records.forEach(r => {
@@ -563,39 +564,69 @@ app.get("/attendance/team/full", (req, res) => {
       (a, b) => new Date(a) - new Date(b)
     );
 
+    const totalMeetingHours = isPreseason
+      ? 83.5
+      : getTotalMeetingHours();
+
     const team = Object.entries(master).map(([email, records]) => {
-      let attendedCount = 0;
+      let attendedHours = 0;
       const recordMap = {};
 
       records.forEach(r => {
         recordMap[r.date] = r;
-        if (Number(r.durationHours) > 0 && !r.error) attendedCount++;
+
+        // ERROR OR MISSING DURATION = 0 HOURS
+        if (r.error === true) return;
+
+        const hours = Number(r.durationHours);
+        if (!isNaN(hours) && hours > 0) {
+          attendedHours += hours;
+        }
       });
 
-      const totalMeetings = sortedDates.length;
       const attendancePercent =
-        totalMeetings > 0
-          ? Math.round((attendedCount / totalMeetings) * 100)
+        totalMeetingHours > 0
+          ? Math.round((attendedHours / totalMeetingHours) * 100)
           : 0;
 
       const row = sortedDates.map(date => {
         const r = recordMap[date];
-        if (!r) return { status: "missing" };
-        if (r.error) return { status: "flagged", reason: r.reason };
+        if (!r) return { status: "missing", hours: 0 };
+
+        if (r.error === true) {
+          return {
+            status: "flagged",
+            reason: r.reason,
+            hours: 0
+          };
+        }
+
+        const hours = Number(r.durationHours) || 0;
         return {
-          status: Number(r.durationHours) > 0 ? "attended" : "missed",
+          status: hours > 0 ? "attended" : "missed",
+          hours
         };
       });
 
-      return { email, attendancePercent, row };
+      return {
+        email,
+        attendancePercent,
+        attendedHours,
+        row
+      };
     });
 
-    res.json({ dates: sortedDates, team });
+    res.json({
+      dates: sortedDates,
+      totalMeetingHours,
+      team
+    });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Failed to load team attendance" });
   }
 });
+
 
 app.get('/', (req, res) => {
   res.send('backend is running');

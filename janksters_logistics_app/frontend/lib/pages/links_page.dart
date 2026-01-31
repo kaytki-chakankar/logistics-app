@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:janksters_logistics_app/pages/attendance_page.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'package:firebase_auth/firebase_auth.dart';
@@ -87,13 +88,19 @@ class _LinksPageState extends State<LinksPage> {
                 ),
               ),
               ListTile(
-                leading: Icon(Icons.home, color: primaryRed),
+                leading: Icon(Icons.calendar_month, color: primaryRed),
                 title: Text('Attendance',
                     style: TextStyle(
                         fontFamily: 'Poppins',
                         color: blackText,
                         fontWeight: FontWeight.w600)),
-                onTap: () => Navigator.pop(context),
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const AttendancePage()),
+                  );
+                },
               ),
               if (isDeveloper)
                 ListTile(

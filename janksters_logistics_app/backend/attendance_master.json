@@ -103,6 +103,22 @@
     {
       "date": "2/14/2026",
       "durationHours": 8
+    },
+    {
+      "date": "2/19/2026",
+      "durationHours": 0
+    },
+    {
+      "date": "2/20/2026",
+      "durationHours": 0
+    },
+    {
+      "date": "2/21/2026",
+      "durationHours": 0
+    },
+    {
+      "date": "2/22/2026",
+      "durationHours": 0
     }
   ],
   "adesai28@ndsj.org": [
@@ -209,6 +225,22 @@
     {
       "date": "1/31/2026",
       "durationHours": 8
+    },
+    {
+      "date": "2/19/2026",
+      "durationHours": 8
+    },
+    {
+      "date": "2/20/2026",
+      "durationHours": 8
+    },
+    {
+      "date": "2/21/2026",
+      "durationHours": 0
+    },
+    {
+      "date": "2/22/2026",
+      "durationHours": 3.48
     }
   ],
   "achaturvedi28@ndsj.org": [
@@ -314,6 +346,22 @@
     },
     {
       "date": "2/14/2026",
+      "durationHours": 0
+    },
+    {
+      "date": "2/19/2026",
+      "durationHours": 8
+    },
+    {
+      "date": "2/20/2026",
+      "durationHours": 3.83
+    },
+    {
+      "date": "2/21/2026",
+      "durationHours": 7
+    },
+    {
+      "date": "2/22/2026",
       "durationHours": 0
     }
   ],
@@ -422,6 +470,22 @@
     {
       "date": "1/31/2026",
       "durationHours": 8
+    },
+    {
+      "date": "2/19/2026",
+      "durationHours": 0
+    },
+    {
+      "date": "2/20/2026",
+      "durationHours": 0
+    },
+    {
+      "date": "2/21/2026",
+      "durationHours": 0
+    },
+    {
+      "date": "2/22/2026",
+      "durationHours": 0
     }
   ],
   "agaray28@ndsj.org": [
@@ -529,6 +593,22 @@
     {
       "date": "1/29/2026",
       "durationHours": 3
+    },
+    {
+      "date": "2/19/2026",
+      "durationHours": 0
+    },
+    {
+      "date": "2/20/2026",
+      "durationHours": 8
+    },
+    {
+      "date": "2/21/2026",
+      "durationHours": 7.49
+    },
+    {
+      "date": "2/22/2026",
+      "durationHours": 6
     }
   ],
   "annalawrence27@ndsj.org": [
@@ -635,6 +715,22 @@
     {
       "date": "2/14/2026",
       "durationHours": 5.02
+    },
+    {
+      "date": "2/19/2026",
+      "durationHours": 8
+    },
+    {
+      "date": "2/20/2026",
+      "durationHours": 8
+    },
+    {
+      "date": "2/21/2026",
+      "durationHours": 6.58
+    },
+    {
+      "date": "2/22/2026",
+      "durationHours": 6
     }
   ],
   "abhardwaj27@ndsj.org": [
@@ -742,6 +838,23 @@
     {
       "date": "2/14/2026",
       "durationHours": 0
+    },
+    {
+      "date": "2/19/2026",
+      "error": true,
+      "reason": "9:00-?"
+    },
+    {
+      "date": "2/20/2026",
+      "durationHours": 0
+    },
+    {
+      "date": "2/21/2026",
+      "durationHours": 0
+    },
+    {
+      "date": "2/22/2026",
+      "durationHours": 0
     }
   ],
   "aarjun27@ndsj.org": [
@@ -848,6 +961,22 @@
     {
       "date": "2/14/2026",
       "durationHours": 8
+    },
+    {
+      "date": "2/19/2026",
+      "durationHours": 0
+    },
+    {
+      "date": "2/20/2026",
+      "durationHours": 0
+    },
+    {
+      "date": "2/21/2026",
+      "durationHours": 0
+    },
+    {
+      "date": "2/22/2026",
+      "durationHours": 0
     }
   ],
   "agrover28@ndsj.org": [
@@ -954,6 +1083,23 @@
     {
       "date": "2/14/2026",
       "durationHours": 0
+    },
+    {
+      "date": "2/19/2026",
+      "durationHours": 8
+    },
+    {
+      "date": "2/20/2026",
+      "error": true,
+      "reason": "9:00-?"
+    },
+    {
+      "date": "2/21/2026",
+      "durationHours": 8
+    },
+    {
+      "date": "2/22/2026",
+      "durationHours": 6
     }
   ],
   "ashah27@ndsj.org": [
@@ -1061,6 +1207,23 @@
     {
       "date": "1/31/2026",
       "durationHours": 8
+    },
+    {
+      "date": "2/19/2026",
+      "durationHours": 8
+    },
+    {
+      "date": "2/20/2026",
+      "durationHours": 0
+    },
+    {
+      "date": "2/21/2026",
+      "error": true,
+      "reason": "?-5:00"
+    },
+    {
+      "date": "2/22/2026",
+      "durationHours": 0
     }
   ],
   "acoquilla27@ndsj.org": [
@@ -1169,6 +1332,23 @@
     {
       "date": "1/27/2026",
       "durationHours": 2.5
+    },
+    {
+      "date": "2/19/2026",
+      "durationHours": 0
+    },
+    {
+      "date": "2/20/2026",
+      "durationHours": 8
+    },
+    {
+      "date": "2/21/2026",
+      "error": true,
+      "reason": "9:00-?"
+    },
+    {
+      "date": "2/22/2026",
+      "durationHours": 0
     }
   ],
   "amarin28@ndsj.org": [
@@ -1278,6 +1458,22 @@
     {
       "date": "1/30/2026",
       "durationHours": 2.5
+    },
+    {
+      "date": "2/19/2026",
+      "durationHours": 0
+    },
+    {
+      "date": "2/20/2026",
+      "durationHours": 6.5
+    },
+    {
+      "date": "2/21/2026",
+      "durationHours": 0
+    },
+    {
+      "date": "2/22/2026",
+      "durationHours": 4.77
     }
   ],
   "cmanuel27@ndsj.org": [
@@ -1389,6 +1585,24 @@
     {
       "date": "1/30/2026",
       "durationHours": 2.25
+    },
+    {
+      "date": "2/19/2026",
+      "durationHours": 0
+    },
+    {
+      "date": "2/20/2026",
+      "error": true,
+      "reason": "?-5:00"
+    },
+    {
+      "date": "2/21/2026",
+      "error": true,
+      "reason": "9:00-?"
+    },
+    {
+      "date": "2/22/2026",
+      "durationHours": 5.02
     }
   ],
   "dmanuel28@ndsj.org": [
@@ -1497,6 +1711,24 @@
     {
       "date": "2/14/2026",
       "durationHours": 4.89
+    },
+    {
+      "date": "2/19/2026",
+      "durationHours": 5.5
+    },
+    {
+      "date": "2/20/2026",
+      "error": true,
+      "reason": "?-5:00"
+    },
+    {
+      "date": "2/21/2026",
+      "durationHours": 7
+    },
+    {
+      "date": "2/22/2026",
+      "error": true,
+      "reason": "10:00-?"
     }
   ],
   "eyin28@ndsj.org": [
@@ -1603,6 +1835,23 @@
     {
       "date": "2/14/2026",
       "durationHours": 0
+    },
+    {
+      "date": "2/19/2026",
+      "durationHours": 5
+    },
+    {
+      "date": "2/20/2026",
+      "durationHours": 8
+    },
+    {
+      "date": "2/21/2026",
+      "durationHours": 0
+    },
+    {
+      "date": "2/22/2026",
+      "error": true,
+      "reason": "10:00-?"
     }
   ],
   "ebollum27@ndsj.org": [
@@ -1709,6 +1958,22 @@
     {
       "date": "2/14/2026",
       "durationHours": 0
+    },
+    {
+      "date": "2/19/2026",
+      "durationHours": 7.43
+    },
+    {
+      "date": "2/20/2026",
+      "durationHours": 8
+    },
+    {
+      "date": "2/21/2026",
+      "durationHours": 10
+    },
+    {
+      "date": "2/22/2026",
+      "durationHours": 3.2
     }
   ],
   "ebargas27@ndsj.org": [
@@ -1816,6 +2081,24 @@
     {
       "date": "1/31/2026",
       "durationHours": 8
+    },
+    {
+      "date": "2/19/2026",
+      "error": true,
+      "reason": "9:00-?"
+    },
+    {
+      "date": "2/20/2026",
+      "durationHours": 8
+    },
+    {
+      "date": "2/21/2026",
+      "error": true,
+      "reason": "9:00-?"
+    },
+    {
+      "date": "2/22/2026",
+      "durationHours": 0
     }
   ],
   "lhackel28@ndsj.org": [
@@ -1926,6 +2209,22 @@
     {
       "date": "2/14/2026",
       "durationHours": 0
+    },
+    {
+      "date": "2/19/2026",
+      "durationHours": 0
+    },
+    {
+      "date": "2/20/2026",
+      "durationHours": 0
+    },
+    {
+      "date": "2/21/2026",
+      "durationHours": 6.5
+    },
+    {
+      "date": "2/22/2026",
+      "durationHours": 0
     }
   ],
   "hbuckner26@ndsj.org": [
@@ -2033,6 +2332,22 @@
     {
       "date": "2/14/2026",
       "durationHours": 0
+    },
+    {
+      "date": "2/19/2026",
+      "durationHours": 0
+    },
+    {
+      "date": "2/20/2026",
+      "durationHours": 8
+    },
+    {
+      "date": "2/21/2026",
+      "durationHours": 3.5
+    },
+    {
+      "date": "2/22/2026",
+      "durationHours": 6
     }
   ],
   "ijadav27@ndsj.org": [
@@ -2139,6 +2454,22 @@
     {
       "date": "1/27/2026",
       "durationHours": 0
+    },
+    {
+      "date": "2/19/2026",
+      "durationHours": 0
+    },
+    {
+      "date": "2/20/2026",
+      "durationHours": 4.5
+    },
+    {
+      "date": "2/21/2026",
+      "durationHours": 7
+    },
+    {
+      "date": "2/22/2026",
+      "durationHours": 6
     }
   ],
   "itee27@ndsj.org": [
@@ -2246,6 +2577,22 @@
     {
       "date": "2/14/2026",
       "durationHours": 8
+    },
+    {
+      "date": "2/19/2026",
+      "durationHours": 8
+    },
+    {
+      "date": "2/20/2026",
+      "durationHours": 3.53
+    },
+    {
+      "date": "2/21/2026",
+      "durationHours": 8
+    },
+    {
+      "date": "2/22/2026",
+      "durationHours": 0
     }
   ],
   "jhull28@ndsj.org": [
@@ -2353,6 +2700,23 @@
     {
       "date": "2/14/2026",
       "durationHours": 0
+    },
+    {
+      "date": "2/19/2026",
+      "durationHours": 8
+    },
+    {
+      "date": "2/20/2026",
+      "durationHours": 4.63
+    },
+    {
+      "date": "2/21/2026",
+      "error": true,
+      "reason": "9:15-?"
+    },
+    {
+      "date": "2/22/2026",
+      "durationHours": 6
     }
   ],
   "kreduta28@ndsj.org": [
@@ -2460,6 +2824,22 @@
     {
       "date": "2/14/2026",
       "durationHours": 0
+    },
+    {
+      "date": "2/19/2026",
+      "durationHours": 8
+    },
+    {
+      "date": "2/20/2026",
+      "durationHours": 8
+    },
+    {
+      "date": "2/21/2026",
+      "durationHours": 0
+    },
+    {
+      "date": "2/22/2026",
+      "durationHours": 6
     }
   ],
   "kkamath28@ndsj.org": [
@@ -2568,6 +2948,22 @@
     {
       "date": "2/14/2026",
       "durationHours": 0
+    },
+    {
+      "date": "2/19/2026",
+      "durationHours": 8
+    },
+    {
+      "date": "2/20/2026",
+      "durationHours": 8
+    },
+    {
+      "date": "2/21/2026",
+      "durationHours": 8
+    },
+    {
+      "date": "2/22/2026",
+      "durationHours": 6
     }
   ],
   "kchakankar27@ndsj.org": [
@@ -2610,10 +3006,6 @@
     {
       "date": "1/22/2026",
       "durationHours": 3
-    },
-    {
-      "date": "1/23/2026",
-      "durationHours": 2.5
     },
     {
       "date": "1/24/2026",
@@ -2673,7 +3065,27 @@
     },
     {
       "date": "2/14/2026",
-      "durationHours": 4
+      "durationHours": 3
+    },
+    {
+      "date": "1/23/2026",
+      "durationHours": 1.5
+    },
+    {
+      "date": "2/22/2026",
+      "durationHours": 0
+    },
+    {
+      "date": "2/19/2026",
+      "durationHours": 3
+    },
+    {
+      "date": "2/20/2026",
+      "durationHours": 4.5
+    },
+    {
+      "date": "2/21/2026",
+      "durationHours": 7
     }
   ],
   "knguyen27@ndsj.org": [
@@ -2782,6 +3194,25 @@
     {
       "date": "1/31/2026",
       "durationHours": 8
+    },
+    {
+      "date": "2/19/2026",
+      "error": true,
+      "reason": "9:00-?"
+    },
+    {
+      "date": "2/20/2026",
+      "durationHours": 5
+    },
+    {
+      "date": "2/21/2026",
+      "error": true,
+      "reason": "9:00-?"
+    },
+    {
+      "date": "2/22/2026",
+      "error": true,
+      "reason": "10:00-?"
     }
   ],
   "mnair28@ndsj.org": [
@@ -2889,6 +3320,22 @@
     {
       "date": "1/31/2026",
       "durationHours": 5.5
+    },
+    {
+      "date": "2/19/2026",
+      "durationHours": 8
+    },
+    {
+      "date": "2/20/2026",
+      "durationHours": 8
+    },
+    {
+      "date": "2/21/2026",
+      "durationHours": 0
+    },
+    {
+      "date": "2/22/2026",
+      "durationHours": 0
     }
   ],
   "nyadeta27@ndsj.org": [
@@ -2995,6 +3442,22 @@
     {
       "date": "2/14/2026",
       "durationHours": 8
+    },
+    {
+      "date": "2/19/2026",
+      "durationHours": 8
+    },
+    {
+      "date": "2/20/2026",
+      "durationHours": 8
+    },
+    {
+      "date": "2/21/2026",
+      "durationHours": 8
+    },
+    {
+      "date": "2/22/2026",
+      "durationHours": 6
     }
   ],
   "nraghavan28@ndsj.org": [
@@ -3100,6 +3563,22 @@
     },
     {
       "date": "2/14/2026",
+      "durationHours": 0
+    },
+    {
+      "date": "2/19/2026",
+      "durationHours": 5.73
+    },
+    {
+      "date": "2/20/2026",
+      "durationHours": 7.3
+    },
+    {
+      "date": "2/21/2026",
+      "durationHours": 6.28
+    },
+    {
+      "date": "2/22/2026",
       "durationHours": 0
     }
   ],
@@ -3207,6 +3686,22 @@
     {
       "date": "1/30/2026",
       "durationHours": 4.5
+    },
+    {
+      "date": "2/19/2026",
+      "durationHours": 8
+    },
+    {
+      "date": "2/20/2026",
+      "durationHours": 8
+    },
+    {
+      "date": "2/21/2026",
+      "durationHours": 0
+    },
+    {
+      "date": "2/22/2026",
+      "durationHours": 0
     }
   ],
   "ptran26@ndsj.org": [
@@ -3313,6 +3808,22 @@
     },
     {
       "date": "2/14/2026",
+      "durationHours": 0
+    },
+    {
+      "date": "2/19/2026",
+      "durationHours": 8
+    },
+    {
+      "date": "2/20/2026",
+      "durationHours": 7.4
+    },
+    {
+      "date": "2/21/2026",
+      "durationHours": 6.39
+    },
+    {
+      "date": "2/22/2026",
       "durationHours": 0
     }
   ],
@@ -3421,6 +3932,22 @@
     {
       "date": "2/14/2026",
       "durationHours": 4
+    },
+    {
+      "date": "2/19/2026",
+      "durationHours": 8
+    },
+    {
+      "date": "2/20/2026",
+      "durationHours": 8
+    },
+    {
+      "date": "2/21/2026",
+      "durationHours": 0
+    },
+    {
+      "date": "2/22/2026",
+      "durationHours": 6
     }
   ],
   "rcada27@ndsj.org": [
@@ -3530,6 +4057,23 @@
     {
       "date": "1/31/2026",
       "durationHours": 7
+    },
+    {
+      "date": "2/19/2026",
+      "durationHours": 7
+    },
+    {
+      "date": "2/20/2026",
+      "durationHours": 0
+    },
+    {
+      "date": "2/21/2026",
+      "durationHours": 0
+    },
+    {
+      "date": "2/22/2026",
+      "error": true,
+      "reason": "10:00-?"
     }
   ],
   "rpadhi28@ndsj.org": [
@@ -3638,6 +4182,22 @@
       "date": "2/14/2026",
       "error": true,
       "reason": "9:00-?"
+    },
+    {
+      "date": "2/19/2026",
+      "durationHours": 8
+    },
+    {
+      "date": "2/20/2026",
+      "durationHours": 8
+    },
+    {
+      "date": "2/21/2026",
+      "durationHours": 0
+    },
+    {
+      "date": "2/22/2026",
+      "durationHours": 0
     }
   ],
   "spuri28@ndsj.org": [
@@ -3749,6 +4309,23 @@
     {
       "date": "1/31/2026",
       "durationHours": 8
+    },
+    {
+      "date": "2/19/2026",
+      "error": true,
+      "reason": "9:00-?"
+    },
+    {
+      "date": "2/20/2026",
+      "durationHours": 8
+    },
+    {
+      "date": "2/21/2026",
+      "durationHours": 0
+    },
+    {
+      "date": "2/22/2026",
+      "durationHours": 6
     }
   ],
   "ssuresh28@ndsj.org": [
@@ -3855,6 +4432,22 @@
     {
       "date": "2/14/2026",
       "durationHours": 0
+    },
+    {
+      "date": "2/19/2026",
+      "durationHours": 7.75
+    },
+    {
+      "date": "2/20/2026",
+      "durationHours": 8
+    },
+    {
+      "date": "2/21/2026",
+      "durationHours": 8
+    },
+    {
+      "date": "2/22/2026",
+      "durationHours": 6
     }
   ],
   "spothula28@ndsj.org": [
@@ -3961,6 +4554,22 @@
     {
       "date": "1/30/2026",
       "durationHours": 2.5
+    },
+    {
+      "date": "2/19/2026",
+      "durationHours": 0
+    },
+    {
+      "date": "2/20/2026",
+      "durationHours": 0
+    },
+    {
+      "date": "2/21/2026",
+      "durationHours": 0
+    },
+    {
+      "date": "2/22/2026",
+      "durationHours": 0
     }
   ],
   "ssharma28@ndsj.org": [
@@ -4067,6 +4676,23 @@
     {
       "date": "2/14/2026",
       "durationHours": 0
+    },
+    {
+      "date": "2/19/2026",
+      "durationHours": 8
+    },
+    {
+      "date": "2/20/2026",
+      "durationHours": 8
+    },
+    {
+      "date": "2/21/2026",
+      "durationHours": 8
+    },
+    {
+      "date": "2/22/2026",
+      "error": true,
+      "reason": "10:00-?"
     }
   ],
   "stiwary27@ndsj.org": [
@@ -4175,6 +4801,24 @@
     {
       "date": "1/31/2026",
       "durationHours": 6
+    },
+    {
+      "date": "2/19/2026",
+      "error": true,
+      "reason": "?-5:00"
+    },
+    {
+      "date": "2/20/2026",
+      "durationHours": 0
+    },
+    {
+      "date": "2/21/2026",
+      "error": true,
+      "reason": "?-5:00"
+    },
+    {
+      "date": "2/22/2026",
+      "durationHours": 0
     }
   ],
   "svepa28@ndsj.org": [
@@ -4282,6 +4926,23 @@
       "date": "2/14/2026",
       "error": true,
       "reason": "9:30-?"
+    },
+    {
+      "date": "2/19/2026",
+      "error": true,
+      "reason": "9:00-?"
+    },
+    {
+      "date": "2/20/2026",
+      "durationHours": 0
+    },
+    {
+      "date": "2/21/2026",
+      "durationHours": 0
+    },
+    {
+      "date": "2/22/2026",
+      "durationHours": 0
     }
   ],
   "shiremagalur27@ndsj.org": [
@@ -4389,6 +5050,23 @@
     {
       "date": "2/14/2026",
       "durationHours": 4
+    },
+    {
+      "date": "2/19/2026",
+      "durationHours": 8
+    },
+    {
+      "date": "2/20/2026",
+      "durationHours": 4.5
+    },
+    {
+      "date": "2/21/2026",
+      "durationHours": 8
+    },
+    {
+      "date": "2/22/2026",
+      "error": true,
+      "reason": "10:00-?"
     }
   ],
   "sshen28@ndsj.org": [
@@ -4498,6 +5176,22 @@
     {
       "date": "2/14/2026",
       "durationHours": 8
+    },
+    {
+      "date": "2/19/2026",
+      "durationHours": 8
+    },
+    {
+      "date": "2/20/2026",
+      "durationHours": 8
+    },
+    {
+      "date": "2/21/2026",
+      "durationHours": 10
+    },
+    {
+      "date": "2/22/2026",
+      "durationHours": 6
     }
   ],
   "sreenikajaini28@ndsj.org": [
@@ -4599,12 +5293,27 @@
       "reason": "?-6:00"
     },
     {
-      "date": "2/13/2026",
-      "error": true,
-      "reason": "?-6:30"
+      "date": "2/14/2026",
+      "durationHours": 0
     },
     {
-      "date": "2/14/2026",
+      "date": "2/13/2026",
+      "durationHours": 5
+    },
+    {
+      "date": "2/19/2026",
+      "durationHours": 7.5
+    },
+    {
+      "date": "2/20/2026",
+      "durationHours": 7.5
+    },
+    {
+      "date": "2/21/2026",
+      "durationHours": 0
+    },
+    {
+      "date": "2/22/2026",
       "durationHours": 0
     }
   ],
@@ -4712,6 +5421,22 @@
     {
       "date": "2/14/2026",
       "durationHours": 0
+    },
+    {
+      "date": "2/19/2026",
+      "durationHours": 8
+    },
+    {
+      "date": "2/20/2026",
+      "durationHours": 8
+    },
+    {
+      "date": "2/21/2026",
+      "durationHours": 0
+    },
+    {
+      "date": "2/22/2026",
+      "durationHours": 6
     }
   ],
   "ttony27@ndsj.org": [
@@ -4819,6 +5544,22 @@
     {
       "date": "2/14/2026",
       "durationHours": 3
+    },
+    {
+      "date": "2/19/2026",
+      "durationHours": 8
+    },
+    {
+      "date": "2/20/2026",
+      "durationHours": 4
+    },
+    {
+      "date": "2/21/2026",
+      "durationHours": 5.54
+    },
+    {
+      "date": "2/22/2026",
+      "durationHours": 0
     }
   ],
   "thensley26@ndsj.org": [
@@ -4925,6 +5666,22 @@
     {
       "date": "2/14/2026",
       "durationHours": 8
+    },
+    {
+      "date": "2/19/2026",
+      "durationHours": 0
+    },
+    {
+      "date": "2/20/2026",
+      "durationHours": 0
+    },
+    {
+      "date": "2/21/2026",
+      "durationHours": 0
+    },
+    {
+      "date": "2/22/2026",
+      "durationHours": 0
     }
   ],
   "zfugman28@ndsj.org": [
@@ -5031,6 +5788,23 @@
     {
       "date": "1/31/2026",
       "durationHours": 8
+    },
+    {
+      "date": "2/19/2026",
+      "durationHours": 8
+    },
+    {
+      "date": "2/20/2026",
+      "durationHours": 8
+    },
+    {
+      "date": "2/21/2026",
+      "error": true,
+      "reason": "9:00-?"
+    },
+    {
+      "date": "2/22/2026",
+      "durationHours": 6
     }
   ],
   "aparikh29@ndsj.org": [
@@ -5139,6 +5913,22 @@
       "date": "2/14/2026",
       "error": true,
       "reason": "12:30-?"
+    },
+    {
+      "date": "2/19/2026",
+      "durationHours": 8
+    },
+    {
+      "date": "2/20/2026",
+      "durationHours": 8
+    },
+    {
+      "date": "2/21/2026",
+      "durationHours": 0
+    },
+    {
+      "date": "2/22/2026",
+      "durationHours": 0
     }
   ],
   "ahui29@ndsj.org": [
@@ -5246,6 +6036,22 @@
     {
       "date": "2/14/2026",
       "durationHours": 5.15
+    },
+    {
+      "date": "2/19/2026",
+      "durationHours": 0
+    },
+    {
+      "date": "2/20/2026",
+      "durationHours": 8
+    },
+    {
+      "date": "2/21/2026",
+      "durationHours": 8
+    },
+    {
+      "date": "2/22/2026",
+      "durationHours": 6
     }
   ],
   "ahislop29@ndsj.org": [
@@ -5360,6 +6166,22 @@
     {
       "date": "2/14/2026",
       "durationHours": 0
+    },
+    {
+      "date": "2/19/2026",
+      "durationHours": 8
+    },
+    {
+      "date": "2/20/2026",
+      "durationHours": 8
+    },
+    {
+      "date": "2/21/2026",
+      "durationHours": 0
+    },
+    {
+      "date": "2/22/2026",
+      "durationHours": 6
     }
   ],
   "anikabajpai29@ndsj.org": [
@@ -5466,6 +6288,22 @@
     {
       "date": "2/14/2026",
       "durationHours": 4
+    },
+    {
+      "date": "2/19/2026",
+      "durationHours": 8
+    },
+    {
+      "date": "2/20/2026",
+      "durationHours": 8
+    },
+    {
+      "date": "2/21/2026",
+      "durationHours": 0
+    },
+    {
+      "date": "2/22/2026",
+      "durationHours": 0
     }
   ],
   "azaliamartinez29@ndsj.org": [
@@ -5572,6 +6410,22 @@
     {
       "date": "2/14/2026",
       "durationHours": 0
+    },
+    {
+      "date": "2/19/2026",
+      "durationHours": 0
+    },
+    {
+      "date": "2/20/2026",
+      "durationHours": 0
+    },
+    {
+      "date": "2/21/2026",
+      "durationHours": 8
+    },
+    {
+      "date": "2/22/2026",
+      "durationHours": 4
     }
   ],
   "estelamartinez29@ndsj.org": [
@@ -5683,6 +6537,23 @@
     {
       "date": "2/14/2026",
       "durationHours": 0
+    },
+    {
+      "date": "2/19/2026",
+      "durationHours": 8
+    },
+    {
+      "date": "2/20/2026",
+      "durationHours": 8
+    },
+    {
+      "date": "2/21/2026",
+      "error": true,
+      "reason": "?-5:00"
+    },
+    {
+      "date": "2/22/2026",
+      "durationHours": 0
     }
   ],
   "lmendoza29@ndsj.org": [
@@ -5790,6 +6661,22 @@
     {
       "date": "1/27/2026",
       "durationHours": 2.5
+    },
+    {
+      "date": "2/19/2026",
+      "durationHours": 8
+    },
+    {
+      "date": "2/20/2026",
+      "durationHours": 0
+    },
+    {
+      "date": "2/21/2026",
+      "durationHours": 0
+    },
+    {
+      "date": "2/22/2026",
+      "durationHours": 0
     }
   ],
   "mwu29@ndsj.org": [
@@ -5896,6 +6783,22 @@
     {
       "date": "2/14/2026",
       "durationHours": 4
+    },
+    {
+      "date": "2/19/2026",
+      "durationHours": 0
+    },
+    {
+      "date": "2/20/2026",
+      "durationHours": 8
+    },
+    {
+      "date": "2/21/2026",
+      "durationHours": 8
+    },
+    {
+      "date": "2/22/2026",
+      "durationHours": 4.65
     }
   ],
   "marmstrong29@ndsj.org": [
@@ -6003,6 +6906,22 @@
     {
       "date": "1/31/2026",
       "durationHours": 7.66
+    },
+    {
+      "date": "2/19/2026",
+      "durationHours": 8
+    },
+    {
+      "date": "2/20/2026",
+      "durationHours": 8
+    },
+    {
+      "date": "2/21/2026",
+      "durationHours": 0
+    },
+    {
+      "date": "2/22/2026",
+      "durationHours": 3.35
     }
   ],
   "nrallapalli28@ndsj.org": [
@@ -6112,6 +7031,22 @@
     },
     {
       "date": "2/14/2026",
+      "durationHours": 0
+    },
+    {
+      "date": "2/19/2026",
+      "durationHours": 8
+    },
+    {
+      "date": "2/20/2026",
+      "durationHours": 0
+    },
+    {
+      "date": "2/21/2026",
+      "durationHours": 0
+    },
+    {
+      "date": "2/22/2026",
       "durationHours": 0
     }
   ],
@@ -6223,6 +7158,22 @@
     {
       "date": "2/14/2026",
       "durationHours": 8
+    },
+    {
+      "date": "2/19/2026",
+      "durationHours": 0
+    },
+    {
+      "date": "2/20/2026",
+      "durationHours": 0
+    },
+    {
+      "date": "2/21/2026",
+      "durationHours": 8
+    },
+    {
+      "date": "2/22/2026",
+      "durationHours": 6
     }
   ],
   "saanvishah29@ndsj.org": [
@@ -6330,6 +7281,23 @@
     {
       "date": "1/27/2026",
       "durationHours": 2.5
+    },
+    {
+      "date": "2/19/2026",
+      "durationHours": 8
+    },
+    {
+      "date": "2/20/2026",
+      "durationHours": 6.19
+    },
+    {
+      "date": "2/21/2026",
+      "error": true,
+      "reason": "9:00-?"
+    },
+    {
+      "date": "2/22/2026",
+      "durationHours": 0
     }
   ],
   "sbargal29@ndsj.org": [
@@ -6438,6 +7406,22 @@
     {
       "date": "1/27/2026",
       "durationHours": 2.5
+    },
+    {
+      "date": "2/19/2026",
+      "durationHours": 8
+    },
+    {
+      "date": "2/20/2026",
+      "durationHours": 8
+    },
+    {
+      "date": "2/21/2026",
+      "durationHours": 0
+    },
+    {
+      "date": "2/22/2026",
+      "durationHours": 6
     }
   ],
   "sladd28@ndsj.org": [
@@ -6546,6 +7530,23 @@
     {
       "date": "2/14/2026",
       "durationHours": 0
+    },
+    {
+      "date": "2/19/2026",
+      "durationHours": 0
+    },
+    {
+      "date": "2/20/2026",
+      "error": true,
+      "reason": "?-5:00"
+    },
+    {
+      "date": "2/21/2026",
+      "durationHours": 5.5
+    },
+    {
+      "date": "2/22/2026",
+      "durationHours": 6
     }
   ],
   "snalgonda29@ndsj.org": [
@@ -6652,6 +7653,22 @@
     {
       "date": "1/27/2026",
       "durationHours": 2.5
+    },
+    {
+      "date": "2/19/2026",
+      "durationHours": 8
+    },
+    {
+      "date": "2/20/2026",
+      "durationHours": 8
+    },
+    {
+      "date": "2/21/2026",
+      "durationHours": 8
+    },
+    {
+      "date": "2/22/2026",
+      "durationHours": 0
     }
   ],
   "sanviprasad29@ndsj.org": [
@@ -6760,6 +7777,22 @@
       "date": "2/14/2026",
       "error": true,
       "reason": "9:00-?"
+    },
+    {
+      "date": "2/19/2026",
+      "durationHours": 8
+    },
+    {
+      "date": "2/20/2026",
+      "durationHours": 8
+    },
+    {
+      "date": "2/21/2026",
+      "durationHours": 0
+    },
+    {
+      "date": "2/22/2026",
+      "durationHours": 6
     }
   ],
   "sagarwal29@ndsj.org": [
@@ -6866,6 +7899,22 @@
     {
       "date": "2/14/2026",
       "durationHours": 5.5
+    },
+    {
+      "date": "2/19/2026",
+      "durationHours": 7.5
+    },
+    {
+      "date": "2/20/2026",
+      "durationHours": 8
+    },
+    {
+      "date": "2/21/2026",
+      "durationHours": 0
+    },
+    {
+      "date": "2/22/2026",
+      "durationHours": 0
     }
   ],
   "shriyaprasad29@ndsj.org": [
@@ -6974,6 +8023,22 @@
       "date": "2/14/2026",
       "error": true,
       "reason": "9:15-?"
+    },
+    {
+      "date": "2/19/2026",
+      "durationHours": 8
+    },
+    {
+      "date": "2/20/2026",
+      "durationHours": 8
+    },
+    {
+      "date": "2/21/2026",
+      "durationHours": 0
+    },
+    {
+      "date": "2/22/2026",
+      "durationHours": 0
     }
   ],
   "svijayan28@ndsj.org": [
@@ -7081,6 +8146,22 @@
     {
       "date": "2/14/2026",
       "durationHours": 0
+    },
+    {
+      "date": "2/19/2026",
+      "durationHours": 0
+    },
+    {
+      "date": "2/20/2026",
+      "durationHours": 0
+    },
+    {
+      "date": "2/21/2026",
+      "durationHours": 0
+    },
+    {
+      "date": "2/22/2026",
+      "durationHours": 0
     }
   ],
   "saranda29@ndsj.org": [
@@ -7187,6 +8268,22 @@
     {
       "date": "2/14/2026",
       "durationHours": 5.5
+    },
+    {
+      "date": "2/19/2026",
+      "durationHours": 0
+    },
+    {
+      "date": "2/20/2026",
+      "durationHours": 7.25
+    },
+    {
+      "date": "2/21/2026",
+      "durationHours": 8
+    },
+    {
+      "date": "2/22/2026",
+      "durationHours": 0
     }
   ],
   "tbalaji29@ndsj.org": [
@@ -7217,11 +8314,6 @@
     {
       "date": "1/19/2026",
       "durationHours": 8
-    },
-    {
-      "date": "1/20/2026",
-      "error": true,
-      "reason": "3:30-?"
     },
     {
       "date": "1/23/2026",
@@ -7295,6 +8387,26 @@
     {
       "date": "2/14/2026",
       "durationHours": 0
+    },
+    {
+      "date": "1/20/2026",
+      "durationHours": 2.5
+    },
+    {
+      "date": "2/19/2026",
+      "durationHours": 8
+    },
+    {
+      "date": "2/20/2026",
+      "durationHours": 8
+    },
+    {
+      "date": "2/21/2026",
+      "durationHours": 8
+    },
+    {
+      "date": "2/22/2026",
+      "durationHours": 6
     }
   ],
   "yhashmi29@ndsj.org": [
@@ -7402,6 +8514,22 @@
       "date": "2/14/2026",
       "error": true,
       "reason": "9:00-?"
+    },
+    {
+      "date": "2/19/2026",
+      "durationHours": 0
+    },
+    {
+      "date": "2/20/2026",
+      "durationHours": 8
+    },
+    {
+      "date": "2/21/2026",
+      "durationHours": 6.52
+    },
+    {
+      "date": "2/22/2026",
+      "durationHours": 0
     }
   ],
   "atomar28@ndsj.org": [
@@ -7509,6 +8637,22 @@
     {
       "date": "1/27/2026",
       "durationHours": 2.25
+    },
+    {
+      "date": "2/19/2026",
+      "durationHours": 0
+    },
+    {
+      "date": "2/20/2026",
+      "durationHours": 0
+    },
+    {
+      "date": "2/21/2026",
+      "durationHours": 0
+    },
+    {
+      "date": "2/22/2026",
+      "durationHours": 0
     }
   ],
   "asiddabathuni27@ndsj.org": [
@@ -7617,6 +8761,22 @@
     {
       "date": "2/14/2026",
       "durationHours": 0
+    },
+    {
+      "date": "2/19/2026",
+      "durationHours": 0
+    },
+    {
+      "date": "2/20/2026",
+      "durationHours": 0
+    },
+    {
+      "date": "2/21/2026",
+      "durationHours": 0
+    },
+    {
+      "date": "2/22/2026",
+      "durationHours": 0
     }
   ],
   "team1967@ndsj.org": [
@@ -7643,6 +8803,22 @@
     },
     {
       "date": "2/14/2026",
+      "durationHours": 0
+    },
+    {
+      "date": "2/19/2026",
+      "durationHours": 0
+    },
+    {
+      "date": "2/20/2026",
+      "durationHours": 0
+    },
+    {
+      "date": "2/21/2026",
+      "durationHours": 0
+    },
+    {
+      "date": "2/22/2026",
       "durationHours": 0
     }
   ]

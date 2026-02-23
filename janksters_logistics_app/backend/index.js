@@ -627,6 +627,38 @@ app.get("/attendance/team/full", (req, res) => {
   }
 });
 
+app.get('/total-hours', (req, res) => {
+  try {
+    const MASTER_JSON_PATH = path.join(__dirname, 'attendance_master.json');
+
+    if (!fs.existsSync(MASTER_JSON_PATH)) {
+      return res.status(404).json({ error: 'Master attendance file not found' });
+    }
+
+    const raw = fs.readFileSync(MASTER_JSON_PATH, 'utf8');
+    const attendanceData = JSON.parse(raw);
+
+    let total = 0;
+
+    Object.values(attendanceData).forEach(records => {
+      records.forEach(entry => {
+        if (
+          typeof entry.durationHours === 'number' &&
+          !entry.error
+        ) {
+          total += entry.durationHours;
+        }
+      });
+    });
+
+    res.json({ totalHours: parseFloat(total.toFixed(2)) });
+
+  } catch (err) {
+    console.error('Total hours calculation error:', err);
+    res.status(500).json({ error: 'Failed to calculate total hours' });
+  }
+});
+
 
 app.get('/', (req, res) => {
   res.send('backend is running');

@@ -191,7 +191,7 @@ class _AttendancePageState extends State<AttendancePage> {
       return sum + ((m['durationHours'] ?? 0.0) as double);
     });
 
-    return (attendedHours / totalHoursExpected * 100).clamp(0.0, 100.0);
+    return (attendedHours / totalHoursExpected * 100);
   }
 
   bool get isDeveloper => developerEmails.contains(userEmail);

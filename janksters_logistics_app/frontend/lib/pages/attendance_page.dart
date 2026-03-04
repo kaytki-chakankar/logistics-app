@@ -124,7 +124,7 @@ class _AttendancePageState extends State<AttendancePage> {
           meetings.sort((a, b) {
             final dateA = DateTime.tryParse(a['date'] ?? '') ?? DateTime(1970);
             final dateB = DateTime.tryParse(b['date'] ?? '') ?? DateTime(1970);
-            return dateA.compareTo(dateB);;
+            return dateA.compareTo(dateB);
           });
 
           errorMessage = '';
@@ -160,7 +160,7 @@ class _AttendancePageState extends State<AttendancePage> {
             meetings.sort((a, b) {
               final dateA = DateTime.tryParse(a['date'] ?? '') ?? DateTime(1970);
               final dateB = DateTime.tryParse(b['date'] ?? '') ?? DateTime(1970);
-              return dateA.compareTo(dateB);;
+              return dateA.compareTo(dateB);
             });
 
             errorMessage = 'Showing cached data (offline or error)';

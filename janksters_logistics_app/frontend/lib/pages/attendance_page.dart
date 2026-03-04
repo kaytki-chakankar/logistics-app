@@ -184,7 +184,7 @@ class _AttendancePageState extends State<AttendancePage> {
   double calculateFullSemesterAttendance() {
     if (meetings.isEmpty) return 0.0;
 
-    const totalHoursExpected = 140;
+    const totalHoursExpected = 237;
 
     final attendedHours = meetings.fold<double>(0.0, (sum, m) {
       if (m['error'] == true || m['error']?.toString() == 'true') return sum;
@@ -369,7 +369,7 @@ class _AttendancePageState extends State<AttendancePage> {
                               primaryRed: primaryRed,
                               accentRed: accentRed,
                               size: 200,
-                              label: 'Full\nSemester',
+                              label: 'Build + Comp\nSeason',
                             ),
                           ],
                         ),

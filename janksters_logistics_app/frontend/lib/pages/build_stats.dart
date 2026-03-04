@@ -1,24 +1,27 @@
+
 import 'dart:convert';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:http/http.dart' as http;
+import 'package:janksters_logistics_app/pages/attendance_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'dev_pages/dev_page.dart';
 import 'links_page.dart';
 import 'preseason_stats.dart';
-import 'build_stats.dart';
 
-class AttendancePage extends StatefulWidget {
-  const AttendancePage({super.key});
+
+
+class BuildStats extends StatefulWidget {
+  const BuildStats({super.key});
 
   @override
-  State<AttendancePage> createState() => _AttendancePageState();
+  State<BuildStats> createState() => _BuildStats();
 }
 
-class _AttendancePageState extends State<AttendancePage> {
+class _BuildStats extends State<BuildStats> {
   double? totalHours = 0;
   double? attendancePercentage;
   List<dynamic> meetings = [];
@@ -46,6 +49,7 @@ class _AttendancePageState extends State<AttendancePage> {
   void initState() {
     super.initState();
     userEmail = FirebaseAuth.instance.currentUser?.email?.toLowerCase();
+    // userEmail = "abhardwaj27@ndsj.org"; 
     _loadCachedAttendance();
     fetchAttendance();
   }
@@ -60,20 +64,8 @@ class _AttendancePageState extends State<AttendancePage> {
           totalHours = (cachedData['totalHoursAttended'] as num?)?.toDouble() ?? 0.0;
           attendancePercentage = (cachedData['attendancePercentage'] as num?)?.toDouble() ?? 0.0;
           meetings = (cachedData['meetings'] as List<dynamic>?)
-                  ?.where((m) =>
-                      m['date'] != null &&
-                      (m.containsKey('durationHours') ||
-                          m['error'] == true ||
-                          m['error']?.toString() == 'true'))
-                  .toList() ??
-              [];
-
-          meetings.sort((a, b) {
-            final dateA = DateTime.tryParse(a['date'] ?? '') ?? DateTime(1970);
-            final dateB = DateTime.tryParse(b['date'] ?? '') ?? DateTime(1970);
-            return dateA.compareTo(dateB);
-          });
-
+              ?.where((m) => m['date'] != null && (m.containsKey('durationHours') || m['error'] == true || m['error']?.toString() == 'true'))
+              .toList() ?? [];
           errorMessage = 'Showing cached data';
         });
         print('Loaded cached meetings: $meetings');
@@ -96,11 +88,10 @@ class _AttendancePageState extends State<AttendancePage> {
       errorMessage = '';
     });
 
-    final url = Uri.parse('https://logistics-app-backend-o9t7.onrender.com/attendance/$userEmail');
+    final url = Uri.parse('https://logistics-app-backend-o9t7.onrender.com/attendance/build/$userEmail');
 
-    // testing purposes only
-    // final url = Uri.parse('http://localhost:3000/attendance/$userEmail');
-
+    // testing poses only
+    // final url = Uri.parse('http://localhost:3000/attendance/build/$userEmail');
 
     try {
       final response = await http.get(url);
@@ -113,20 +104,8 @@ class _AttendancePageState extends State<AttendancePage> {
           totalHours = (data['totalHoursAttended'] as num?)?.toDouble() ?? 0.0;
           attendancePercentage = (data['attendancePercentage'] as num?)?.toDouble() ?? 0.0;
           meetings = (data['meetings'] as List<dynamic>?)
-                  ?.where((m) =>
-                      m['date'] != null &&
-                      (m.containsKey('durationHours') ||
-                          m['error'] == true ||
-                          m['error']?.toString() == 'true'))
-                  .toList() ??
-              [];
-
-          meetings.sort((a, b) {
-            final dateA = DateTime.tryParse(a['date'] ?? '') ?? DateTime(1970);
-            final dateB = DateTime.tryParse(b['date'] ?? '') ?? DateTime(1970);
-            return dateA.compareTo(dateB);;
-          });
-
+              ?.where((m) => m['date'] != null && (m.containsKey('durationHours') || m['error'] == true || m['error']?.toString() == 'true'))
+              .toList() ?? [];
           errorMessage = '';
         });
 
@@ -149,20 +128,8 @@ class _AttendancePageState extends State<AttendancePage> {
             totalHours = (cachedData['totalHoursAttended'] as num?)?.toDouble() ?? 0.0;
             attendancePercentage = (cachedData['attendancePercentage'] as num?)?.toDouble() ?? 0.0;
             meetings = (cachedData['meetings'] as List<dynamic>?)
-                    ?.where((m) =>
-                        m['date'] != null &&
-                        (m.containsKey('durationHours') ||
-                            m['error'] == true ||
-                            m['error']?.toString() == 'true'))
-                    .toList() ??
-                [];
-
-            meetings.sort((a, b) {
-              final dateA = DateTime.tryParse(a['date'] ?? '') ?? DateTime(1970);
-              final dateB = DateTime.tryParse(b['date'] ?? '') ?? DateTime(1970);
-              return dateA.compareTo(dateB);;
-            });
-
+                ?.where((m) => m['date'] != null && (m.containsKey('durationHours') || m['error'] == true || m['error']?.toString() == 'true'))
+                .toList() ?? [];
             errorMessage = 'Showing cached data (offline or error)';
           });
           print('Loaded cached meetings after fetch error: $meetings');
@@ -179,19 +146,6 @@ class _AttendancePageState extends State<AttendancePage> {
     } finally {
       if (mounted) setState(() => isLoading = false);
     }
-  }
-
-  double calculateFullSemesterAttendance() {
-    if (meetings.isEmpty) return 0.0;
-
-    const totalHoursExpected = 140;
-
-    final attendedHours = meetings.fold<double>(0.0, (sum, m) {
-      if (m['error'] == true || m['error']?.toString() == 'true') return sum;
-      return sum + ((m['durationHours'] ?? 0.0) as double);
-    });
-
-    return (attendedHours / totalHoursExpected * 100).clamp(0.0, 100.0);
   }
 
   bool get isDeveloper => developerEmails.contains(userEmail);
@@ -223,13 +177,19 @@ class _AttendancePageState extends State<AttendancePage> {
                 ),
               ),
               ListTile(
-                leading: Icon(Icons.home, color: primaryRed),
+                leading: Icon(Icons.link, color: primaryRed),
                 title: Text('Attendance',
                     style: TextStyle(
                         fontFamily: 'Poppins',
                         color: blackText,
                         fontWeight: FontWeight.w600)),
-                onTap: () => Navigator.pop(context),
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const AttendancePage()),
+                  );
+                },
               ),
               if (isDeveloper)
                 ListTile(
@@ -352,26 +312,36 @@ class _AttendancePageState extends State<AttendancePage> {
                     padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                     child: Column(
                       children: [
-                        const SizedBox(height: 32),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
+                        Column(
                           children: [
-                            StylishCircularIndicator(
-                              percentage: attendancePercentage ?? 0,
-                              primaryRed: primaryRed,
-                              accentRed: accentRed,
-                              size: 250,
-                              label: 'Attendance',
+                            Text(
+                              'Build Season Attendance',
+                              style: TextStyle(
+                                fontFamily: 'Poppins',
+                                fontSize: 28,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black87,
+                              ),
                             ),
-                            const SizedBox(width: 75),
-                            StylishCircularIndicator(
-                              percentage: calculateFullSemesterAttendance(),
-                              primaryRed: primaryRed,
-                              accentRed: accentRed,
-                              size: 200,
-                              label: 'Full\nSemester',
+                            const SizedBox(height: 8),
+                            Text(
+                              'These are your attendance records from the 2026 build season',
+                              style: TextStyle(
+                                fontFamily: 'Poppins',
+                                fontSize: 16,
+                                color: Colors.black54,
+                              ),
+                              textAlign: TextAlign.center,
                             ),
+                            const SizedBox(height: 24),
                           ],
+                        ),
+                        StylishCircularIndicator(
+                          percentage: attendancePercentage ?? 0,
+                          primaryRed: primaryRed,
+                          accentRed: accentRed,
+                          size: 240,
+                          label: 'Attendance',
                         ),
                         const SizedBox(height: 24),
                         Expanded(
@@ -394,8 +364,7 @@ class _AttendancePageState extends State<AttendancePage> {
                                     final date = meeting['date'] ?? 'Unknown date';
                                     final duration = (meeting['durationHours'] ?? 0.0) as double;
 
-                                    if (meeting['error'] == true ||
-                                        meeting['error']?.toString() == 'true') {
+                                    if (meeting['error'] == true || meeting['error']?.toString() == 'true') {
                                       final reason = meeting['reason'] ?? 'Flagged entry';
                                       return ListTile(
                                         leading: Icon(Icons.warning, color: primaryRed),
@@ -523,7 +492,6 @@ class StylishCircularIndicator extends StatelessWidget {
               const SizedBox(height: 6),
               Text(
                 label ?? 'Attendance',
-                textAlign: TextAlign.center,
                 style: TextStyle(
                   fontFamily: 'Poppins',
                   fontSize: size / 10,

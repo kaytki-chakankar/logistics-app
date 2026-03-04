@@ -10,6 +10,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'dev_pages/dev_page.dart';
 import 'links_page.dart';
+import 'build_stats.dart';
 
 
 class PreseasonStats extends StatefulWidget {
@@ -232,6 +233,21 @@ class _PreseasonStatsState extends State<PreseasonStats> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(builder: (_) => const PreseasonStats()),
+                  );
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.calendar_month, color: primaryRed),
+                title: Text('Build Season Attendance',
+                    style: TextStyle(
+                        fontFamily: 'Poppins',
+                        color: blackText,
+                        fontWeight: FontWeight.w600)),
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const BuildStats()),
                   );
                 },
               ),

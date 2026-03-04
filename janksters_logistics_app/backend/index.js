@@ -320,6 +320,48 @@ app.get('/attendance/preseason/:email', async (req, res) => {
   }
 });
 
+app.get('/attendance/build/:email', async (req, res) => {
+  console.log('HIT /attendance/build/:email for:', req.params.email);
+  const email = req.params.email?.toLowerCase();
+  if (!email) return res.status(400).json({ error: 'Email required' });
+
+  try {
+    const masterPath = path.join(__dirname, 'build_master.json');
+    if (!fs.existsSync(masterPath)) {
+      return res.status(500).json({ error: 'Master attendance file not found. Run /attendance/update first.' });
+    }
+
+    const masterData = JSON.parse(fs.readFileSync(masterPath, 'utf8'));
+    let userData = masterData[email] || [];
+
+    const meetings = userData.filter(m => m.date && (typeof m.durationHours === 'number' || m.error === true));
+
+    let totalBuildMeetingHours = 140;
+
+    // total hours attended
+    const totalHoursAttended = meetings.reduce(
+      (sum, m) => sum + (typeof m.durationHours === 'number' ? m.durationHours : 0),
+      0
+    );
+    // attendance percentage
+    const attendancePercentage = totalBuildMeetingHours > 0
+      ? parseFloat(((totalHoursAttended / totalBuildMeetingHours) * 100).toFixed(2))
+      : 0;
+
+    res.json({
+      email,
+      meetings,
+      totalHoursAttended,
+      totalBuildMeetingHours,
+      attendancePercentage
+    });
+
+  } catch (err) {
+    console.error('Error fetching attendance percentage:', err);
+    res.status(500).json({ error: 'Unable to fetch attendance data.' });
+  }
+});
+
 
 // get attendance for a single user by email using attendance_master
 app.get('/attendance/:email', async (req, res) => {
@@ -658,6 +700,8 @@ app.get('/total-hours', (req, res) => {
     res.status(500).json({ error: 'Failed to calculate total hours' });
   }
 });
+
+
 
 
 app.get('/', (req, res) => {

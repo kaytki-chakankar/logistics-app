@@ -286,7 +286,48 @@ class _UpdateAttendancePageState extends State<UpdateAttendancePage> {
             if (statusMessage.isNotEmpty)
               Text(statusMessage, style: const TextStyle(fontWeight: FontWeight.bold)),
             if (hasEntry)
-              Expanded(child: Center(child: Text("Reviewing ${currentIndex + 1} of ${flaggedEmails.length}")))
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Reviewing ${currentIndex + 1} of ${flaggedEmails.length}",
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
+
+                    const SizedBox(height: 8),
+
+                    Text("Email: ${flaggedEmails[currentIndex]["email"]}"),
+
+                    const SizedBox(height: 8),
+
+                    TextField(
+                      controller: hoursController,
+                      decoration: const InputDecoration(
+                        labelText: "Hours",
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+
+                    const SizedBox(height: 8),
+
+                    TextField(
+                      controller: commentController,
+                      decoration: const InputDecoration(
+                        labelText: "Reason",
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+
+                    const SizedBox(height: 8),
+
+                    ElevatedButton(
+                      onPressed: resolveEntry,
+                      child: const Text("Save & Next"),
+                    ),
+                  ],
+                ),
+              )
           ],
         ),
       ),

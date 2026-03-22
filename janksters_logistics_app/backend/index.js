@@ -192,37 +192,6 @@ app.get('/attendance/update', async (req, res) => {
       masterData[email].push(...meetings);
     });
 
-    const fullRoster = Object.keys(masterData);
-    fullRoster.forEach(email => {
-      const hasLogged = masterData[email]?.some(m => m.date === currentSessionDate);
-      if (!hasLogged) {
-        masterData[email].push({
-          date: currentSessionDate,
-          durationHours: 0
-        });
-      }
-    });
-    
-    fs.writeFileSync(
-      MASTER_JSON_PATH,
-      JSON.stringify(masterData, null, 2)
-    );
-
-    console.log(`Master file updated for ${currentSessionDate}`);
-
-    return res.json({
-      message: `Attendance logged for ${currentSessionDate}`,
-      date: currentSessionDate,
-      flagged: flaggedEmails,
-      success: true
-    });
-
-  } catch (error) {
-    console.error('Error updating master attendance:', error);
-    res.status(500).json({ error: 'Unable to update master attendance.' });
-  }
-});
-
 // returns the flagged emails from the sheet 
 app.get('/attendance/flagged', async (req, res) => {
   const sheetName = req.query.sheet; 

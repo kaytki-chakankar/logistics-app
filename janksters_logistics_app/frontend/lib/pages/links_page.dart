@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:janksters_logistics_app/pages/attendance_page.dart';
 import 'package:url_launcher/url_launcher.dart';
-
 import 'package:firebase_auth/firebase_auth.dart';
 
 import 'dev_pages/dev_page.dart';
 import 'preseason_stats.dart';
-
-
 
 class LinksPage extends StatefulWidget {
   const LinksPage({super.key});
@@ -46,7 +44,12 @@ class _LinksPageState extends State<LinksPage> {
 
   final List<String> developerEmails = [
     'kchakankar27@ndsj.org',
-    'aferrer@ndsj.org'
+    'aferrer@ndsj.org',
+    'bfarrer@ndsj.org',
+    'mcarillo@ndsj.org',
+    'abhardwaj26@ndsj.org',
+    'thensley26@ndsj.org',
+    'aarjun27@ndsj.org'
   ];
 
   bool get isDeveloper => developerEmails.contains(userEmail);
@@ -70,9 +73,7 @@ class _LinksPageState extends State<LinksPage> {
           child: ListView(
             children: [
               DrawerHeader(
-                decoration: BoxDecoration(
-                  color: primaryRed,
-                ),
+                decoration: BoxDecoration(color: primaryRed),
                 child: const Center(
                   child: Text(
                     'Navigation',
@@ -88,36 +89,50 @@ class _LinksPageState extends State<LinksPage> {
               ),
               ListTile(
                 leading: Icon(Icons.home, color: primaryRed),
-                title: Text('Attendance',
-                    style: TextStyle(
-                        fontFamily: 'Poppins',
-                        color: blackText,
-                        fontWeight: FontWeight.w600)),
-                onTap: () => Navigator.pop(context),
+                title: Text(
+                  'Attendance',
+                  style: TextStyle(
+                      fontFamily: 'Poppins',
+                      color: blackText,
+                      fontWeight: FontWeight.w600),
+                ),
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (_) => const AttendancePage()),
+                  );
+                },
               ),
               if (isDeveloper)
                 ListTile(
                   leading: Icon(Icons.developer_mode, color: primaryRed),
-                  title: Text('Developer Tools',
-                      style: TextStyle(
-                          fontFamily: 'Poppins',
-                          color: blackText,
-                          fontWeight: FontWeight.w600)),
+                  title: Text(
+                    'Developer Tools',
+                    style: TextStyle(
+                        fontFamily: 'Poppins',
+                        color: blackText,
+                        fontWeight: FontWeight.w600),
+                  ),
                   onTap: () {
                     Navigator.pop(context);
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (_) => const DeveloperPage()),
+                      MaterialPageRoute(
+                          builder: (_) => const DeveloperPage()),
                     );
                   },
                 ),
               ListTile(
-                leading: Icon(Icons.calendar_month, color: primaryRed),
-                title: Text('Important Links',
-                    style: TextStyle(
-                        fontFamily: 'Poppins',
-                        color: blackText,
-                        fontWeight: FontWeight.w600)),
+                leading: Icon(Icons.link, color: primaryRed),
+                title: Text(
+                  'Important Links',
+                  style: TextStyle(
+                      fontFamily: 'Poppins',
+                      color: blackText,
+                      fontWeight: FontWeight.w600),
+                ),
                 onTap: () {
                   Navigator.pop(context);
                   Navigator.push(
@@ -127,12 +142,14 @@ class _LinksPageState extends State<LinksPage> {
                 },
               ),
               ListTile(
-                leading: Icon(Icons.calendar_month, color: primaryRed),
-                title: Text('Preseason Attendance',
-                    style: TextStyle(
-                        fontFamily: 'Poppins',
-                        color: blackText,
-                        fontWeight: FontWeight.w600)),
+                leading: Icon(Icons.bar_chart, color: primaryRed),
+                title: Text(
+                  'Preseason Attendance',
+                  style: TextStyle(
+                      fontFamily: 'Poppins',
+                      color: blackText,
+                      fontWeight: FontWeight.w600),
+                ),
                 onTap: () {
                   Navigator.pop(context);
                   Navigator.push(
@@ -143,11 +160,13 @@ class _LinksPageState extends State<LinksPage> {
               ),
               ListTile(
                 leading: Icon(Icons.logout, color: primaryRed),
-                title: Text('Logout',
-                    style: TextStyle(
-                        fontFamily: 'Poppins',
-                        color: blackText,
-                        fontWeight: FontWeight.w600)),
+                title: Text(
+                  'Logout',
+                  style: TextStyle(
+                      fontFamily: 'Poppins',
+                      color: blackText,
+                      fontWeight: FontWeight.w600),
+                ),
                 onTap: () async {
                   await FirebaseAuth.instance.signOut();
                 },
@@ -171,7 +190,8 @@ class _LinksPageState extends State<LinksPage> {
       body: ListView.separated(
         padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
         itemCount: links.length,
-        separatorBuilder: (_, __) => Divider(color: accentRed.withOpacity(0.3), thickness: 1),
+        separatorBuilder: (_, __) =>
+            Divider(color: accentRed.withOpacity(0.3), thickness: 1),
         itemBuilder: (context, index) {
           final link = links[index];
           return Card(
@@ -182,7 +202,8 @@ class _LinksPageState extends State<LinksPage> {
             elevation: 3,
             shadowColor: accentRed.withOpacity(0.25),
             child: ListTile(
-              contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+              contentPadding:
+                  const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
               leading: Icon(Icons.link, color: primaryRed, size: 32),
               title: Text(
                 link['title'] ?? 'Untitled',
@@ -196,7 +217,8 @@ class _LinksPageState extends State<LinksPage> {
               trailing: const Icon(Icons.open_in_new, color: Colors.grey),
               onTap: () => _openLink(link['url'] ?? ''),
               hoverColor: primaryRed.withOpacity(0.1),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape:
+                  RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             ),
           );
         },

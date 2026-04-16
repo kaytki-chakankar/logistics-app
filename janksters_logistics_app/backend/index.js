@@ -533,16 +533,38 @@ app.get("/attendance/team/full", (req, res) => {
       : path.join(__dirname, "attendance_master.json");
 
     if (!fs.existsSync(MASTER_FILE)) {
-      return res.status(500).json({ message: "Master attendance file not found" });
+      return res.status(500).json({
+        message: "Master attendance file not found"
+      });
     }
 
-    const master = JSON.parse(fs.readFileSync(MASTER_FILE, "utf8"));
+    const raw = fs.readFileSync(MASTER_FILE, "utf8");
+    if (!raw) {
+      return res.status(500).json({
+        message: "Master file is empty"
+      });
+    }
 
-    // collect all unique dates
+    const master = JSON.parse(raw);
+
+    // normalize date safely (prevents duplicate "fake different dates")
+    const normalizeDate = (d) => {
+      if (!d) return null;
+      const parsed = new Date(d);
+      if (isNaN(parsed)) return d;
+      return parsed.toISOString().split("T")[0];
+    };
+
+    // collect all unique dates safely
     const allDates = new Set();
+
     Object.values(master).forEach(records => {
+      if (!Array.isArray(records)) return;
+
       records.forEach(r => {
-        if (r.date) allDates.add(r.date);
+        if (r?.date) {
+          allDates.add(normalizeDate(r.date));
+        }
       });
     });
 
@@ -550,21 +572,50 @@ app.get("/attendance/team/full", (req, res) => {
       (a, b) => new Date(a) - new Date(b)
     );
 
-    const totalMeetingHours = isPreseason
-      ? 83.5
-      : getTotalMeetingHours();
+    // total meeting hours
+    let totalMeetingHours = 0;
+
+    if (isPreseason) {
+      totalMeetingHours = 83.5;
+    } else {
+      try {
+        if (fs.existsSync(TOTAL_HOURS_PATH)) {
+          const rawHours = fs.readFileSync(TOTAL_HOURS_PATH, "utf8");
+          if (rawHours) {
+            const parsed = JSON.parse(rawHours);
+            totalMeetingHours = parseFloat(parsed.totalHours) || 0;
+          }
+        }
+      } catch (err) {
+        console.error("Error reading total hours:", err);
+        totalMeetingHours = 0;
+      }
+    }
 
     const team = Object.entries(master).map(([email, records]) => {
-      let attendedCount = 0;
+      if (!Array.isArray(records)) {
+        return {
+          email,
+          attendancePercent: 0,
+          attendedHours: 0,
+          row: []
+        };
+      }
+
       let attendedHours = 0;
-      const recordMap = {};
+
+      // FIX: prevent duplicate date overwrite bugs
+      const recordMap = new Map();
 
       records.forEach(r => {
-        recordMap[r.date] = r;
-        if (Number(r.durationHours) > 0 && !r.error) attendedCount++;
+        if (!r?.date) return;
 
-        // ERROR OR MISSING DURATION = 0 HOURS
-        if (r.error === true) return;
+        const dateKey = normalizeDate(r.date);
+
+        // keep ONLY latest entry per date
+        recordMap.set(dateKey, r);
+
+        if (r.error) return;
 
         const hours = Number(r.durationHours);
         if (!isNaN(hours) && hours > 0) {
@@ -573,35 +624,33 @@ app.get("/attendance/team/full", (req, res) => {
       });
 
       const attendancePercent =
-        totalMeetings > 0
-          ? Math.round((attendedCount / totalMeetings) * 100)
-          : totalMeetingHours > 0
+        totalMeetingHours > 0
           ? Math.round((attendedHours / totalMeetingHours) * 100)
           : 0;
 
       const row = sortedDates.map(date => {
-        const r = recordMap[date];
-        if (!r) return { status: "missing" };
-        if (r.error) return { status: "flagged", reason: r.reason };
-        if (!r) return { status: "missing", hours: 0 };
+        const r = recordMap.get(date);
 
-        if (r.error === true) {
+        if (!r) {
+          return { status: "missing", hours: 0 };
+        }
+
+        if (r.error) {
           return {
             status: "flagged",
-            reason: r.reason,
+            reason: r.reason || "flagged",
             hours: 0
           };
         }
 
         const hours = Number(r.durationHours) || 0;
+
         return {
-          status: Number(r.durationHours) > 0 ? "attended" : "missed",
           status: hours > 0 ? "attended" : "missed",
           hours
         };
       });
 
-      return { email, attendancePercent, row };
       return {
         email,
         attendancePercent,
@@ -610,31 +659,23 @@ app.get("/attendance/team/full", (req, res) => {
       };
     });
 
-    res.json({ dates: sortedDates, team });
+    // FINAL SAFETY: remove any accidental duplicate emails
+    const uniqueTeamMap = new Map();
+    team.forEach(t => uniqueTeamMap.set(t.email, t));
+
     res.json({
       dates: sortedDates,
       totalMeetingHours,
-      team
+      team: Array.from(uniqueTeamMap.values())
     });
+
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Failed to load team attendance" });
-  }
-});
+    console.error("FULL ERROR:", err);
 
-
-app.get('/attendance/total/download', (req, res) => {
-  const filePath = path.join(__dirname, 'total_meeting_hours.json');
-
-  if (fs.existsSync(filePath)) {
-    res.download(filePath, 'total_meeting_hours.json', err => {
-      if (err) {
-        console.error('Error sending file:', err);
-        res.status(500).send('Error downloading file');
-      }
+    res.status(500).json({
+      message: "Failed to load team attendance",
+      error: err.message
     });
-  } else {
-    res.status(404).send('Master attendance file not found');
   }
 });
 

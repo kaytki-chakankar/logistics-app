@@ -29,7 +29,7 @@ class _AttendancePageState extends State<AttendancePage> {
     'kchakankar27@ndsj.org',
     'aferrer@ndsj.org',
     'bfarrer@ndsj.org',
-    'mcarillo@ndsj.org',
+    'mcarrillo@ndsj.org',
     'abhardwaj26@ndsj.org',
     'thensley26@ndsj.org',
     'aarjun27@ndsj.org'

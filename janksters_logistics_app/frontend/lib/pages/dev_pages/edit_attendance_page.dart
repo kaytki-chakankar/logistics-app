@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 class EditAttendancePage extends StatefulWidget {
+  const EditAttendancePage({super.key});
+
   @override
   State<EditAttendancePage> createState() => _EditAttendancePageState();
 }

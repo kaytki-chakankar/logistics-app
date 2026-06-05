@@ -10654,18 +10654,6 @@
       "durationHours": 0
     },
     {
-      "date": "5/5/2026",
-      "durationHours": 0
-    },
-    {
-      "date": "5/7/2026",
-      "durationHours": 0
-    },
-    {
-      "date": "5/12/2026",
-      "durationHours": 0
-    },
-    {
       "date": "5/14/2026",
       "durationHours": 1.5
     },
@@ -10704,6 +10692,18 @@
     {
       "date": "3/24/2026",
       "durationHours": 2.5
+    },
+    {
+      "date": "5/5/2026",
+      "durationHours": 1.5
+    },
+    {
+      "date": "5/7/2026",
+      "durationHours": 1.5
+    },
+    {
+      "date": "5/12/2026",
+      "durationHours": 1.5
     }
   ],
   "ttony27@ndsj.org": [

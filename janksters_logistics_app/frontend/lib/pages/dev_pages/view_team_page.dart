@@ -165,7 +165,7 @@ class _ViewFullTeamAttendancePageState extends State<ViewFullTeamAttendancePage>
                                         List<Map<String, dynamic>>.from(member["row"]);
 
                                     return DataRow(
-                                      color: MaterialStateProperty.all(
+                                      color: WidgetStateProperty.all(
                                         rowBackground(percent),
                                       ),
                                       cells: [
@@ -205,7 +205,7 @@ class _ViewFullTeamAttendancePageState extends State<ViewFullTeamAttendancePage>
                                               ),
                                             ),
                                           );
-                                        }).toList(),
+                                        }),
                                       ],
                                     );
                                   }).toList(),

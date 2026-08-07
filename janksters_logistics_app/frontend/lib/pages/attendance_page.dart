@@ -417,19 +417,34 @@ class _AttendancePageState extends State<AttendancePage> {
                                     final date = meeting['date'] ?? 'Unknown date';
                                     final duration = (meeting['durationHours'] ?? 0.0) as double;
                                     final canAdjust = !closedAdjustmentDates.contains(date.toString());
-                                    final adjustButton = OutlinedButton(
-                                      onPressed: canAdjust ? () {
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (_) => AttendanceAdjustmentRequestPage(
-                                              date: date.toString(),
+                                    final Widget adjustButton = canAdjust
+                                        ? TextButton(
+                                            style: TextButton.styleFrom(
+                                              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+                                              minimumSize: Size.zero,
+                                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                                             ),
-                                          ),
-                                        );
-                                      } : null,
-                                      child: Text(canAdjust ? 'Adjust' : 'Closed'),
-                                    );
+                                            onPressed: () {
+                                              Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                  builder: (_) => AttendanceAdjustmentRequestPage(
+                                                    date: date.toString(),
+                                                  ),
+                                                ),
+                                              );
+                                            ),
+                                            child: Text(
+                                              'Adjust',
+                                              style: TextStyle(
+                                                fontFamily: 'Poppins',
+                                                fontWeight: FontWeight.w600,
+                                                color: primaryRed,
+                                                decoration: TextDecoration.underline,
+                                              ),
+                                            ),
+                                          )
+                                        : const SizedBox.shrink();
 
                                     if (meeting['error'] == true ||
                                         meeting['error']?.toString() == 'true') {

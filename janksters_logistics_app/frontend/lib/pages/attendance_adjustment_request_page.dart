@@ -42,8 +42,11 @@ class _AttendanceAdjustmentRequestPageState
     );
     if (selected != null && mounted) {
       setState(() {
-        if (isArrival) _arrivalTime = selected;
-        else _departureTime = selected;
+        if (isArrival) {
+          _arrivalTime = selected;
+        } else {
+          _departureTime = selected;
+        }
       });
     }
   }

@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const { google } = require('googleapis');
+const admin = require('firebase-admin');
 const fs = require('fs');
 const path = require('path');
 const { parse } = require('json2csv');
@@ -25,9 +26,6 @@ const RANGE = '1/9/2025!A2:C1000';
 const ATTENDANCE_RESPONSE_SHEET = process.env.ATTENDANCE_RESPONSE_SHEET || 'Form Responses 1';
 
 const TOTAL_HOURS_PATH = path.join(__dirname, 'total_meeting_hours.json');
-const ATTENDANCE_ADJUSTMENTS_PATH = path.join(__dirname, 'attendance_adjustments.json');
-const ATTENDANCE_ADJUSTMENT_SETTINGS_PATH = path.join(__dirname, 'attendance_adjustment_settings.json');
-const DEVELOPERS_PATH = path.join(__dirname, 'developer_emails.json');
 const DEFAULT_DEVELOPERS = [
   'kchakankar27@ndsj.org',
   'aferrer@ndsj.org',
@@ -38,54 +36,137 @@ const DEFAULT_DEVELOPERS = [
   'aarjun27@ndsj.org',
 ];
 
-function getAttendanceAdjustments() {
-  if (!fs.existsSync(ATTENDANCE_ADJUSTMENTS_PATH)) return [];
-  const data = JSON.parse(fs.readFileSync(ATTENDANCE_ADJUSTMENTS_PATH, 'utf8'));
-  return Array.isArray(data) ? data : [];
+let firestore;
+
+function getFirestore() {
+  if (firestore) return firestore;
+  const serviceAccountPath = process.env.FIREBASE_SERVICE_ACCOUNT_PATH || '/etc/secrets/service_account.json';
+  if (!fs.existsSync(serviceAccountPath)) {
+    throw new Error(`Firestore service account was not found at ${serviceAccountPath}.`);
+  }
+  if (!admin.apps.length) {
+    admin.initializeApp({
+      credential: admin.credential.cert(JSON.parse(fs.readFileSync(serviceAccountPath, 'utf8'))),
+    });
+  }
+  firestore = admin.firestore();
+  return firestore;
 }
 
-function saveAttendanceAdjustments(adjustments) {
-  fs.writeFileSync(
-    ATTENDANCE_ADJUSTMENTS_PATH,
-    JSON.stringify(adjustments, null, 2)
-  );
+function settingsDocument() {
+  return getFirestore().collection('logisticsApp').doc('settings');
 }
 
-function getAttendanceAdjustmentSettings() {
-  if (!fs.existsSync(ATTENDANCE_ADJUSTMENT_SETTINGS_PATH)) return { closedDates: [] };
-  const settings = JSON.parse(fs.readFileSync(ATTENDANCE_ADJUSTMENT_SETTINGS_PATH, 'utf8'));
-  return {
-    closedDates: Array.isArray(settings.closedDates) ? settings.closedDates : [],
-  };
-}
-
-function saveAttendanceAdjustmentSettings(settings) {
-  fs.writeFileSync(
-    ATTENDANCE_ADJUSTMENT_SETTINGS_PATH,
-    JSON.stringify(settings, null, 2)
-  );
-}
-
-function getDevelopers() {
-  if (!fs.existsSync(DEVELOPERS_PATH)) return [...DEFAULT_DEVELOPERS];
-  const data = JSON.parse(fs.readFileSync(DEVELOPERS_PATH, 'utf8'));
-  return Array.isArray(data)
-    ? [...new Set(data.map(email => String(email).trim().toLowerCase()).filter(Boolean))]
+async function getDevelopers() {
+  const snapshot = await settingsDocument().get();
+  const developers = snapshot.get('developers');
+  return Array.isArray(developers) && developers.length > 0
+    ? [...new Set(developers.map(email => String(email).trim().toLowerCase()).filter(Boolean))]
     : [...DEFAULT_DEVELOPERS];
 }
 
-function saveDevelopers(developers) {
-  fs.writeFileSync(DEVELOPERS_PATH, JSON.stringify(developers, null, 2));
+async function saveDevelopers(developers) {
+  await settingsDocument().set({ developers }, { merge: true });
 }
 
-function getTotalMeetingHours() {
-  if (!fs.existsSync(TOTAL_HOURS_PATH)) return 0;
-  const data = JSON.parse(fs.readFileSync(TOTAL_HOURS_PATH, 'utf8'));
-  return parseFloat(data.totalHours) || 0;
+async function getMembers() {
+  const snapshot = await settingsDocument().get();
+  const members = snapshot.get('members');
+  if (Array.isArray(members)) {
+    return [...new Set(members.map(email => String(email).trim().toLowerCase()).filter(Boolean))];
+  }
+
+  // One-time roster migration: preserve the existing team from attendance data.
+  const migratedMembers = Object.keys(await getBuildAttendanceMaster()).sort();
+  await saveMembers(migratedMembers);
+  return migratedMembers;
 }
 
-function setTotalMeetingHours(hours) {
-  fs.writeFileSync(TOTAL_HOURS_PATH, JSON.stringify({ totalHours: hours }, null, 2));
+async function saveMembers(members) {
+  await settingsDocument().set({ members }, { merge: true });
+}
+
+async function getAttendanceAdjustmentSettings() {
+  const snapshot = await settingsDocument().get();
+  const closedDates = snapshot.get('closedAdjustmentDates');
+  return { closedDates: Array.isArray(closedDates) ? closedDates : [] };
+}
+
+async function saveAttendanceAdjustmentSettings(settings) {
+  await settingsDocument().set(
+    { closedAdjustmentDates: settings.closedDates },
+    { merge: true }
+  );
+}
+
+async function getAttendanceAdjustments() {
+  const snapshot = await getFirestore().collection('attendanceAdjustments').get();
+  return snapshot.docs.map(document => ({ id: document.id, ...document.data() }));
+}
+
+async function saveAttendanceAdjustment(adjustment) {
+  await getFirestore().collection('attendanceAdjustments').doc(adjustment.id).set(adjustment);
+}
+
+function buildAttendanceCollection() {
+  return getFirestore().collection('buildAttendance');
+}
+
+function buildAttendanceMetaDocument() {
+  return getFirestore().collection('logisticsApp').doc('buildAttendanceMeta');
+}
+
+async function saveBuildAttendanceMaster(master) {
+  const entries = Object.entries(master);
+  for (let start = 0; start < entries.length; start += 450) {
+    const batch = getFirestore().batch();
+    entries.slice(start, start + 450).forEach(([email, meetings]) => {
+      batch.set(buildAttendanceCollection().doc(email), { meetings });
+    });
+    await batch.commit();
+  }
+  await buildAttendanceMetaDocument().set({ initialized: true }, { merge: true });
+}
+
+async function getBuildAttendanceMaster() {
+  const snapshot = await buildAttendanceCollection().get();
+  if (!snapshot.empty) {
+    const master = {};
+    snapshot.forEach(document => {
+      master[document.id] = Array.isArray(document.get('meetings')) ? document.get('meetings') : [];
+    });
+    return master;
+  }
+
+  // One-time migration: seed Firestore from the repository JSON only when
+  // Firestore has no attendance records yet. Future deploys never overwrite it.
+  const legacyMasterPath = path.join(__dirname, 'attendance_master.json');
+  const legacyMaster = fs.existsSync(legacyMasterPath)
+    ? JSON.parse(fs.readFileSync(legacyMasterPath, 'utf8'))
+    : {};
+  if (Object.keys(legacyMaster).length > 0) {
+    await saveBuildAttendanceMaster(legacyMaster);
+  }
+  return legacyMaster;
+}
+
+async function getTotalMeetingHours() {
+  const snapshot = await buildAttendanceMetaDocument().get();
+  const storedHours = Number(snapshot.get('totalMeetingHours'));
+  if (Number.isFinite(storedHours)) return storedHours;
+
+  const legacyHours = fs.existsSync(TOTAL_HOURS_PATH)
+    ? Number(JSON.parse(fs.readFileSync(TOTAL_HOURS_PATH, 'utf8')).totalHours) || 0
+    : 0;
+  await setTotalMeetingHours(legacyHours);
+  return legacyHours;
+}
+
+async function setTotalMeetingHours(hours) {
+  await buildAttendanceMetaDocument().set(
+    { totalMeetingHours: Number(hours) || 0 },
+    { merge: true }
+  );
 }
 
 function formatMeetingDate(timestamp) {
@@ -111,28 +192,28 @@ app.get('/healthz', (req, res) => {
 });
 
 // Shared developer access list used by the frontend dashboard.
-app.get('/developers', (req, res) => {
+app.get('/developers', async (req, res) => {
   try {
-    res.json({ developers: getDevelopers() });
+    res.json({ developers: await getDevelopers() });
   } catch (err) {
     console.error('Error loading developers:', err);
     res.status(500).json({ error: 'Unable to load developers.' });
   }
 });
 
-app.post('/developers', (req, res) => {
+app.post('/developers', async (req, res) => {
   const email = String(req.body?.email || '').trim().toLowerCase();
   if (!/^\S+@\S+\.\S+$/.test(email)) {
     return res.status(400).json({ error: 'Enter a valid email address.' });
   }
   try {
-    const developers = getDevelopers();
+    const developers = await getDevelopers();
     if (developers.includes(email)) {
       return res.status(409).json({ error: 'That person is already a developer.' });
     }
     developers.push(email);
     developers.sort();
-    saveDevelopers(developers);
+    await saveDevelopers(developers);
     res.status(201).json({ developers });
   } catch (err) {
     console.error('Error adding developer:', err);
@@ -140,10 +221,10 @@ app.post('/developers', (req, res) => {
   }
 });
 
-app.delete('/developers/:email', (req, res) => {
+app.delete('/developers/:email', async (req, res) => {
   const email = decodeURIComponent(req.params.email).trim().toLowerCase();
   try {
-    const developers = getDevelopers();
+    const developers = await getDevelopers();
     if (!developers.includes(email)) {
       return res.status(404).json({ error: 'Developer not found.' });
     }
@@ -151,7 +232,7 @@ app.delete('/developers/:email', (req, res) => {
       return res.status(400).json({ error: 'At least one developer must remain.' });
     }
     const updatedDevelopers = developers.filter(item => item !== email);
-    saveDevelopers(updatedDevelopers);
+    await saveDevelopers(updatedDevelopers);
     res.json({ developers: updatedDevelopers });
   } catch (err) {
     console.error('Error removing developer:', err);
@@ -159,11 +240,63 @@ app.delete('/developers/:email', (req, res) => {
   }
 });
 
+// Active members determine who receives new attendance records. Removing a
+// member preserves their historical attendance in Firestore.
+app.get('/members', async (req, res) => {
+  try {
+    const [members, developers] = await Promise.all([getMembers(), getDevelopers()]);
+    res.json({
+      members: members.filter(email => !developers.includes(email)),
+    });
+  } catch (err) {
+    console.error('Error loading members:', err);
+    res.status(500).json({ error: 'Unable to load members.' });
+  }
+});
+
+app.post('/members', async (req, res) => {
+  const email = String(req.body?.email || '').trim().toLowerCase();
+  if (!/^\S+@\S+\.\S+$/.test(email)) {
+    return res.status(400).json({ error: 'Enter a valid email address.' });
+  }
+  try {
+    const members = await getMembers();
+    if (members.includes(email)) {
+      return res.status(409).json({ error: 'That person is already a member.' });
+    }
+    members.push(email);
+    members.sort();
+    await saveMembers(members);
+    const developers = await getDevelopers();
+    res.status(201).json({ members: members.filter(item => !developers.includes(item)) });
+  } catch (err) {
+    console.error('Error adding member:', err);
+    res.status(500).json({ error: 'Unable to add member.' });
+  }
+});
+
+app.delete('/members/:email', async (req, res) => {
+  const email = decodeURIComponent(req.params.email).trim().toLowerCase();
+  try {
+    const members = await getMembers();
+    if (!members.includes(email)) {
+      return res.status(404).json({ error: 'Member not found.' });
+    }
+    const updatedMembers = members.filter(item => item !== email);
+    await saveMembers(updatedMembers);
+    const developers = await getDevelopers();
+    res.json({ members: updatedMembers.filter(item => !developers.includes(item)) });
+  } catch (err) {
+    console.error('Error removing member:', err);
+    res.status(500).json({ error: 'Unable to remove member.' });
+  }
+});
+
 // Lists submitted adjustment requests for the developer dashboard. This must
 // stay above /attendance/:email so "adjustments" is not treated as an email.
-app.get('/attendance/adjustments', (req, res) => {
+app.get('/attendance/adjustments', async (req, res) => {
   try {
-    const adjustments = getAttendanceAdjustments();
+    const adjustments = await getAttendanceAdjustments();
     const pendingFirst = adjustments.sort((a, b) => {
       if (a.status === b.status) return (b.submittedAt || '').localeCompare(a.submittedAt || '');
       return a.status === 'pending' ? -1 : 1;
@@ -176,28 +309,28 @@ app.get('/attendance/adjustments', (req, res) => {
 });
 
 // Dates are open for adjustments by default. This list contains only closed dates.
-app.get('/attendance/adjustments/settings', (req, res) => {
+app.get('/attendance/adjustments/settings', async (req, res) => {
   try {
-    res.json(getAttendanceAdjustmentSettings());
+    res.json(await getAttendanceAdjustmentSettings());
   } catch (err) {
     console.error('Error reading attendance adjustment settings:', err);
     res.status(500).json({ error: 'Unable to load adjustment settings.' });
   }
 });
 
-app.post('/attendance/adjustments/settings', (req, res) => {
+app.post('/attendance/adjustments/settings', async (req, res) => {
   const date = normalizeMeetingDate(req.body?.date);
   const isOpen = req.body?.isOpen;
   if (!date || typeof isOpen !== 'boolean') {
     return res.status(400).json({ error: 'Date and isOpen are required.' });
   }
   try {
-    const settings = getAttendanceAdjustmentSettings();
+    const settings = await getAttendanceAdjustmentSettings();
     const closedDates = new Set(settings.closedDates);
     if (isOpen) closedDates.delete(date);
     else closedDates.add(date);
     const updatedSettings = { closedDates: Array.from(closedDates).sort((a, b) => new Date(a) - new Date(b)) };
-    saveAttendanceAdjustmentSettings(updatedSettings);
+    await saveAttendanceAdjustmentSettings(updatedSettings);
     res.json(updatedSettings);
   } catch (err) {
     console.error('Error saving attendance adjustment settings:', err);
@@ -214,20 +347,11 @@ app.get('/attendance/update', async (req, res) => {
   if (!meetingDate) {
     return res.status(400).json({ error: 'A valid meeting date is required as ?date=M/D/YYYY.' });
   }
-  const path = require('path');
-  const fs = require('fs');
-
   console.log(`/attendance/update for ${meetingDate} in "${ATTENDANCE_RESPONSE_SHEET}"`);
   const RANGE = `${ATTENDANCE_RESPONSE_SHEET}!A2:C1000`;
 
-  const MASTER_JSON_PATH = path.join(__dirname, 'attendance_master.json');
-  let masterData = {};
-
   try {
-    if (fs.existsSync(MASTER_JSON_PATH)) {
-      const raw = fs.readFileSync(MASTER_JSON_PATH, 'utf8');
-      masterData = JSON.parse(raw);
-    }
+    const masterData = await getBuildAttendanceMaster();
 
     // Read the shared form-response sheet, then keep only rows for this meeting.
     const response = await sheets.spreadsheets.values.get({
@@ -263,9 +387,9 @@ app.get('/attendance/update', async (req, res) => {
     }
     const officialMeetingHours = meetingHoursInput;
 
-    let totalMeetingHours = getTotalMeetingHours();
+    let totalMeetingHours = await getTotalMeetingHours();
     totalMeetingHours += officialMeetingHours;
-    setTotalMeetingHours(totalMeetingHours);
+    await setTotalMeetingHours(totalMeetingHours);
 
     console.log(`Meeting date: ${currentSessionDate}, official meeting hours from "hours" sheet: ${officialMeetingHours}`);
     if (officialMeetingHours === 0) {
@@ -345,10 +469,11 @@ app.get('/attendance/update', async (req, res) => {
       masterData[email].push(...meetings);
     });
 
-    const fullRoster = Object.keys(masterData);
+    const fullRoster = await getMembers();
     fullRoster.forEach(email => {
       const hasLogged = masterData[email]?.some(m => m.date === currentSessionDate);
       if (!hasLogged) {
+        if (!masterData[email]) masterData[email] = [];
         masterData[email].push({
           date: currentSessionDate,
           durationHours: 0
@@ -356,10 +481,7 @@ app.get('/attendance/update', async (req, res) => {
       }
     });
     
-    fs.writeFileSync(
-      MASTER_JSON_PATH,
-      JSON.stringify(masterData, null, 2)
-    );
+    await saveBuildAttendanceMaster(masterData);
 
     console.log(`Master file updated for ${currentSessionDate}`);
 
@@ -384,12 +506,7 @@ app.get('/attendance/flagged', async (req, res) => {
   }
 
   try {
-    const MASTER_JSON_PATH = path.join(__dirname, 'attendance_master.json');
-    if (!fs.existsSync(MASTER_JSON_PATH)) {
-      return res.status(500).json({ error: 'Master attendance file not found.' });
-    }
-
-    const masterData = JSON.parse(fs.readFileSync(MASTER_JSON_PATH, 'utf8'));
+    const masterData = await getBuildAttendanceMaster();
     const results = [];
 
     Object.entries(masterData).forEach(([email, meetings]) => {
@@ -481,12 +598,7 @@ app.get('/attendance/:email', async (req, res) => {
   if (!email) return res.status(400).json({ error: 'Email required' });
 
   try {
-    const masterPath = path.join(__dirname, 'attendance_master.json');
-    if (!fs.existsSync(masterPath)) {
-      return res.status(500).json({ error: 'Master attendance file not found. Run /attendance/update first.' });
-    }
-
-    const masterData = JSON.parse(fs.readFileSync(masterPath, 'utf8'));
+    const masterData = await getBuildAttendanceMaster();
     let userData = masterData[email] || [];
 
     const meetings = userData
@@ -497,7 +609,7 @@ app.get('/attendance/:email', async (req, res) => {
         return aDate - bDate; 
       });   
       
-    let totalMeetingHours = getTotalMeetingHours();
+    let totalMeetingHours = await getTotalMeetingHours();
 
     const totalHoursAttended = meetings.reduce(
       (sum, m) => sum + (typeof m.durationHours === 'number' ? m.durationHours : 0),
@@ -522,38 +634,28 @@ app.get('/attendance/:email', async (req, res) => {
   }
 });
 
-app.get('/attendance/master/download', (req, res) => {
-  const filePath = path.join(__dirname, 'attendance_master.json');
-
-  if (fs.existsSync(filePath)) {
-    res.download(filePath, 'attendance_master.json', err => {
-      if (err) {
-        console.error('Error sending file:', err);
-        res.status(500).send('Error downloading file');
-      }
-    });
-  } else {
-    res.status(404).send('Master attendance file not found');
+app.get('/attendance/master/download', async (req, res) => {
+  try {
+    const master = await getBuildAttendanceMaster();
+    res.attachment('attendance_master.json').send(JSON.stringify(master, null, 2));
+  } catch (err) {
+    console.error('Error downloading master attendance:', err);
+    res.status(500).send('Error downloading master attendance');
   }
 });
 
-app.get('/attendance/total/download', (req, res) => {
-  const filePath = path.join(__dirname, 'total_meeting_hours.json');
-
-  if (fs.existsSync(filePath)) {
-    res.download(filePath, 'total_meeting_hours.json', err => {
-      if (err) {
-        console.error('Error sending file:', err);
-        res.status(500).send('Error downloading file');
-      }
-    });
-  } else {
-    res.status(404).send('total hour file not found');
+app.get('/attendance/total/download', async (req, res) => {
+  try {
+    const totalHours = await getTotalMeetingHours();
+    res.attachment('total_meeting_hours.json').send(JSON.stringify({ totalHours }, null, 2));
+  } catch (err) {
+    console.error('Error downloading total meeting hours:', err);
+    res.status(500).send('Error downloading total meeting hours');
   }
 });
 
 // resolves flagged emails after attendance update
-app.post("/attendance/resolve", (req, res) => {
+app.post("/attendance/resolve", async (req, res) => {
   const { email, date, durationHours, reason, keepFlagged } = req.body;
 
   if (!email || !date) {
@@ -566,12 +668,7 @@ app.post("/attendance/resolve", (req, res) => {
   }
 
   try {
-    const MASTER_FILE = path.join(__dirname, 'attendance_master.json');
-    if (!fs.existsSync(MASTER_FILE)) {
-      return res.status(500).json({ message: "Master attendance file not found" });
-    }
-
-    const master = JSON.parse(fs.readFileSync(MASTER_FILE, "utf8"));
+    const master = await getBuildAttendanceMaster();
 
     if (!master[email]) master[email] = [];
 
@@ -591,7 +688,7 @@ app.post("/attendance/resolve", (req, res) => {
         : { date, durationHours: parseFloat(durationHours) || 0 };
     }
 
-    fs.writeFileSync(MASTER_FILE, JSON.stringify(master, null, 2));
+    await saveBuildAttendanceMaster(master);
     console.log(`Resolved entry for ${email} on ${date}`);
     res.json({ message: "Entry updated successfully" });
 
@@ -665,12 +762,7 @@ app.post("/attendance/manual-update", async (req, res) => {
 
     const normalizedEmail = email.toLowerCase();
 
-    const masterPath = path.join(__dirname, "attendance_master.json");
-    let masterData = {};
-
-    if (fs.existsSync(masterPath)) {
-      masterData = JSON.parse(fs.readFileSync(masterPath, "utf8"));
-    }
+    const masterData = await getBuildAttendanceMaster();
 
     if (!masterData[normalizedEmail]) {
       return res.status(404).json({
@@ -684,7 +776,7 @@ app.post("/attendance/manual-update", async (req, res) => {
 
     masterData[normalizedEmail].push(payload);
 
-    fs.writeFileSync(masterPath, JSON.stringify(masterData, null, 2));
+    await saveBuildAttendanceMaster(masterData);
 
     console.log(
       `Manual attendance update -> ${normalizedEmail} / ${date}`
@@ -698,7 +790,7 @@ app.post("/attendance/manual-update", async (req, res) => {
 });
 
 // Submits a member's request to correct a single day's attendance.
-app.post('/attendance/adjustments', (req, res) => {
+app.post('/attendance/adjustments', async (req, res) => {
   const { email, date, arrivalTime, departureTime, hoursHere } = req.body;
   const durationHours = Number(hoursHere);
 
@@ -710,15 +802,11 @@ app.post('/attendance/adjustments', (req, res) => {
   }
 
   try {
-    const settings = getAttendanceAdjustmentSettings();
+    const settings = await getAttendanceAdjustmentSettings();
     if (settings.closedDates.includes(normalizeMeetingDate(date))) {
       return res.status(403).json({ error: `Adjustments are closed for ${date}.` });
     }
-    const adjustments = getAttendanceAdjustments();
-    const masterPath = path.join(__dirname, 'attendance_master.json');
-    const masterData = fs.existsSync(masterPath)
-      ? JSON.parse(fs.readFileSync(masterPath, 'utf8'))
-      : {};
+    const masterData = await getBuildAttendanceMaster();
     const normalizedEmail = email.trim().toLowerCase();
     const normalizeDate = value => String(value || '').split(' ')[0];
     const previousEntry = (masterData[normalizedEmail] || []).find(
@@ -746,8 +834,7 @@ app.post('/attendance/adjustments', (req, res) => {
       status: 'pending',
       submittedAt: new Date().toISOString(),
     };
-    adjustments.unshift(adjustment);
-    saveAttendanceAdjustments(adjustments);
+    await saveAttendanceAdjustment(adjustment);
     res.status(201).json({ adjustment });
   } catch (err) {
     console.error('Error saving attendance adjustment:', err);
@@ -756,26 +843,21 @@ app.post('/attendance/adjustments', (req, res) => {
 });
 
 // Resolves an adjustment. Approving it updates the attendance record for that date.
-app.post('/attendance/adjustments/:id/resolve', (req, res) => {
+app.post('/attendance/adjustments/:id/resolve', async (req, res) => {
   const { status } = req.body;
   if (status !== 'approved' && status !== 'rejected') {
     return res.status(400).json({ error: 'Status must be approved or rejected.' });
   }
 
   try {
-    const adjustments = getAttendanceAdjustments();
-    const adjustment = adjustments.find(item => item.id === req.params.id);
+    const adjustment = (await getAttendanceAdjustments()).find(item => item.id === req.params.id);
     if (!adjustment) return res.status(404).json({ error: 'Adjustment request not found.' });
     if (adjustment.status !== 'pending') {
       return res.status(400).json({ error: 'This request has already been resolved.' });
     }
 
     if (status === 'approved') {
-      const masterPath = path.join(__dirname, 'attendance_master.json');
-      if (!fs.existsSync(masterPath)) {
-        return res.status(500).json({ error: 'Master attendance file not found.' });
-      }
-      const masterData = JSON.parse(fs.readFileSync(masterPath, 'utf8'));
+      const masterData = await getBuildAttendanceMaster();
       const email = adjustment.email;
       if (!masterData[email]) masterData[email] = [];
 
@@ -790,12 +872,12 @@ app.post('/attendance/adjustments/:id/resolve', (req, res) => {
       if (entryIndex === -1) masterData[email].push(updatedEntry);
       else masterData[email][entryIndex] = updatedEntry;
 
-      fs.writeFileSync(masterPath, JSON.stringify(masterData, null, 2));
+      await saveBuildAttendanceMaster(masterData);
     }
 
     adjustment.status = status;
     adjustment.resolvedAt = new Date().toISOString();
-    saveAttendanceAdjustments(adjustments);
+    await saveAttendanceAdjustment(adjustment);
     res.json({ adjustment });
   } catch (err) {
     console.error('Error resolving attendance adjustment:', err);
@@ -804,28 +886,12 @@ app.post('/attendance/adjustments/:id/resolve', (req, res) => {
 });
 
 // get attendance for the full team for both preseason and build season
-app.get("/attendance/team/full", (req, res) => {
+app.get("/attendance/team/full", async (req, res) => {
   try {
     const isPreseason = req.query.isPreseason === "true";
-
-    const MASTER_FILE = isPreseason
-      ? path.join(__dirname, "preseason_master.json")
-      : path.join(__dirname, "attendance_master.json");
-
-    if (!fs.existsSync(MASTER_FILE)) {
-      return res.status(500).json({
-        message: "Master attendance file not found"
-      });
-    }
-
-    const raw = fs.readFileSync(MASTER_FILE, "utf8");
-    if (!raw) {
-      return res.status(500).json({
-        message: "Master file is empty"
-      });
-    }
-
-    const master = JSON.parse(raw);
+    const master = isPreseason
+      ? JSON.parse(fs.readFileSync(path.join(__dirname, "preseason_master.json"), "utf8"))
+      : await getBuildAttendanceMaster();
 
     // normalize date safely (prevents duplicate "fake different dates")
     const normalizeDate = (d) => {
@@ -857,22 +923,11 @@ app.get("/attendance/team/full", (req, res) => {
 
     if (isPreseason) {
       totalMeetingHours = 83.5;
-    } else {
-      try {
-        if (fs.existsSync(TOTAL_HOURS_PATH)) {
-          const rawHours = fs.readFileSync(TOTAL_HOURS_PATH, "utf8");
-          if (rawHours) {
-            const parsed = JSON.parse(rawHours);
-            totalMeetingHours = parseFloat(parsed.totalHours) || 0;
-          }
-        }
-      } catch (err) {
-        console.error("Error reading total hours:", err);
-        totalMeetingHours = 0;
-      }
-    }
+    } else totalMeetingHours = await getTotalMeetingHours();
 
-    const team = Object.entries(master).map(([email, records]) => {
+    const activeMembers = isPreseason ? Object.keys(master) : await getMembers();
+    const team = activeMembers.map(email => {
+      const records = master[email] || [];
       if (!Array.isArray(records)) {
         return {
           email,
@@ -959,16 +1014,9 @@ app.get("/attendance/team/full", (req, res) => {
   }
 });
 
-app.get('/total-hours', (req, res) => {
+app.get('/total-hours', async (req, res) => {
   try {
-    const MASTER_JSON_PATH = path.join(__dirname, 'attendance_master.json');
-
-    if (!fs.existsSync(MASTER_JSON_PATH)) {
-      return res.status(404).json({ error: 'Master attendance file not found' });
-    }
-
-    const raw = fs.readFileSync(MASTER_JSON_PATH, 'utf8');
-    const attendanceData = JSON.parse(raw);
+    const attendanceData = await getBuildAttendanceMaster();
 
     let total = 0;
 
@@ -992,19 +1040,9 @@ app.get('/total-hours', (req, res) => {
 });
 
 
-app.get("/attendance/team/hours", (req, res) => {
+app.get("/attendance/team/hours", async (req, res) => {
   try {
-    const masterPath = path.join(__dirname, "attendance_master.json");
-
-    if (!fs.existsSync(masterPath)) {
-      return res.status(500).json({
-        error: "Master attendance file not found."
-      });
-    }
-
-    const masterData = JSON.parse(
-      fs.readFileSync(masterPath, "utf8")
-    );
+    const masterData = await getBuildAttendanceMaster();
 
     const results = Object.entries(masterData).map(([email, meetings]) => {
       const totalHoursAttended = meetings.reduce((sum, meeting) => {

@@ -3,7 +3,7 @@ import 'edit_attendance_page.dart';
 import 'view_team_page.dart';
 import 'update_attendance_page.dart';
 import 'adjust_attendance_page.dart';
-import 'manage_devs_page.dart';
+import 'manage_members_page.dart';
 
 class DeveloperPage extends StatefulWidget {
   const DeveloperPage({super.key});
@@ -111,13 +111,13 @@ class _DeveloperPageState extends State<DeveloperPage> {
                     },
                   ),
                   _buildDashboardCard(
-                    title: "Manage Devs",
-                    subtitle: "Add or remove developer access",
-                    icon: Icons.admin_panel_settings,
+                    title: "Manage Members",
+                    subtitle: "Manage regular members and developers",
+                    icon: Icons.group,
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (_) => const ManageDevsPage()),
+                        MaterialPageRoute(builder: (_) => const ManageMembersPage()),
                       );
                     },
                   ),

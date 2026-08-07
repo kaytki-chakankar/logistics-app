@@ -22,8 +22,61 @@ const sheets = google.sheets({ version: 'v4', auth });
 
 const SPREADSHEET_ID = '1Id2lRQbEzeTJwza9LPYUeSJOhUvfUduTi_inNMeBaS8';
 const RANGE = '1/9/2025!A2:C1000';
+const ATTENDANCE_RESPONSE_SHEET = process.env.ATTENDANCE_RESPONSE_SHEET || 'Form Responses 1';
 
 const TOTAL_HOURS_PATH = path.join(__dirname, 'total_meeting_hours.json');
+const ATTENDANCE_ADJUSTMENTS_PATH = path.join(__dirname, 'attendance_adjustments.json');
+const ATTENDANCE_ADJUSTMENT_SETTINGS_PATH = path.join(__dirname, 'attendance_adjustment_settings.json');
+const DEVELOPERS_PATH = path.join(__dirname, 'developer_emails.json');
+const DEFAULT_DEVELOPERS = [
+  'kchakankar27@ndsj.org',
+  'aferrer@ndsj.org',
+  'bfarrer@ndsj.org',
+  'mcarrillo@ndsj.org',
+  'abhardwaj26@ndsj.org',
+  'thensley26@ndsj.org',
+  'aarjun27@ndsj.org',
+];
+
+function getAttendanceAdjustments() {
+  if (!fs.existsSync(ATTENDANCE_ADJUSTMENTS_PATH)) return [];
+  const data = JSON.parse(fs.readFileSync(ATTENDANCE_ADJUSTMENTS_PATH, 'utf8'));
+  return Array.isArray(data) ? data : [];
+}
+
+function saveAttendanceAdjustments(adjustments) {
+  fs.writeFileSync(
+    ATTENDANCE_ADJUSTMENTS_PATH,
+    JSON.stringify(adjustments, null, 2)
+  );
+}
+
+function getAttendanceAdjustmentSettings() {
+  if (!fs.existsSync(ATTENDANCE_ADJUSTMENT_SETTINGS_PATH)) return { closedDates: [] };
+  const settings = JSON.parse(fs.readFileSync(ATTENDANCE_ADJUSTMENT_SETTINGS_PATH, 'utf8'));
+  return {
+    closedDates: Array.isArray(settings.closedDates) ? settings.closedDates : [],
+  };
+}
+
+function saveAttendanceAdjustmentSettings(settings) {
+  fs.writeFileSync(
+    ATTENDANCE_ADJUSTMENT_SETTINGS_PATH,
+    JSON.stringify(settings, null, 2)
+  );
+}
+
+function getDevelopers() {
+  if (!fs.existsSync(DEVELOPERS_PATH)) return [...DEFAULT_DEVELOPERS];
+  const data = JSON.parse(fs.readFileSync(DEVELOPERS_PATH, 'utf8'));
+  return Array.isArray(data)
+    ? [...new Set(data.map(email => String(email).trim().toLowerCase()).filter(Boolean))]
+    : [...DEFAULT_DEVELOPERS];
+}
+
+function saveDevelopers(developers) {
+  fs.writeFileSync(DEVELOPERS_PATH, JSON.stringify(developers, null, 2));
+}
 
 function getTotalMeetingHours() {
   if (!fs.existsSync(TOTAL_HOURS_PATH)) return 0;
@@ -35,25 +88,137 @@ function setTotalMeetingHours(hours) {
   fs.writeFileSync(TOTAL_HOURS_PATH, JSON.stringify({ totalHours: hours }, null, 2));
 }
 
+function formatMeetingDate(timestamp) {
+  const date = new Date(timestamp);
+  if (isNaN(date)) return null;
+  return `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`;
+}
+
+function normalizeMeetingDate(value) {
+  const match = String(value || '').trim().match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if (!match) return null;
+  const month = Number(match[1]);
+  const day = Number(match[2]);
+  const year = Number(match[3]);
+  const date = new Date(year, month - 1, day);
+  if (date.getFullYear() !== year || date.getMonth() !== month - 1 || date.getDate() !== day) return null;
+  return `${month}/${day}/${year}`;
+}
+
 
 app.get('/healthz', (req, res) => {
   res.status(200).send('OK');
 });
 
-// updates the master attendance json based on a given sheet
+// Shared developer access list used by the frontend dashboard.
+app.get('/developers', (req, res) => {
+  try {
+    res.json({ developers: getDevelopers() });
+  } catch (err) {
+    console.error('Error loading developers:', err);
+    res.status(500).json({ error: 'Unable to load developers.' });
+  }
+});
+
+app.post('/developers', (req, res) => {
+  const email = String(req.body?.email || '').trim().toLowerCase();
+  if (!/^\S+@\S+\.\S+$/.test(email)) {
+    return res.status(400).json({ error: 'Enter a valid email address.' });
+  }
+  try {
+    const developers = getDevelopers();
+    if (developers.includes(email)) {
+      return res.status(409).json({ error: 'That person is already a developer.' });
+    }
+    developers.push(email);
+    developers.sort();
+    saveDevelopers(developers);
+    res.status(201).json({ developers });
+  } catch (err) {
+    console.error('Error adding developer:', err);
+    res.status(500).json({ error: 'Unable to add developer.' });
+  }
+});
+
+app.delete('/developers/:email', (req, res) => {
+  const email = decodeURIComponent(req.params.email).trim().toLowerCase();
+  try {
+    const developers = getDevelopers();
+    if (!developers.includes(email)) {
+      return res.status(404).json({ error: 'Developer not found.' });
+    }
+    if (developers.length === 1) {
+      return res.status(400).json({ error: 'At least one developer must remain.' });
+    }
+    const updatedDevelopers = developers.filter(item => item !== email);
+    saveDevelopers(updatedDevelopers);
+    res.json({ developers: updatedDevelopers });
+  } catch (err) {
+    console.error('Error removing developer:', err);
+    res.status(500).json({ error: 'Unable to remove developer.' });
+  }
+});
+
+// Lists submitted adjustment requests for the developer dashboard. This must
+// stay above /attendance/:email so "adjustments" is not treated as an email.
+app.get('/attendance/adjustments', (req, res) => {
+  try {
+    const adjustments = getAttendanceAdjustments();
+    const pendingFirst = adjustments.sort((a, b) => {
+      if (a.status === b.status) return (b.submittedAt || '').localeCompare(a.submittedAt || '');
+      return a.status === 'pending' ? -1 : 1;
+    });
+    res.json({ adjustments: pendingFirst });
+  } catch (err) {
+    console.error('Error reading attendance adjustments:', err);
+    res.status(500).json({ error: 'Unable to load attendance adjustments.' });
+  }
+});
+
+// Dates are open for adjustments by default. This list contains only closed dates.
+app.get('/attendance/adjustments/settings', (req, res) => {
+  try {
+    res.json(getAttendanceAdjustmentSettings());
+  } catch (err) {
+    console.error('Error reading attendance adjustment settings:', err);
+    res.status(500).json({ error: 'Unable to load adjustment settings.' });
+  }
+});
+
+app.post('/attendance/adjustments/settings', (req, res) => {
+  const date = normalizeMeetingDate(req.body?.date);
+  const isOpen = req.body?.isOpen;
+  if (!date || typeof isOpen !== 'boolean') {
+    return res.status(400).json({ error: 'Date and isOpen are required.' });
+  }
+  try {
+    const settings = getAttendanceAdjustmentSettings();
+    const closedDates = new Set(settings.closedDates);
+    if (isOpen) closedDates.delete(date);
+    else closedDates.add(date);
+    const updatedSettings = { closedDates: Array.from(closedDates).sort((a, b) => new Date(a) - new Date(b)) };
+    saveAttendanceAdjustmentSettings(updatedSettings);
+    res.json(updatedSettings);
+  } catch (err) {
+    console.error('Error saving attendance adjustment settings:', err);
+    res.status(500).json({ error: 'Unable to save adjustment settings.' });
+  }
+});
+
+// Updates master attendance from the shared response sheet for one selected date.
 app.get('/attendance/update', async (req, res) => {
-  const sheetName = req.query.sheet;
+  const meetingDate = normalizeMeetingDate(req.query.date);
   let meetingHoursInput = parseFloat(req.query.hours); 
   
   if (isNaN(meetingHoursInput)) meetingHoursInput = 0; 
-  if (!sheetName) {
-    return res.status(400).json({ error: 'Sheet name required as ?sheet=...' });
+  if (!meetingDate) {
+    return res.status(400).json({ error: 'A valid meeting date is required as ?date=M/D/YYYY.' });
   }
   const path = require('path');
   const fs = require('fs');
 
-  console.log(`/attendance/update for sheet: "${sheetName}"`);
-  const RANGE = `${sheetName}!A2:C1000`;
+  console.log(`/attendance/update for ${meetingDate} in "${ATTENDANCE_RESPONSE_SHEET}"`);
+  const RANGE = `${ATTENDANCE_RESPONSE_SHEET}!A2:C1000`;
 
   const MASTER_JSON_PATH = path.join(__dirname, 'attendance_master.json');
   let masterData = {};
@@ -64,19 +229,20 @@ app.get('/attendance/update', async (req, res) => {
       masterData = JSON.parse(raw);
     }
 
-    // get attendance data from the requested sheet
+    // Read the shared form-response sheet, then keep only rows for this meeting.
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId: SPREADSHEET_ID,
       range: RANGE,
     });
 
     const rows = response.data.values || [];
-    if (rows.length === 0) {
-      return res.status(404).json({ error: 'No data found in the sheet. Check sheet name or content.' });
+    const rowsForMeeting = rows.filter(row => formatMeetingDate(row[0]) === meetingDate);
+    if (rowsForMeeting.length === 0) {
+      return res.status(404).json({ error: `No attendance rows found for ${meetingDate} in ${ATTENDANCE_RESPONSE_SHEET}.` });
     }
 
     const attendanceMap = new Map();
-    rows.forEach(row => {
+    rowsForMeeting.forEach(row => {
       const timestamp = row[0];
       const email = row[1]?.trim().toLowerCase();
       const comment = row[2]?.trim();
@@ -86,18 +252,7 @@ app.get('/attendance/update', async (req, res) => {
       attendanceMap.get(email).push({ timestamp, comment });
     });
 
-    let currentSessionDate = null;
-    for (let [_, entries] of attendanceMap) {
-      if (entries.length > 0) {
-        const ts = new Date(entries[0].timestamp);
-        currentSessionDate = `${ts.getMonth() + 1}/${ts.getDate()}/${ts.getFullYear()}`;
-        break;
-      }
-    }
-
-    if (!currentSessionDate) {
-      return res.status(400).json({ error: 'Could not determine session date from entries.' });
-    }
+    const currentSessionDate = meetingDate;
 
     const alreadyLogged = Object.values(masterData).some(userMeetings =>
       userMeetings.some(meeting => meeting.date === currentSessionDate)
@@ -128,8 +283,7 @@ app.get('/attendance/update', async (req, res) => {
 
       if (sorted.length !== 2) {
         flaggedEmails.push(email);
-        const ts = sorted[0] ? new Date(sorted[0].timestamp) : new Date();
-        const dateOnly = `${ts.getMonth() + 1}/${ts.getDate()}/${ts.getFullYear()}`;
+        const dateOnly = currentSessionDate;
         meetings.push({
           date: dateOnly,
           error: true,
@@ -138,8 +292,7 @@ app.get('/attendance/update', async (req, res) => {
       } else {
         const start = sorted[0];
         const end = sorted[1];
-        const ts = new Date(start.timestamp);
-        const dateOnly = `${ts.getMonth() + 1}/${ts.getDate()}/${ts.getFullYear()}`;
+        const dateOnly = currentSessionDate;
 
         if (start.comment || end.comment) {
           flaggedEmails.push(email);
@@ -225,9 +378,9 @@ app.get('/attendance/update', async (req, res) => {
 
 // returns the flagged emails from the sheet 
 app.get('/attendance/flagged', async (req, res) => {
-  const sheetName = req.query.sheet; 
-  if (!sheetName) {
-    return res.status(400).json({ error: 'Sheet name (date) required as ?sheet=...' });
+  const meetingDate = normalizeMeetingDate(req.query.date);
+  if (!meetingDate) {
+    return res.status(400).json({ error: 'Meeting date required as ?date=M/D/YYYY.' });
   }
 
   try {
@@ -243,7 +396,7 @@ app.get('/attendance/flagged', async (req, res) => {
       const meetingForDate = meetings.find(m => {
         if (!m.date || typeof m.date !== "string") return false;
         const d = m.date.split(" ")[0];
-        return d === sheetName;
+        return d === meetingDate;
       });
 
       if (!meetingForDate) return; 
@@ -453,7 +606,11 @@ app.post("/attendance/resolve", (req, res) => {
 app.get("/attendance/raw/:email", async (req, res) => {
   try {
     const email = req.params.email.toLowerCase();
-    const sheetName = req.query.sheet || "Form Responses 1";
+    const sheetName = req.query.sheet || ATTENDANCE_RESPONSE_SHEET;
+    const meetingDate = req.query.date ? normalizeMeetingDate(req.query.date) : null;
+    if (req.query.date && !meetingDate) {
+      return res.status(400).json({ error: 'Date must use M/D/YYYY.' });
+    }
 
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId: SPREADSHEET_ID,
@@ -477,13 +634,15 @@ app.get("/attendance/raw/:email", async (req, res) => {
       return obj;
     });
 
-    const filtered = mappedRows.filter(
-      r => (r["Email Address"] || "").toLowerCase() === email
+    const filtered = mappedRows.filter(r =>
+      (r["Email Address"] || "").toLowerCase() === email &&
+      (!meetingDate || formatMeetingDate(r.Timestamp) === meetingDate)
     );
 
     res.json({
       email,
       sheet: sheetName,
+      date: meetingDate,
       count: filtered.length,
       results: filtered
     });
@@ -535,6 +694,112 @@ app.post("/attendance/manual-update", async (req, res) => {
   } catch (err) {
     console.error("Manual update error:", err);
     return res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// Submits a member's request to correct a single day's attendance.
+app.post('/attendance/adjustments', (req, res) => {
+  const { email, date, arrivalTime, departureTime, hoursHere } = req.body;
+  const durationHours = Number(hoursHere);
+
+  if (!email || !date || !arrivalTime || !departureTime || !Number.isFinite(durationHours)) {
+    return res.status(400).json({ error: 'Email, date, arrival time, departure time, and hours are required.' });
+  }
+  if (durationHours < 0 || durationHours > 24) {
+    return res.status(400).json({ error: 'Hours must be between 0 and 24.' });
+  }
+
+  try {
+    const settings = getAttendanceAdjustmentSettings();
+    if (settings.closedDates.includes(normalizeMeetingDate(date))) {
+      return res.status(403).json({ error: `Adjustments are closed for ${date}.` });
+    }
+    const adjustments = getAttendanceAdjustments();
+    const masterPath = path.join(__dirname, 'attendance_master.json');
+    const masterData = fs.existsSync(masterPath)
+      ? JSON.parse(fs.readFileSync(masterPath, 'utf8'))
+      : {};
+    const normalizedEmail = email.trim().toLowerCase();
+    const normalizeDate = value => String(value || '').split(' ')[0];
+    const previousEntry = (masterData[normalizedEmail] || []).find(
+      entry => normalizeDate(entry.date) === normalizeDate(date)
+    );
+    const previousAttendance = previousEntry?.error
+      ? {
+          status: 'flagged',
+          reason: previousEntry.reason || 'Flagged entry',
+        }
+      : previousEntry
+          ? {
+              status: Number(previousEntry.durationHours) > 0 ? 'attended' : 'absent',
+              hours: Number(previousEntry.durationHours) || 0,
+            }
+          : { status: 'missing' };
+    const adjustment = {
+      id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+      email: normalizedEmail,
+      date: date.trim(),
+      arrivalTime: arrivalTime.trim(),
+      departureTime: departureTime.trim(),
+      hoursHere: Number(durationHours.toFixed(2)),
+      previousAttendance,
+      status: 'pending',
+      submittedAt: new Date().toISOString(),
+    };
+    adjustments.unshift(adjustment);
+    saveAttendanceAdjustments(adjustments);
+    res.status(201).json({ adjustment });
+  } catch (err) {
+    console.error('Error saving attendance adjustment:', err);
+    res.status(500).json({ error: 'Unable to save attendance adjustment.' });
+  }
+});
+
+// Resolves an adjustment. Approving it updates the attendance record for that date.
+app.post('/attendance/adjustments/:id/resolve', (req, res) => {
+  const { status } = req.body;
+  if (status !== 'approved' && status !== 'rejected') {
+    return res.status(400).json({ error: 'Status must be approved or rejected.' });
+  }
+
+  try {
+    const adjustments = getAttendanceAdjustments();
+    const adjustment = adjustments.find(item => item.id === req.params.id);
+    if (!adjustment) return res.status(404).json({ error: 'Adjustment request not found.' });
+    if (adjustment.status !== 'pending') {
+      return res.status(400).json({ error: 'This request has already been resolved.' });
+    }
+
+    if (status === 'approved') {
+      const masterPath = path.join(__dirname, 'attendance_master.json');
+      if (!fs.existsSync(masterPath)) {
+        return res.status(500).json({ error: 'Master attendance file not found.' });
+      }
+      const masterData = JSON.parse(fs.readFileSync(masterPath, 'utf8'));
+      const email = adjustment.email;
+      if (!masterData[email]) masterData[email] = [];
+
+      const normalizeDate = value => String(value || '').split(' ')[0];
+      const entryIndex = masterData[email].findIndex(
+        entry => normalizeDate(entry.date) === normalizeDate(adjustment.date)
+      );
+      const updatedEntry = {
+        date: adjustment.date,
+        durationHours: adjustment.hoursHere,
+      };
+      if (entryIndex === -1) masterData[email].push(updatedEntry);
+      else masterData[email][entryIndex] = updatedEntry;
+
+      fs.writeFileSync(masterPath, JSON.stringify(masterData, null, 2));
+    }
+
+    adjustment.status = status;
+    adjustment.resolvedAt = new Date().toISOString();
+    saveAttendanceAdjustments(adjustments);
+    res.json({ adjustment });
+  } catch (err) {
+    console.error('Error resolving attendance adjustment:', err);
+    res.status(500).json({ error: 'Unable to resolve attendance adjustment.' });
   }
 });
 
@@ -726,6 +991,52 @@ app.get('/total-hours', (req, res) => {
   }
 });
 
+
+app.get("/attendance/team/hours", (req, res) => {
+  try {
+    const masterPath = path.join(__dirname, "attendance_master.json");
+
+    if (!fs.existsSync(masterPath)) {
+      return res.status(500).json({
+        error: "Master attendance file not found."
+      });
+    }
+
+    const masterData = JSON.parse(
+      fs.readFileSync(masterPath, "utf8")
+    );
+
+    const results = Object.entries(masterData).map(([email, meetings]) => {
+      const totalHoursAttended = meetings.reduce((sum, meeting) => {
+        return sum + (
+          typeof meeting.durationHours === "number"
+            ? meeting.durationHours
+            : 0
+        );
+      }, 0);
+
+      return {
+        email,
+        totalHoursAttended: Number(totalHoursAttended.toFixed(2))
+      };
+    });
+
+    results.sort(
+      (a, b) => b.totalHoursAttended - a.totalHoursAttended
+    );
+
+    res.json({
+      count: results.length,
+      results
+    });
+
+  } catch (err) {
+    console.error("Error calculating team hours:", err);
+    res.status(500).json({
+      error: "Unable to calculate team hours."
+    });
+  }
+});
 
 
 app.get('/', (req, res) => {

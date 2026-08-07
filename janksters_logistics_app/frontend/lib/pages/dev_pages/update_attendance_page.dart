@@ -14,7 +14,7 @@ class _UpdateAttendancePageState extends State<UpdateAttendancePage> {
   List<dynamic> flaggedEmails = [];
   List<dynamic> allSheetRows = [];
 
-  final TextEditingController _sheetController = TextEditingController();
+  final TextEditingController _dateController = TextEditingController();
   final TextEditingController _hoursController = TextEditingController();
   final TextEditingController commentController = TextEditingController();
   final TextEditingController hoursController = TextEditingController();
@@ -48,10 +48,10 @@ class _UpdateAttendancePageState extends State<UpdateAttendancePage> {
     try {
       final encoded = Uri.encodeComponent(date);
 
-      final url = Uri.parse('https://logistics-app-backend-o9t7.onrender.com/attendance/flagged?sheet=$encoded');
+      final url = Uri.parse('https://logistics-app-backend-o9t7.onrender.com/attendance/flagged?date=$encoded');
 
       // testing purposes only
-      // final url = Uri.parse('http://localhost:3000/attendance/flagged?sheet=$encoded');
+      // final url = Uri.parse('http://localhost:3000/attendance/flagged?date=$encoded');
 
       final response = await http.get(url);
 
@@ -91,10 +91,10 @@ void loadCurrentEntry() {
 
   setState(() {});
 
-  final sheet = _sheetController.text.trim();
+  final date = _dateController.text.trim();
   final email = entry["email"];
-  if (sheet.isNotEmpty && email != null && email.isNotEmpty) {
-    fetchAllRows(sheet, email);
+  if (date.isNotEmpty && email != null && email.isNotEmpty) {
+    fetchAllRows(date, email);
   } else {
     allSheetRows = [];
   }
@@ -102,7 +102,7 @@ void loadCurrentEntry() {
 
 
 
-  Future<void> updateMasterAttendance(String sheetName, double meetingHours) async {
+  Future<void> updateMasterAttendance(String date, double meetingHours) async {
     setState(() {
       isLoading = true;
       statusMessage = '';
@@ -113,7 +113,7 @@ void loadCurrentEntry() {
         'logistics-app-backend-o9t7.onrender.com',
         '/attendance/update',
         {
-          'sheet': sheetName,
+          'date': date,
           'hours': meetingHours.toString(),
         },
 
@@ -123,10 +123,7 @@ void loadCurrentEntry() {
       // final url = Uri.http(
       //   'localhost:3000',
       //   '/attendance/update',
-      //   {
-      //     'sheet': sheetName,
-      //     'hours': meetingHours.toString(),
-      //   },
+      //   {'date': date, 'hours': meetingHours.toString()},
       // );
 
       print("UPDATE REQUEST URL: $url");
@@ -147,10 +144,10 @@ void loadCurrentEntry() {
 
       statusMessage = decoded['message'] ?? 'Update successful.';
 
-      await fetchFlaggedForDate(sheetName);
+      await fetchFlaggedForDate(date);
 
       if (flaggedEmails.isNotEmpty) {
-        await fetchAllRows(sheetName, flaggedEmails[currentIndex]["email"]);
+        await fetchAllRows(date, flaggedEmails[currentIndex]["email"]);
       }
 
     } catch (e) {
@@ -162,16 +159,16 @@ void loadCurrentEntry() {
   }
 
 
-  Future<void> fetchAllRows(String sheetName, String email) async {
+  Future<void> fetchAllRows(String date, String email) async {
     setState(() => isLoading = true);
 
     try {
-      final encodedSheet = Uri.encodeComponent(sheetName);
       final encodedEmail = Uri.encodeComponent(email);
-      final url = Uri.parse('https://logistics-app-backend-o9t7.onrender.com/attendance/raw/$encodedEmail?sheet=$encodedSheet');
+      final encodedDate = Uri.encodeComponent(date);
+      final url = Uri.parse('https://logistics-app-backend-o9t7.onrender.com/attendance/raw/$encodedEmail?date=$encodedDate');
 
       // testing purposes only
-      // final url = Uri.parse('http://localhost:3000/attendance/raw/$encodedEmail?sheet=$encodedSheet');
+      // final url = Uri.parse('http://localhost:3000/attendance/raw/$encodedEmail?date=$encodedDate');
 
       final r = await http.get(url);
 
@@ -249,7 +246,7 @@ void loadCurrentEntry() {
 
   @override
   void dispose() {
-    _sheetController.dispose();
+    _dateController.dispose();
     _hoursController.dispose();
     hoursController.dispose();
     commentController.dispose();
@@ -271,9 +268,9 @@ void loadCurrentEntry() {
                 Expanded(
                   flex: 3,
                   child: TextField(
-                    controller: _sheetController,
+                    controller: _dateController,
                     decoration: const InputDecoration(
-                      labelText: "Enter Sheet Name (e.g. 1/9/2025)",
+                      labelText: "Meeting Date (e.g. 1/9/2025)",
                       border: OutlineInputBorder(),
                     ),
                   ),
@@ -294,15 +291,15 @@ void loadCurrentEntry() {
             const SizedBox(height: 12),
             ElevatedButton(
               onPressed: () {
-                final sheet = _sheetController.text.trim();
+                final date = _dateController.text.trim();
                 final hours = double.tryParse(_hoursController.text.trim());
-                if (sheet.isEmpty || hours == null) {
+                if (date.isEmpty || hours == null) {
                   setState(() {
-                    statusMessage = "Please provide sheet name and valid hours.";
+                    statusMessage = "Please provide a meeting date and valid hours.";
                   });
                   return;
                 }
-                updateMasterAttendance(sheet, hours);
+                updateMasterAttendance(date, hours);
               },
               child: const Text("Update Master Attendance"),
             ),
@@ -325,7 +322,7 @@ void loadCurrentEntry() {
                       ),
                       const SizedBox(height: 6),
                       Text("Email: ${flaggedEmails[currentIndex]["email"]}"),
-                      Text("Date: ${flaggedEmails[currentIndex]["date"] ?? _sheetController.text}"),
+                      Text("Date: ${flaggedEmails[currentIndex]["date"] ?? _dateController.text}"),
                       const SizedBox(height: 10),
                       TextField(
                         controller: hoursController,

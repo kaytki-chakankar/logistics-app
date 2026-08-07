@@ -7,6 +7,7 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'dev_pages/dev_page.dart';
+import 'attendance_adjustment_request_page.dart';
 import 'links_page.dart';
 import 'preseason_stats.dart';
 
@@ -24,8 +25,9 @@ class _AttendancePageState extends State<AttendancePage> {
   bool isLoading = false;
   String? userEmail;
   String errorMessage = '';
+  Set<String> closedAdjustmentDates = {};
 
-  final List<String> developerEmails = [
+  List<String> developerEmails = [
     'kchakankar27@ndsj.org',
     'aferrer@ndsj.org',
     'bfarrer@ndsj.org',
@@ -46,7 +48,44 @@ class _AttendancePageState extends State<AttendancePage> {
     super.initState();
     userEmail = FirebaseAuth.instance.currentUser?.email?.toLowerCase();
     _loadCachedAttendance();
+    _loadDeveloperEmails();
+    _loadAdjustmentSettings();
     fetchAttendance();
+  }
+
+  Future<void> _loadAdjustmentSettings() async {
+    try {
+      final response = await http.get(
+        Uri.parse('https://logistics-app-backend-o9t7.onrender.com/attendance/adjustments/settings'),
+      );
+      if (response.statusCode != 200) return;
+      final data = json.decode(response.body);
+      final dates = (data['closedDates'] as List<dynamic>? ?? [])
+          .map((date) => date.toString())
+          .toSet();
+      if (mounted) setState(() => closedAdjustmentDates = dates);
+    } catch (_) {
+      // If settings cannot load, the backend still enforces closures on submit.
+    }
+  }
+
+  Future<void> _loadDeveloperEmails() async {
+    try {
+      final response = await http.get(
+        Uri.parse('https://logistics-app-backend-o9t7.onrender.com/developers'),
+      );
+      if (response.statusCode != 200) return;
+      final data = json.decode(response.body);
+      final developers = (data['developers'] as List<dynamic>?)
+              ?.map((email) => email.toString().toLowerCase())
+              .toList() ??
+          [];
+      if (developers.isNotEmpty && mounted) {
+        setState(() => developerEmails = developers);
+      }
+    } catch (_) {
+      // Keep the bundled list as an offline fallback.
+    }
   }
 
   Future<void> _loadCachedAttendance() async {
@@ -377,6 +416,20 @@ class _AttendancePageState extends State<AttendancePage> {
                                     final meeting = meetings[index];
                                     final date = meeting['date'] ?? 'Unknown date';
                                     final duration = (meeting['durationHours'] ?? 0.0) as double;
+                                    final canAdjust = !closedAdjustmentDates.contains(date.toString());
+                                    final adjustButton = OutlinedButton(
+                                      onPressed: canAdjust ? () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (_) => AttendanceAdjustmentRequestPage(
+                                              date: date.toString(),
+                                            ),
+                                          ),
+                                        );
+                                      } : null,
+                                      child: Text(canAdjust ? 'Adjust' : 'Closed'),
+                                    );
 
                                     if (meeting['error'] == true ||
                                         meeting['error']?.toString() == 'true') {
@@ -398,6 +451,7 @@ class _AttendancePageState extends State<AttendancePage> {
                                             color: primaryRed.withOpacity(0.9),
                                           ),
                                         ),
+                                        trailing: adjustButton,
                                       );
                                     } else if (duration == 0) {
                                       return ListTile(
@@ -417,6 +471,7 @@ class _AttendancePageState extends State<AttendancePage> {
                                             color: Colors.grey.shade600,
                                           ),
                                         ),
+                                        trailing: adjustButton,
                                       );
                                     } else {
                                       return ListTile(
@@ -429,13 +484,20 @@ class _AttendancePageState extends State<AttendancePage> {
                                             color: blackText,
                                           ),
                                         ),
-                                        trailing: Text(
-                                          '${duration.toStringAsFixed(2)} hours',
-                                          style: TextStyle(
-                                            fontFamily: 'Poppins',
-                                            color: accentRed,
-                                            fontWeight: FontWeight.w600,
-                                          ),
+                                        trailing: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            Text(
+                                              '${duration.toStringAsFixed(2)} hours',
+                                              style: TextStyle(
+                                                fontFamily: 'Poppins',
+                                                color: accentRed,
+                                                fontWeight: FontWeight.w600,
+                                              ),
+                                            ),
+                                            const SizedBox(width: 12),
+                                            adjustButton,
+                                          ],
                                         ),
                                       );
                                     }

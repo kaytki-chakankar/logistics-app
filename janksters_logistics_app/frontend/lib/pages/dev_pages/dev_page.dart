@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'edit_attendance_page.dart';
 import 'view_team_page.dart';
 import 'update_attendance_page.dart';
+import 'adjust_attendance_page.dart';
+import 'manage_devs_page.dart';
 
 class DeveloperPage extends StatefulWidget {
   const DeveloperPage({super.key});
@@ -94,6 +96,28 @@ class _DeveloperPageState extends State<DeveloperPage> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(builder: (_) => ViewFullTeamAttendancePage()),
+                      );
+                    },
+                  ),
+                  _buildDashboardCard(
+                    title: "Adjust Attendance",
+                    subtitle: "Review member adjustment requests",
+                    icon: Icons.fact_check,
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const AdjustAttendancePage()),
+                      );
+                    },
+                  ),
+                  _buildDashboardCard(
+                    title: "Manage Devs",
+                    subtitle: "Add or remove developer access",
+                    icon: Icons.admin_panel_settings,
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const ManageDevsPage()),
                       );
                     },
                   ),

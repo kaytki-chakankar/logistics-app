@@ -7,10 +7,12 @@ class ViewFullTeamAttendancePage extends StatefulWidget {
   const ViewFullTeamAttendancePage({super.key});
 
   @override
-  State<ViewFullTeamAttendancePage> createState() => _ViewFullTeamAttendancePageState();
+  State<ViewFullTeamAttendancePage> createState() =>
+      _ViewFullTeamAttendancePageState();
 }
 
-class _ViewFullTeamAttendancePageState extends State<ViewFullTeamAttendancePage> {
+class _ViewFullTeamAttendancePageState
+    extends State<ViewFullTeamAttendancePage> {
   late Future<Map<String, dynamic>> _attendanceFuture;
   bool isPreseason = false;
 
@@ -25,7 +27,7 @@ class _ViewFullTeamAttendancePageState extends State<ViewFullTeamAttendancePage>
 
   Future<Map<String, dynamic>> fetchFullTeamAttendance() async {
     final url = Uri.parse(
-      "https://logistics-app-backend-o9t7.onrender.com/attendance/team/full?isPreseason=${isPreseason.toString()}"
+      "https://logistics-app-backend-o9t7.onrender.com/attendance/team/full?isPreseason=${isPreseason.toString()}",
     );
 
     // testing purposes only
@@ -65,9 +67,7 @@ class _ViewFullTeamAttendancePageState extends State<ViewFullTeamAttendancePage>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Full Team Attendance"),
-      ),
+      appBar: AppBar(title: const Text("Full Team Attendance")),
       body: FutureBuilder<Map<String, dynamic>>(
         future: _attendanceFuture,
         builder: (context, snapshot) {
@@ -95,7 +95,10 @@ class _ViewFullTeamAttendancePageState extends State<ViewFullTeamAttendancePage>
                   children: [
                     const Text(
                       "Attendance Overview",
-                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                     Row(
                       children: [
@@ -104,10 +107,13 @@ class _ViewFullTeamAttendancePageState extends State<ViewFullTeamAttendancePage>
                           value: isPreseason,
                           onChanged: (v) async {
                             setState(() => isPreseason = v);
-                            setState(() => _attendanceFuture = fetchFullTeamAttendance());
+                            setState(
+                              () =>
+                                  _attendanceFuture = fetchFullTeamAttendance(),
+                            );
                           },
                         ),
-                        const Text("Preseason")
+                        const Text("Preseason"),
                       ],
                     ),
                   ],
@@ -118,10 +124,26 @@ class _ViewFullTeamAttendancePageState extends State<ViewFullTeamAttendancePage>
                   spacing: 14,
                   runSpacing: 6,
                   children: const [
-                    _AttendanceLegend(icon: '✓', label: 'Attended', color: Colors.green),
-                    _AttendanceLegend(icon: '✗', label: 'Absent', color: Colors.red),
-                    _AttendanceLegend(icon: '⚠', label: 'Flagged', color: Colors.orange),
-                    _AttendanceLegend(icon: '—', label: 'No record', color: Colors.grey),
+                    _AttendanceLegend(
+                      icon: '✓',
+                      label: 'Attended',
+                      color: Colors.green,
+                    ),
+                    _AttendanceLegend(
+                      icon: '✗',
+                      label: 'Absent',
+                      color: Colors.red,
+                    ),
+                    _AttendanceLegend(
+                      icon: '⚠',
+                      label: 'Flagged',
+                      color: Colors.orange,
+                    ),
+                    _AttendanceLegend(
+                      icon: '—',
+                      label: 'No record',
+                      color: Colors.grey,
+                    ),
                   ],
                 ),
                 const SizedBox(height: 10),
@@ -135,7 +157,8 @@ class _ViewFullTeamAttendancePageState extends State<ViewFullTeamAttendancePage>
                       return Scrollbar(
                         controller: _horizontalController,
                         thumbVisibility: true,
-                        notificationPredicate: (notification) => notification.depth == 0,
+                        notificationPredicate: (notification) =>
+                            notification.depth == 0,
                         child: SingleChildScrollView(
                           controller: _horizontalController,
                           scrollDirection: Axis.horizontal,
@@ -152,30 +175,105 @@ class _ViewFullTeamAttendancePageState extends State<ViewFullTeamAttendancePage>
                                   dataRowMinHeight: 46,
                                   dataRowMaxHeight: 46,
                                   columns: [
-                                    const DataColumn(label: SizedBox(width: 190, child: Text('Member', style: TextStyle(fontWeight: FontWeight.bold)))),
-                                    const DataColumn(label: Text('%', style: TextStyle(fontWeight: FontWeight.bold))),
-                                    ...dates.map((date) => DataColumn(
-                                      label: Tooltip(
-                                        message: date,
-                                        child: SizedBox(width: 42, child: Center(child: Text(shortDate(date), style: const TextStyle(fontWeight: FontWeight.bold)))),
+                                    const DataColumn(
+                                      label: SizedBox(
+                                        width: 190,
+                                        child: Text(
+                                          'Member',
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
                                       ),
-                                    )),
+                                    ),
+                                    const DataColumn(
+                                      label: Text(
+                                        '%',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
+                                    ...dates.map(
+                                      (date) => DataColumn(
+                                        label: Tooltip(
+                                          message: date,
+                                          child: SizedBox(
+                                            width: 42,
+                                            child: Center(
+                                              child: Text(
+                                                shortDate(date),
+                                                style: const TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
                                   ],
                                   rows: team.map((member) {
                                     final email = member['email'];
-                                    final percent = member['attendancePercent'] as int;
-                                    final row = List<Map<String, dynamic>>.from(member['row']);
+                                    final percent =
+                                        member['attendancePercent'] as int;
+                                    final row = List<Map<String, dynamic>>.from(
+                                      member['row'],
+                                    );
                                     return DataRow(
-                                      color: WidgetStateProperty.all(rowBackground(percent)),
+                                      color: WidgetStateProperty.all(
+                                        rowBackground(percent),
+                                      ),
                                       cells: [
-                                        DataCell(SizedBox(width: 190, child: Text(email, overflow: TextOverflow.ellipsis))),
+                                        DataCell(
+                                          SizedBox(
+                                            width: 190,
+                                            child: Text(
+                                              email,
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          ),
+                                        ),
                                         DataCell(Text('$percent%')),
                                         ...row.map((cell) {
                                           final status = cell['status'];
-                                          final symbol = status == 'attended' ? '✓' : status == 'missed' ? '✗' : status == 'flagged' ? '⚠' : '—';
-                                          final color = status == 'attended' ? Colors.green : status == 'missed' ? Colors.red : status == 'flagged' ? Colors.orange : Colors.grey;
-                                          final label = status == 'flagged' ? cell['reason'] ?? 'Flagged entry' : status == 'attended' ? '${cell['hours']} hours attended' : status == 'missed' ? 'Absent' : 'No record';
-                                          return DataCell(Tooltip(message: label.toString(), child: Center(child: Text(symbol, style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: color))));
+                                          final symbol = status == 'attended'
+                                              ? '✓'
+                                              : status == 'missed'
+                                              ? '✗'
+                                              : status == 'flagged'
+                                              ? '⚠'
+                                              : '—';
+                                          final color = status == 'attended'
+                                              ? Colors.green
+                                              : status == 'missed'
+                                              ? Colors.red
+                                              : status == 'flagged'
+                                              ? Colors.orange
+                                              : Colors.grey;
+                                          final label = status == 'flagged'
+                                              ? cell['reason'] ??
+                                                    'Flagged entry'
+                                              : status == 'attended'
+                                              ? '${cell['hours']} hours attended'
+                                              : status == 'missed'
+                                              ? 'Absent'
+                                              : 'No record';
+                                          return DataCell(
+                                            Tooltip(
+                                              message: label.toString(),
+                                              child: Center(
+                                                child: Text(
+                                                  symbol,
+                                                  style: TextStyle(
+                                                    fontSize: 17,
+                                                    fontWeight: FontWeight.bold,
+                                                    color: color,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          );
                                         }),
                                       ],
                                     );
@@ -199,7 +297,11 @@ class _ViewFullTeamAttendancePageState extends State<ViewFullTeamAttendancePage>
 }
 
 class _AttendanceLegend extends StatelessWidget {
-  const _AttendanceLegend({required this.icon, required this.label, required this.color});
+  const _AttendanceLegend({
+    required this.icon,
+    required this.label,
+    required this.color,
+  });
 
   final String icon;
   final String label;
@@ -210,7 +312,10 @@ class _AttendanceLegend extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Text(icon, style: TextStyle(color: color, fontWeight: FontWeight.bold)),
+        Text(
+          icon,
+          style: TextStyle(color: color, fontWeight: FontWeight.bold),
+        ),
         const SizedBox(width: 4),
         Text(label),
       ],

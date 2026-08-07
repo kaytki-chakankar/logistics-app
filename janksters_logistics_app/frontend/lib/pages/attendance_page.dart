@@ -34,7 +34,7 @@ class _AttendancePageState extends State<AttendancePage> {
     'mcarrillo@ndsj.org',
     'abhardwaj26@ndsj.org',
     'thensley26@ndsj.org',
-    'aarjun27@ndsj.org'
+    'aarjun27@ndsj.org',
   ];
 
   // team theme colors
@@ -56,7 +56,9 @@ class _AttendancePageState extends State<AttendancePage> {
   Future<void> _loadAdjustmentSettings() async {
     try {
       final response = await http.get(
-        Uri.parse('https://logistics-app-backend-o9t7.onrender.com/attendance/adjustments/settings'),
+        Uri.parse(
+          'https://logistics-app-backend-o9t7.onrender.com/attendance/adjustments/settings',
+        ),
       );
       if (response.statusCode != 200) return;
       final data = json.decode(response.body);
@@ -76,7 +78,8 @@ class _AttendancePageState extends State<AttendancePage> {
       );
       if (response.statusCode != 200) return;
       final data = json.decode(response.body);
-      final developers = (data['developers'] as List<dynamic>?)
+      final developers =
+          (data['developers'] as List<dynamic>?)
               ?.map((email) => email.toString().toLowerCase())
               .toList() ??
           [];
@@ -95,14 +98,19 @@ class _AttendancePageState extends State<AttendancePage> {
       try {
         final cachedData = json.decode(cached);
         setState(() {
-          totalHours = (cachedData['totalHoursAttended'] as num?)?.toDouble() ?? 0.0;
-          attendancePercentage = (cachedData['attendancePercentage'] as num?)?.toDouble() ?? 0.0;
-          meetings = (cachedData['meetings'] as List<dynamic>?)
-                  ?.where((m) =>
-                      m['date'] != null &&
-                      (m.containsKey('durationHours') ||
-                          m['error'] == true ||
-                          m['error']?.toString() == 'true'))
+          totalHours =
+              (cachedData['totalHoursAttended'] as num?)?.toDouble() ?? 0.0;
+          attendancePercentage =
+              (cachedData['attendancePercentage'] as num?)?.toDouble() ?? 0.0;
+          meetings =
+              (cachedData['meetings'] as List<dynamic>?)
+                  ?.where(
+                    (m) =>
+                        m['date'] != null &&
+                        (m.containsKey('durationHours') ||
+                            m['error'] == true ||
+                            m['error']?.toString() == 'true'),
+                  )
                   .toList() ??
               [];
 
@@ -134,11 +142,12 @@ class _AttendancePageState extends State<AttendancePage> {
       errorMessage = '';
     });
 
-    final url = Uri.parse('https://logistics-app-backend-o9t7.onrender.com/attendance/$userEmail');
+    final url = Uri.parse(
+      'https://logistics-app-backend-o9t7.onrender.com/attendance/$userEmail',
+    );
 
     // testing purposes only
     // final url = Uri.parse('http://localhost:3000/attendance/$userEmail');
-
 
     try {
       final response = await http.get(url);
@@ -149,13 +158,17 @@ class _AttendancePageState extends State<AttendancePage> {
 
         setState(() {
           totalHours = (data['totalHoursAttended'] as num?)?.toDouble() ?? 0.0;
-          attendancePercentage = (data['attendancePercentage'] as num?)?.toDouble() ?? 0.0;
-          meetings = (data['meetings'] as List<dynamic>?)
-                  ?.where((m) =>
-                      m['date'] != null &&
-                      (m.containsKey('durationHours') ||
-                          m['error'] == true ||
-                          m['error']?.toString() == 'true'))
+          attendancePercentage =
+              (data['attendancePercentage'] as num?)?.toDouble() ?? 0.0;
+          meetings =
+              (data['meetings'] as List<dynamic>?)
+                  ?.where(
+                    (m) =>
+                        m['date'] != null &&
+                        (m.containsKey('durationHours') ||
+                            m['error'] == true ||
+                            m['error']?.toString() == 'true'),
+                  )
                   .toList() ??
               [];
 
@@ -174,7 +187,8 @@ class _AttendancePageState extends State<AttendancePage> {
         await prefs.setString('attendanceData', response.body);
       } else {
         setState(() {
-          errorMessage = 'Failed to load attendance. Status: ${response.statusCode}';
+          errorMessage =
+              'Failed to load attendance. Status: ${response.statusCode}';
         });
       }
     } catch (e) {
@@ -184,20 +198,27 @@ class _AttendancePageState extends State<AttendancePage> {
         try {
           final cachedData = json.decode(cached);
           setState(() {
-            totalHours = (cachedData['totalHoursAttended'] as num?)?.toDouble() ?? 0.0;
-            attendancePercentage = (cachedData['attendancePercentage'] as num?)?.toDouble() ?? 0.0;
-            meetings = (cachedData['meetings'] as List<dynamic>?)
-                    ?.where((m) =>
-                        m['date'] != null &&
-                        (m.containsKey('durationHours') ||
-                            m['error'] == true ||
-                            m['error']?.toString() == 'true'))
+            totalHours =
+                (cachedData['totalHoursAttended'] as num?)?.toDouble() ?? 0.0;
+            attendancePercentage =
+                (cachedData['attendancePercentage'] as num?)?.toDouble() ?? 0.0;
+            meetings =
+                (cachedData['meetings'] as List<dynamic>?)
+                    ?.where(
+                      (m) =>
+                          m['date'] != null &&
+                          (m.containsKey('durationHours') ||
+                              m['error'] == true ||
+                              m['error']?.toString() == 'true'),
+                    )
                     .toList() ??
                 [];
 
             meetings.sort((a, b) {
-              final dateA = DateTime.tryParse(a['date'] ?? '') ?? DateTime(1970);
-              final dateB = DateTime.tryParse(b['date'] ?? '') ?? DateTime(1970);
+              final dateA =
+                  DateTime.tryParse(a['date'] ?? '') ?? DateTime(1970);
+              final dateB =
+                  DateTime.tryParse(b['date'] ?? '') ?? DateTime(1970);
               return dateB.compareTo(dateA);
             });
 
@@ -244,9 +265,7 @@ class _AttendancePageState extends State<AttendancePage> {
           child: ListView(
             children: [
               DrawerHeader(
-                decoration: BoxDecoration(
-                  color: primaryRed,
-                ),
+                decoration: BoxDecoration(color: primaryRed),
                 child: const Center(
                   child: Text(
                     'Navigation',
@@ -262,21 +281,27 @@ class _AttendancePageState extends State<AttendancePage> {
               ),
               ListTile(
                 leading: Icon(Icons.home, color: primaryRed),
-                title: Text('Attendance',
-                    style: TextStyle(
-                        fontFamily: 'Poppins',
-                        color: blackText,
-                        fontWeight: FontWeight.w600)),
+                title: Text(
+                  'Attendance',
+                  style: TextStyle(
+                    fontFamily: 'Poppins',
+                    color: blackText,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
                 onTap: () => Navigator.pop(context),
               ),
               if (isDeveloper)
                 ListTile(
                   leading: Icon(Icons.developer_mode, color: primaryRed),
-                  title: Text('Developer Tools',
-                      style: TextStyle(
-                          fontFamily: 'Poppins',
-                          color: blackText,
-                          fontWeight: FontWeight.w600)),
+                  title: Text(
+                    'Developer Tools',
+                    style: TextStyle(
+                      fontFamily: 'Poppins',
+                      color: blackText,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
                   onTap: () {
                     Navigator.pop(context);
                     Navigator.push(
@@ -287,11 +312,14 @@ class _AttendancePageState extends State<AttendancePage> {
                 ),
               ListTile(
                 leading: Icon(Icons.link, color: primaryRed),
-                title: Text('Important Links',
-                    style: TextStyle(
-                        fontFamily: 'Poppins',
-                        color: blackText,
-                        fontWeight: FontWeight.w600)),
+                title: Text(
+                  'Important Links',
+                  style: TextStyle(
+                    fontFamily: 'Poppins',
+                    color: blackText,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
                 onTap: () {
                   Navigator.pop(context);
                   Navigator.push(
@@ -302,11 +330,14 @@ class _AttendancePageState extends State<AttendancePage> {
               ),
               ListTile(
                 leading: Icon(Icons.calendar_month, color: primaryRed),
-                title: Text('Preseason Attendance',
-                    style: TextStyle(
-                        fontFamily: 'Poppins',
-                        color: blackText,
-                        fontWeight: FontWeight.w600)),
+                title: Text(
+                  'Preseason Attendance',
+                  style: TextStyle(
+                    fontFamily: 'Poppins',
+                    color: blackText,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
                 onTap: () {
                   Navigator.pop(context);
                   Navigator.push(
@@ -317,11 +348,14 @@ class _AttendancePageState extends State<AttendancePage> {
               ),
               ListTile(
                 leading: Icon(Icons.logout, color: primaryRed),
-                title: Text('Logout',
-                    style: TextStyle(
-                        fontFamily: 'Poppins',
-                        color: blackText,
-                        fontWeight: FontWeight.w600)),
+                title: Text(
+                  'Logout',
+                  style: TextStyle(
+                    fontFamily: 'Poppins',
+                    color: blackText,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
                 onTap: () async {
                   await FirebaseAuth.instance.signOut();
                 },
@@ -358,170 +392,192 @@ class _AttendancePageState extends State<AttendancePage> {
         child: isLoading
             ? const CircularProgressIndicator()
             : errorMessage.isNotEmpty
-                ? Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 24),
-                    child: Text(
-                      errorMessage,
-                      style: const TextStyle(
-                        fontFamily: 'Poppins',
-                        fontSize: 16,
-                        color: Colors.red,
-                        fontWeight: FontWeight.w600,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                  )
-                : Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                    child: Column(
+            ? Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: Text(
+                  errorMessage,
+                  style: const TextStyle(
+                    fontFamily: 'Poppins',
+                    fontSize: 16,
+                    color: Colors.red,
+                    fontWeight: FontWeight.w600,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              )
+            : Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 12,
+                ),
+                child: Column(
+                  children: [
+                    const SizedBox(height: 32),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const SizedBox(height: 32),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            StylishCircularIndicator(
-                              percentage: attendancePercentage ?? 0,
-                              primaryRed: primaryRed,
-                              accentRed: accentRed,
-                              size: 250,
-                              label: 'Attendance',
-                            ),
-                            const SizedBox(width: 75),
-                            StylishCircularIndicator(
-                              percentage: calculateFullSemesterAttendance(),
-                              primaryRed: primaryRed,
-                              accentRed: accentRed,
-                              size: 200,
-                              label: 'Full\nSemester',
-                            ),
-                          ],
+                        StylishCircularIndicator(
+                          percentage: attendancePercentage ?? 0,
+                          primaryRed: primaryRed,
+                          accentRed: accentRed,
+                          size: 250,
+                          label: 'Attendance',
                         ),
-                        const SizedBox(height: 24),
-                        Expanded(
-                          child: meetings.isEmpty
-                              ? Center(
-                                  child: Text(
-                                    'No attendance records found.',
-                                    style: TextStyle(
-                                      fontFamily: 'Poppins',
-                                      fontSize: 18,
-                                      color: blackText,
-                                    ),
-                                  ),
-                                )
-                              : ListView.separated(
-                                  itemCount: meetings.length,
-                                  separatorBuilder: (_, __) => const Divider(height: 1),
-                                  itemBuilder: (context, index) {
-                                    final meeting = meetings[index];
-                                    final date = meeting['date'] ?? 'Unknown date';
-                                    final duration = (meeting['durationHours'] ?? 0.0) as double;
-                                    final canAdjust = !closedAdjustmentDates.contains(date.toString());
-                                    final Widget adjustButton = canAdjust
-                                        ? TextButton(
-                                            style: TextButton.styleFrom(
-                                              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
-                                              minimumSize: Size.zero,
-                                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                                            ),
-                                            onPressed: () {
-                                              Navigator.push(
-                                                context,
-                                                MaterialPageRoute(
-                                                  builder: (_) => AttendanceAdjustmentRequestPage(
+                        const SizedBox(width: 75),
+                        StylishCircularIndicator(
+                          percentage: calculateFullSemesterAttendance(),
+                          primaryRed: primaryRed,
+                          accentRed: accentRed,
+                          size: 200,
+                          label: 'Full\nSemester',
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 24),
+                    Expanded(
+                      child: meetings.isEmpty
+                          ? Center(
+                              child: Text(
+                                'No attendance records found.',
+                                style: TextStyle(
+                                  fontFamily: 'Poppins',
+                                  fontSize: 18,
+                                  color: blackText,
+                                ),
+                              ),
+                            )
+                          : ListView.separated(
+                              itemCount: meetings.length,
+                              separatorBuilder: (_, __) =>
+                                  const Divider(height: 1),
+                              itemBuilder: (context, index) {
+                                final meeting = meetings[index];
+                                final date = meeting['date'] ?? 'Unknown date';
+                                final duration =
+                                    (meeting['durationHours'] ?? 0.0) as double;
+                                final canAdjust = !closedAdjustmentDates
+                                    .contains(date.toString());
+                                final Widget adjustButton = canAdjust
+                                    ? TextButton(
+                                        style: TextButton.styleFrom(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 4,
+                                            vertical: 8,
+                                          ),
+                                          minimumSize: Size.zero,
+                                          tapTargetSize:
+                                              MaterialTapTargetSize.shrinkWrap,
+                                        ),
+                                        onPressed: () {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (_) =>
+                                                  AttendanceAdjustmentRequestPage(
                                                     date: date.toString(),
                                                   ),
-                                                ),
-                                              );
                                             ),
-                                            child: Text(
-                                              'Adjust',
-                                              style: TextStyle(
-                                                fontFamily: 'Poppins',
-                                                fontWeight: FontWeight.w600,
-                                                color: primaryRed,
-                                                decoration: TextDecoration.underline,
-                                              ),
-                                            ),
-                                          )
-                                        : const SizedBox.shrink();
-
-                                    if (meeting['error'] == true ||
-                                        meeting['error']?.toString() == 'true') {
-                                      final reason = meeting['reason'] ?? 'Flagged entry';
-                                      return ListTile(
-                                        leading: Icon(Icons.warning, color: primaryRed),
-                                        title: Text(
-                                          '$date - flagged',
+                                          );
+                                        },
+                                        child: Text(
+                                          'Adjust',
                                           style: TextStyle(
                                             fontFamily: 'Poppins',
                                             fontWeight: FontWeight.w600,
                                             color: primaryRed,
+                                            decoration:
+                                                TextDecoration.underline,
                                           ),
                                         ),
-                                        subtitle: Text(
-                                          reason,
+                                      )
+                                    : const SizedBox.shrink();
+
+                                if (meeting['error'] == true ||
+                                    meeting['error']?.toString() == 'true') {
+                                  final reason =
+                                      meeting['reason'] ?? 'Flagged entry';
+                                  return ListTile(
+                                    leading: Icon(
+                                      Icons.warning,
+                                      color: primaryRed,
+                                    ),
+                                    title: Text(
+                                      '$date - flagged',
+                                      style: TextStyle(
+                                        fontFamily: 'Poppins',
+                                        fontWeight: FontWeight.w600,
+                                        color: primaryRed,
+                                      ),
+                                    ),
+                                    subtitle: Text(
+                                      reason,
+                                      style: TextStyle(
+                                        fontFamily: 'Poppins',
+                                        color: primaryRed.withOpacity(0.9),
+                                      ),
+                                    ),
+                                    trailing: adjustButton,
+                                  );
+                                } else if (duration == 0) {
+                                  return ListTile(
+                                    leading: Icon(
+                                      Icons.close,
+                                      color: Colors.grey.shade600,
+                                    ),
+                                    title: Text(
+                                      '$date - absent',
+                                      style: TextStyle(
+                                        fontFamily: 'Poppins',
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.grey.shade700,
+                                      ),
+                                    ),
+                                    subtitle: Text(
+                                      'Did not attend',
+                                      style: TextStyle(
+                                        fontFamily: 'Poppins',
+                                        color: Colors.grey.shade600,
+                                      ),
+                                    ),
+                                    trailing: adjustButton,
+                                  );
+                                } else {
+                                  return ListTile(
+                                    leading: Icon(
+                                      Icons.check_circle,
+                                      color: accentRed,
+                                    ),
+                                    title: Text(
+                                      date,
+                                      style: TextStyle(
+                                        fontFamily: 'Poppins',
+                                        fontWeight: FontWeight.w600,
+                                        color: blackText,
+                                      ),
+                                    ),
+                                    trailing: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Text(
+                                          '${duration.toStringAsFixed(2)} hours',
                                           style: TextStyle(
                                             fontFamily: 'Poppins',
-                                            color: primaryRed.withOpacity(0.9),
-                                          ),
-                                        ),
-                                        trailing: adjustButton,
-                                      );
-                                    } else if (duration == 0) {
-                                      return ListTile(
-                                        leading: Icon(Icons.close, color: Colors.grey.shade600),
-                                        title: Text(
-                                          '$date - absent',
-                                          style: TextStyle(
-                                            fontFamily: 'Poppins',
+                                            color: accentRed,
                                             fontWeight: FontWeight.w600,
-                                            color: Colors.grey.shade700,
                                           ),
                                         ),
-                                        subtitle: Text(
-                                          'Did not attend',
-                                          style: TextStyle(
-                                            fontFamily: 'Poppins',
-                                            color: Colors.grey.shade600,
-                                          ),
-                                        ),
-                                        trailing: adjustButton,
-                                      );
-                                    } else {
-                                      return ListTile(
-                                        leading: Icon(Icons.check_circle, color: accentRed),
-                                        title: Text(
-                                          date,
-                                          style: TextStyle(
-                                            fontFamily: 'Poppins',
-                                            fontWeight: FontWeight.w600,
-                                            color: blackText,
-                                          ),
-                                        ),
-                                        trailing: Row(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            Text(
-                                              '${duration.toStringAsFixed(2)} hours',
-                                              style: TextStyle(
-                                                fontFamily: 'Poppins',
-                                                color: accentRed,
-                                                fontWeight: FontWeight.w600,
-                                              ),
-                                            ),
-                                            const SizedBox(width: 12),
-                                            adjustButton,
-                                          ],
-                                        ),
-                                      );
-                                    }
-                                  },
-                                ),
-                        ),
-                      ],
+                                        const SizedBox(width: 12),
+                                        adjustButton,
+                                      ],
+                                    ),
+                                  );
+                                }
+                              },
+                            ),
                     ),
-                  ),
+                  ],
+                ),
+              ),
       ),
     );
   }
@@ -567,7 +623,11 @@ class StylishCircularIndicator extends StatelessWidget {
         children: [
           CustomPaint(
             size: Size(size, size),
-            painter: _GradientCirclePainter(clampedPercent, primaryRed, accentRed),
+            painter: _GradientCirclePainter(
+              clampedPercent,
+              primaryRed,
+              accentRed,
+            ),
           ),
           Column(
             mainAxisSize: MainAxisSize.min,
@@ -625,10 +685,7 @@ class _GradientCirclePainter extends CustomPainter {
     final gradient = SweepGradient(
       startAngle: -math.pi / 2,
       endAngle: -math.pi / 2 + 2 * math.pi * progress,
-      colors: [
-        primaryRed,
-        accentRed,
-      ],
+      colors: [primaryRed, accentRed],
       stops: const [0.0, 1.0],
     );
 

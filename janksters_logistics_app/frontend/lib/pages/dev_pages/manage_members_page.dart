@@ -33,13 +33,17 @@ class _ManageMembersPageState extends State<ManageMembersPage> {
   }
 
   Future<void> _loadPeople() async {
-    setState(() { _isLoading = true; _error = null; });
+    setState(() {
+      _isLoading = true;
+      _error = null;
+    });
     try {
       final responses = await Future.wait([
         http.get(Uri.parse('$_baseUrl/members')),
         http.get(Uri.parse('$_baseUrl/developers')),
       ]);
-      if (responses.any((response) => response.statusCode != 200)) throw Exception();
+      if (responses.any((response) => response.statusCode != 200))
+        throw Exception();
       final memberData = jsonDecode(responses[0].body);
       final developerData = jsonDecode(responses[1].body);
       if (mounted) {
@@ -83,7 +87,9 @@ class _ManageMembersPageState extends State<ManageMembersPage> {
   Future<void> _remove(String endpoint, String email) async {
     setState(() => _isSaving = true);
     try {
-      final response = await http.delete(Uri.parse('$_baseUrl/$endpoint/${Uri.encodeComponent(email)}'));
+      final response = await http.delete(
+        Uri.parse('$_baseUrl/$endpoint/${Uri.encodeComponent(email)}'),
+      );
       final data = jsonDecode(response.body);
       if (!mounted) return;
       if (response.statusCode == 200) {
@@ -99,12 +105,18 @@ class _ManageMembersPageState extends State<ManageMembersPage> {
   }
 
   void _showMessage(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message, style: const TextStyle(fontFamily: 'Poppins'))));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message, style: const TextStyle(fontFamily: 'Poppins')),
+      ),
+    );
   }
 
   List<String> _filtered(List<String> people, String query) {
     final normalizedQuery = query.trim().toLowerCase();
-    return normalizedQuery.isEmpty ? people : people.where((email) => email.contains(normalizedQuery)).toList();
+    return normalizedQuery.isEmpty
+        ? people
+        : people.where((email) => email.contains(normalizedQuery)).toList();
   }
 
   Widget _peopleTab({
@@ -123,7 +135,14 @@ class _ManageMembersPageState extends State<ManageMembersPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(intro, style: const TextStyle(fontFamily: 'Poppins', color: _accentRed, fontWeight: FontWeight.w600)),
+          Text(
+            intro,
+            style: const TextStyle(
+              fontFamily: 'Poppins',
+              color: _accentRed,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
           const SizedBox(height: 12),
           Row(
             children: [
@@ -131,15 +150,30 @@ class _ManageMembersPageState extends State<ManageMembersPage> {
                 child: TextField(
                   controller: emailController,
                   keyboardType: TextInputType.emailAddress,
-                  decoration: InputDecoration(labelText: fieldLabel, labelStyle: const TextStyle(fontFamily: 'Poppins')),
-                  onSubmitted: (_) => _isSaving ? null : _add(endpoint, emailController),
+                  decoration: InputDecoration(
+                    labelText: fieldLabel,
+                    labelStyle: const TextStyle(fontFamily: 'Poppins'),
+                  ),
+                  onSubmitted: (_) =>
+                      _isSaving ? null : _add(endpoint, emailController),
                 ),
               ),
               const SizedBox(width: 10),
               ElevatedButton(
-                onPressed: _isSaving ? null : () => _add(endpoint, emailController),
-                style: ElevatedButton.styleFrom(backgroundColor: _primaryRed, foregroundColor: Colors.white),
-                child: const Text('Add', style: TextStyle(fontFamily: 'Poppins', fontWeight: FontWeight.bold)),
+                onPressed: _isSaving
+                    ? null
+                    : () => _add(endpoint, emailController),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: _primaryRed,
+                  foregroundColor: Colors.white,
+                ),
+                child: const Text(
+                  'Add',
+                  style: TextStyle(
+                    fontFamily: 'Poppins',
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ),
             ],
           ),
@@ -155,11 +189,23 @@ class _ManageMembersPageState extends State<ManageMembersPage> {
             ),
           ),
           const SizedBox(height: 8),
-          Text('${visiblePeople.length} of ${people.length}', style: const TextStyle(fontFamily: 'Poppins', fontSize: 13, color: Colors.grey)),
+          Text(
+            '${visiblePeople.length} of ${people.length}',
+            style: const TextStyle(
+              fontFamily: 'Poppins',
+              fontSize: 13,
+              color: Colors.grey,
+            ),
+          ),
           const SizedBox(height: 6),
           Expanded(
             child: visiblePeople.isEmpty
-                ? Center(child: Text(emptyLabel, style: const TextStyle(fontFamily: 'Poppins')))
+                ? Center(
+                    child: Text(
+                      emptyLabel,
+                      style: const TextStyle(fontFamily: 'Poppins'),
+                    ),
+                  )
                 : ListView.separated(
                     itemCount: visiblePeople.length,
                     separatorBuilder: (_, __) => const Divider(height: 1),
@@ -168,13 +214,28 @@ class _ManageMembersPageState extends State<ManageMembersPage> {
                       return ListTile(
                         dense: true,
                         visualDensity: VisualDensity.compact,
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 4),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 4,
+                        ),
                         leading: Icon(icon, size: 20, color: _primaryRed),
-                        title: Text(email, style: const TextStyle(fontFamily: 'Poppins', fontSize: 14)),
+                        title: Text(
+                          email,
+                          style: const TextStyle(
+                            fontFamily: 'Poppins',
+                            fontSize: 14,
+                          ),
+                        ),
                         trailing: IconButton(
-                          tooltip: endpoint == 'members' ? 'Remove from active members' : 'Remove developer access',
-                          onPressed: _isSaving ? null : () => _remove(endpoint, email),
-                          icon: const Icon(Icons.remove_circle_outline, color: _primaryRed),
+                          tooltip: endpoint == 'members'
+                              ? 'Remove from active members'
+                              : 'Remove developer access',
+                          onPressed: _isSaving
+                              ? null
+                              : () => _remove(endpoint, email),
+                          icon: const Icon(
+                            Icons.remove_circle_outline,
+                            color: _primaryRed,
+                          ),
                         ),
                       );
                     },
@@ -202,41 +263,64 @@ class _ManageMembersPageState extends State<ManageMembersPage> {
         backgroundColor: Colors.white,
         appBar: AppBar(
           backgroundColor: _primaryRed,
-          title: const Text('Manage Members', style: TextStyle(fontFamily: 'Poppins', fontWeight: FontWeight.bold)),
-          actions: [IconButton(onPressed: _isLoading ? null : _loadPeople, icon: const Icon(Icons.refresh))],
+          title: const Text(
+            'Manage Members',
+            style: TextStyle(
+              fontFamily: 'Poppins',
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          actions: [
+            IconButton(
+              onPressed: _isLoading ? null : _loadPeople,
+              icon: const Icon(Icons.refresh),
+            ),
+          ],
           bottom: const TabBar(
-            labelStyle: TextStyle(fontFamily: 'Poppins', fontWeight: FontWeight.bold),
-            tabs: [Tab(text: 'Regular Members'), Tab(text: 'Developers')],
+            labelStyle: TextStyle(
+              fontFamily: 'Poppins',
+              fontWeight: FontWeight.bold,
+            ),
+            tabs: [
+              Tab(text: 'Regular Members'),
+              Tab(text: 'Developers'),
+            ],
           ),
         ),
         body: _isLoading
             ? const Center(child: CircularProgressIndicator(color: _primaryRed))
             : _error != null
-                ? Center(child: Text(_error!, style: const TextStyle(fontFamily: 'Poppins')))
-                : TabBarView(
-                    children: [
-                      _peopleTab(
-                        emptyLabel: 'No regular members found.',
-                        endpoint: 'members',
-                        fieldLabel: 'Member email',
-                        intro: 'Active members receive attendance records for new meetings.',
-                        icon: Icons.person_outline,
-                        people: _members,
-                        emailController: _memberEmailController,
-                        searchController: _memberSearchController,
-                      ),
-                      _peopleTab(
-                        emptyLabel: 'No developers found.',
-                        endpoint: 'developers',
-                        fieldLabel: 'Developer email',
-                        intro: 'Developers can open Developer Tools.',
-                        icon: Icons.admin_panel_settings_outlined,
-                        people: _developers,
-                        emailController: _developerEmailController,
-                        searchController: _developerSearchController,
-                      ),
-                    ],
+            ? Center(
+                child: Text(
+                  _error!,
+                  style: const TextStyle(fontFamily: 'Poppins'),
+                ),
+              )
+            : TabBarView(
+                children: [
+                  _peopleTab(
+                    emptyLabel: 'No regular members found.',
+                    endpoint: 'members',
+                    fieldLabel: 'Member email',
+                    intro:
+                        'Active members receive attendance records for new meetings.',
+                    icon: Icons.person_outline,
+                    people: _members,
+                    emailController: _memberEmailController,
+                    searchController: _memberSearchController,
                   ),
+                  _peopleTab(
+                    emptyLabel: 'No developers found.',
+                    endpoint: 'developers',
+                    fieldLabel: 'Developer email',
+                    intro: 'Developers can open Developer Tools.',
+                    icon: Icons.admin_panel_settings_outlined,
+                    people: _developers,
+                    emailController: _developerEmailController,
+                    searchController: _developerSearchController,
+                  ),
+                ],
+              ),
       ),
     );
   }

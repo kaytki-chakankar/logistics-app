@@ -1,4 +1,3 @@
-
 import 'dart:convert';
 import 'dart:math' as math;
 
@@ -10,7 +9,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'dev_pages/dev_page.dart';
 import 'links_page.dart';
-
+import '../developer_access.dart';
 
 class PreseasonStats extends StatefulWidget {
   const PreseasonStats({super.key});
@@ -26,16 +25,10 @@ class _PreseasonStatsState extends State<PreseasonStats> {
   bool isLoading = false;
   String? userEmail;
   String errorMessage = '';
+  List<Map<String, dynamic>> seasons = [];
+  String? selectedSeasonId;
 
-  final List<String> developerEmails = [
-    'kchakankar27@ndsj.org',
-    'aferrer@ndsj.org',
-    'bfarrer@ndsj.org',
-    'mcarrillo@ndsj.org',
-    'abhardwaj26@ndsj.org',
-    'thensley26@ndsj.org',
-    'aarjun27@ndsj.org'
-  ];
+  List<String> developerEmails = [];
 
   // team theme colors
   final Color primaryRed = const Color(0xFFE30F13);
@@ -47,29 +40,37 @@ class _PreseasonStatsState extends State<PreseasonStats> {
   void initState() {
     super.initState();
     userEmail = FirebaseAuth.instance.currentUser?.email?.toLowerCase();
-    // userEmail = "abhardwaj27@ndsj.org"; 
-    _loadCachedAttendance();
-    fetchAttendance();
+    DeveloperAccess.load().then((emails) {
+      if (mounted) setState(() => developerEmails = emails);
+    });
+    // userEmail = "abhardwaj27@ndsj.org";
+    _loadSeasons();
   }
 
-  Future<void> _loadCachedAttendance() async {
-    final prefs = await SharedPreferences.getInstance();
-    final cached = prefs.getString('attendanceData');
-    if (cached != null && mounted) {
-      try {
-        final cachedData = json.decode(cached);
-        setState(() {
-          totalHours = (cachedData['totalHoursAttended'] as num?)?.toDouble() ?? 0.0;
-          attendancePercentage = (cachedData['attendancePercentage'] as num?)?.toDouble() ?? 0.0;
-          meetings = (cachedData['meetings'] as List<dynamic>?)
-              ?.where((m) => m['date'] != null && (m.containsKey('durationHours') || m['error'] == true || m['error']?.toString() == 'true'))
-              .toList() ?? [];
-          errorMessage = 'Showing cached data';
-        });
-        print('Loaded cached meetings: $meetings');
-      } catch (e) {
-        print('Failed to parse cached attendance: $e');
-      }
+  Future<void> _loadSeasons() async {
+    try {
+      final response = await http.get(
+        Uri.parse(
+          'https://logistics-app-backend-o9t7.onrender.com/attendance/seasons',
+        ),
+      );
+      if (response.statusCode != 200) throw Exception();
+      final data = json.decode(response.body);
+      final loadedSeasons = List<dynamic>.from(data['seasons'] ?? [])
+          .whereType<Map>()
+          .map((season) => Map<String, dynamic>.from(season))
+          .toList();
+      if (!mounted) return;
+      setState(() {
+        seasons = loadedSeasons;
+        selectedSeasonId = loadedSeasons.isEmpty
+            ? null
+            : loadedSeasons.first['id']?.toString();
+      });
+      await fetchAttendance();
+    } catch (_) {
+      if (mounted)
+        setState(() => errorMessage = 'Unable to load attendance history.');
     }
   }
 
@@ -86,7 +87,13 @@ class _PreseasonStatsState extends State<PreseasonStats> {
       errorMessage = '';
     });
 
-    final url = Uri.parse('https://logistics-app-backend-o9t7.onrender.com/attendance/preseason/$userEmail');
+    if (selectedSeasonId == null) {
+      setState(() => errorMessage = 'No saved attendance seasons found.');
+      return;
+    }
+    final url = Uri.parse(
+      'https://logistics-app-backend-o9t7.onrender.com/attendance/seasons/${Uri.encodeComponent(selectedSeasonId!)}/$userEmail',
+    );
 
     // testing poses only
     // final url = Uri.parse('http://localhost:3000/attendance/preseason/$userEmail');
@@ -100,37 +107,57 @@ class _PreseasonStatsState extends State<PreseasonStats> {
 
         setState(() {
           totalHours = (data['totalHoursAttended'] as num?)?.toDouble() ?? 0.0;
-          attendancePercentage = (data['attendancePercentage'] as num?)?.toDouble() ?? 0.0;
-          meetings = (data['meetings'] as List<dynamic>?)
-              ?.where((m) => m['date'] != null && (m.containsKey('durationHours') || m['error'] == true || m['error']?.toString() == 'true'))
-              .toList() ?? [];
+          attendancePercentage =
+              (data['attendancePercentage'] as num?)?.toDouble() ?? 0.0;
+          meetings =
+              (data['meetings'] as List<dynamic>?)
+                  ?.where(
+                    (m) =>
+                        m['date'] != null &&
+                        (m.containsKey('durationHours') ||
+                            m['error'] == true ||
+                            m['error']?.toString() == 'true'),
+                  )
+                  .toList() ??
+              [];
           errorMessage = '';
         });
 
-        print('Fetched meetings: $meetings');
-
         final prefs = await SharedPreferences.getInstance();
-        await prefs.setString('attendanceData', response.body);
+        await prefs.setString(
+          'attendanceHistoryData_$selectedSeasonId',
+          response.body,
+        );
       } else {
         setState(() {
-          errorMessage = 'Failed to load attendance. Status: ${response.statusCode}';
+          errorMessage =
+              'Failed to load attendance. Status: ${response.statusCode}';
         });
       }
     } catch (e) {
       final prefs = await SharedPreferences.getInstance();
-      final cached = prefs.getString('attendanceData');
+      final cached = prefs.getString('attendanceHistoryData_$selectedSeasonId');
       if (cached != null && mounted) {
         try {
           final cachedData = json.decode(cached);
           setState(() {
-            totalHours = (cachedData['totalHoursAttended'] as num?)?.toDouble() ?? 0.0;
-            attendancePercentage = (cachedData['attendancePercentage'] as num?)?.toDouble() ?? 0.0;
-            meetings = (cachedData['meetings'] as List<dynamic>?)
-                ?.where((m) => m['date'] != null && (m.containsKey('durationHours') || m['error'] == true || m['error']?.toString() == 'true'))
-                .toList() ?? [];
+            totalHours =
+                (cachedData['totalHoursAttended'] as num?)?.toDouble() ?? 0.0;
+            attendancePercentage =
+                (cachedData['attendancePercentage'] as num?)?.toDouble() ?? 0.0;
+            meetings =
+                (cachedData['meetings'] as List<dynamic>?)
+                    ?.where(
+                      (m) =>
+                          m['date'] != null &&
+                          (m.containsKey('durationHours') ||
+                              m['error'] == true ||
+                              m['error']?.toString() == 'true'),
+                    )
+                    .toList() ??
+                [];
             errorMessage = 'Showing cached data (offline or error)';
           });
-          print('Loaded cached meetings after fetch error: $meetings');
         } catch (e) {
           setState(() {
             errorMessage = 'Error fetching attendance: $e';
@@ -158,9 +185,7 @@ class _PreseasonStatsState extends State<PreseasonStats> {
           child: ListView(
             children: [
               DrawerHeader(
-                decoration: BoxDecoration(
-                  color: primaryRed,
-                ),
+                decoration: BoxDecoration(color: primaryRed),
                 child: const Center(
                   child: Text(
                     'Navigation',
@@ -176,11 +201,14 @@ class _PreseasonStatsState extends State<PreseasonStats> {
               ),
               ListTile(
                 leading: Icon(Icons.link, color: primaryRed),
-                title: Text('Attendance',
-                    style: TextStyle(
-                        fontFamily: 'Poppins',
-                        color: blackText,
-                        fontWeight: FontWeight.w600)),
+                title: Text(
+                  'Attendance',
+                  style: TextStyle(
+                    fontFamily: 'Poppins',
+                    color: blackText,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
                 onTap: () {
                   Navigator.pop(context);
                   Navigator.push(
@@ -192,11 +220,14 @@ class _PreseasonStatsState extends State<PreseasonStats> {
               if (isDeveloper)
                 ListTile(
                   leading: Icon(Icons.developer_mode, color: primaryRed),
-                  title: Text('Developer Tools',
-                      style: TextStyle(
-                          fontFamily: 'Poppins',
-                          color: blackText,
-                          fontWeight: FontWeight.w600)),
+                  title: Text(
+                    'Developer Tools',
+                    style: TextStyle(
+                      fontFamily: 'Poppins',
+                      color: blackText,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
                   onTap: () {
                     Navigator.pop(context);
                     Navigator.push(
@@ -207,11 +238,14 @@ class _PreseasonStatsState extends State<PreseasonStats> {
                 ),
               ListTile(
                 leading: Icon(Icons.link, color: primaryRed),
-                title: Text('Important Links',
-                    style: TextStyle(
-                        fontFamily: 'Poppins',
-                        color: blackText,
-                        fontWeight: FontWeight.w600)),
+                title: Text(
+                  'Important Links',
+                  style: TextStyle(
+                    fontFamily: 'Poppins',
+                    color: blackText,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
                 onTap: () {
                   Navigator.pop(context);
                   Navigator.push(
@@ -222,11 +256,14 @@ class _PreseasonStatsState extends State<PreseasonStats> {
               ),
               ListTile(
                 leading: Icon(Icons.calendar_month, color: primaryRed),
-                title: Text('Preseason Attendance',
-                    style: TextStyle(
-                        fontFamily: 'Poppins',
-                        color: blackText,
-                        fontWeight: FontWeight.w600)),
+                title: Text(
+                  'Attendance History',
+                  style: TextStyle(
+                    fontFamily: 'Poppins',
+                    color: blackText,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
                 onTap: () {
                   Navigator.pop(context);
                   Navigator.push(
@@ -237,11 +274,14 @@ class _PreseasonStatsState extends State<PreseasonStats> {
               ),
               ListTile(
                 leading: Icon(Icons.logout, color: primaryRed),
-                title: Text('Logout',
-                    style: TextStyle(
-                        fontFamily: 'Poppins',
-                        color: blackText,
-                        fontWeight: FontWeight.w600)),
+                title: Text(
+                  'Logout',
+                  style: TextStyle(
+                    fontFamily: 'Poppins',
+                    color: blackText,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
                 onTap: () async {
                   await FirebaseAuth.instance.signOut();
                 },
@@ -278,141 +318,188 @@ class _PreseasonStatsState extends State<PreseasonStats> {
         child: isLoading
             ? const CircularProgressIndicator()
             : errorMessage.isNotEmpty
-                ? Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 24),
-                    child: Text(
-                      errorMessage,
-                      style: const TextStyle(
-                        fontFamily: 'Poppins',
-                        fontSize: 16,
-                        color: Colors.red,
-                        fontWeight: FontWeight.w600,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                  )
-                : Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                    child: Column(
+            ? Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: Text(
+                  errorMessage,
+                  style: const TextStyle(
+                    fontFamily: 'Poppins',
+                    fontSize: 16,
+                    color: Colors.red,
+                    fontWeight: FontWeight.w600,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              )
+            : Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 12,
+                ),
+                child: Column(
+                  children: [
+                    Column(
                       children: [
-                        Column(
-                          children: [
-                            Text(
-                              'Preseason Attendance',
-                              style: TextStyle(
-                                fontFamily: 'Poppins',
-                                fontSize: 28,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black87,
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              'These are your attendance records from the 2025 preseason',
-                              style: TextStyle(
-                                fontFamily: 'Poppins',
-                                fontSize: 16,
-                                color: Colors.black54,
-                              ),
-                              textAlign: TextAlign.center,
-                            ),
-                            const SizedBox(height: 24),
-                          ],
+                        Text(
+                          'Attendance History',
+                          style: TextStyle(
+                            fontFamily: 'Poppins',
+                            fontSize: 28,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black87,
+                          ),
                         ),
-                        StylishCircularIndicator(
-                          percentage: attendancePercentage ?? 0,
-                          primaryRed: primaryRed,
-                          accentRed: accentRed,
-                          size: 240,
-                          label: 'Attendance',
-                        ),
-                        const SizedBox(height: 24),
-                        Expanded(
-                          child: meetings.isEmpty
-                              ? Center(
+                        const SizedBox(height: 8),
+                        DropdownButtonFormField<String>(
+                          value: selectedSeasonId,
+                          isExpanded: true,
+                          decoration: const InputDecoration(
+                            labelText: 'Season',
+                            border: OutlineInputBorder(),
+                            labelStyle: TextStyle(fontFamily: 'Poppins'),
+                          ),
+                          items: seasons
+                              .map(
+                                (season) => DropdownMenuItem<String>(
+                                  value: season['id']?.toString(),
                                   child: Text(
-                                    'No attendance records found.',
-                                    style: TextStyle(
+                                    season['name']?.toString() ??
+                                        'Unnamed season',
+                                    style: const TextStyle(
                                       fontFamily: 'Poppins',
-                                      fontSize: 18,
-                                      color: blackText,
                                     ),
                                   ),
-                                )
-                              : ListView.separated(
-                                  itemCount: meetings.length,
-                                  separatorBuilder: (_, __) => const Divider(height: 1),
-                                  itemBuilder: (context, index) {
-                                    final meeting = meetings[index];
-                                    final date = meeting['date'] ?? 'Unknown date';
-                                    final duration = (meeting['durationHours'] ?? 0.0) as double;
-
-                                    if (meeting['error'] == true || meeting['error']?.toString() == 'true') {
-                                      final reason = meeting['reason'] ?? 'Flagged entry';
-                                      return ListTile(
-                                        leading: Icon(Icons.warning, color: primaryRed),
-                                        title: Text(
-                                          '$date - flagged',
-                                          style: TextStyle(
-                                            fontFamily: 'Poppins',
-                                            fontWeight: FontWeight.w600,
-                                            color: primaryRed,
-                                          ),
-                                        ),
-                                        subtitle: Text(
-                                          reason,
-                                          style: TextStyle(
-                                            fontFamily: 'Poppins',
-                                            color: primaryRed.withOpacity(0.9),
-                                          ),
-                                        ),
-                                      );
-                                    } else if (duration == 0) {
-                                      return ListTile(
-                                        leading: Icon(Icons.close, color: Colors.grey.shade600),
-                                        title: Text(
-                                          '$date - absent',
-                                          style: TextStyle(
-                                            fontFamily: 'Poppins',
-                                            fontWeight: FontWeight.w600,
-                                            color: Colors.grey.shade700,
-                                          ),
-                                        ),
-                                        subtitle: Text(
-                                          'Did not attend',
-                                          style: TextStyle(
-                                            fontFamily: 'Poppins',
-                                            color: Colors.grey.shade600,
-                                          ),
-                                        ),
-                                      );
-                                    } else {
-                                      return ListTile(
-                                        leading: Icon(Icons.check_circle, color: accentRed),
-                                        title: Text(
-                                          date,
-                                          style: TextStyle(
-                                            fontFamily: 'Poppins',
-                                            fontWeight: FontWeight.w600,
-                                            color: blackText,
-                                          ),
-                                        ),
-                                        trailing: Text(
-                                          '${duration.toStringAsFixed(2)} hours',
-                                          style: TextStyle(
-                                            fontFamily: 'Poppins',
-                                            color: accentRed,
-                                            fontWeight: FontWeight.w600,
-                                          ),
-                                        ),
-                                      );
-                                    }
-                                  },
                                 ),
+                              )
+                              .toList(),
+                          onChanged: isLoading
+                              ? null
+                              : (seasonId) {
+                                  if (seasonId == null) return;
+                                  setState(() => selectedSeasonId = seasonId);
+                                  fetchAttendance();
+                                },
                         ),
+                        const SizedBox(height: 10),
+                        Text(
+                          'Select a completed build or preseason season to view your records.',
+                          style: TextStyle(
+                            fontFamily: 'Poppins',
+                            fontSize: 15,
+                            color: Colors.black54,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 24),
                       ],
                     ),
-                  ),
+                    StylishCircularIndicator(
+                      percentage: attendancePercentage ?? 0,
+                      primaryRed: primaryRed,
+                      accentRed: accentRed,
+                      size: 240,
+                      label: 'Attendance',
+                    ),
+                    const SizedBox(height: 24),
+                    Expanded(
+                      child: meetings.isEmpty
+                          ? Center(
+                              child: Text(
+                                'No attendance records found.',
+                                style: TextStyle(
+                                  fontFamily: 'Poppins',
+                                  fontSize: 18,
+                                  color: blackText,
+                                ),
+                              ),
+                            )
+                          : ListView.separated(
+                              itemCount: meetings.length,
+                              separatorBuilder: (_, __) =>
+                                  const Divider(height: 1),
+                              itemBuilder: (context, index) {
+                                final meeting = meetings[index];
+                                final date = meeting['date'] ?? 'Unknown date';
+                                final duration =
+                                    (meeting['durationHours'] ?? 0.0) as double;
+
+                                if (meeting['error'] == true ||
+                                    meeting['error']?.toString() == 'true') {
+                                  final reason =
+                                      meeting['reason'] ?? 'Flagged entry';
+                                  return ListTile(
+                                    leading: Icon(
+                                      Icons.warning,
+                                      color: primaryRed,
+                                    ),
+                                    title: Text(
+                                      '$date - flagged',
+                                      style: TextStyle(
+                                        fontFamily: 'Poppins',
+                                        fontWeight: FontWeight.w600,
+                                        color: primaryRed,
+                                      ),
+                                    ),
+                                    subtitle: Text(
+                                      reason,
+                                      style: TextStyle(
+                                        fontFamily: 'Poppins',
+                                        color: primaryRed.withOpacity(0.9),
+                                      ),
+                                    ),
+                                  );
+                                } else if (duration == 0) {
+                                  return ListTile(
+                                    leading: Icon(
+                                      Icons.close,
+                                      color: Colors.grey.shade600,
+                                    ),
+                                    title: Text(
+                                      '$date - absent',
+                                      style: TextStyle(
+                                        fontFamily: 'Poppins',
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.grey.shade700,
+                                      ),
+                                    ),
+                                    subtitle: Text(
+                                      'Did not attend',
+                                      style: TextStyle(
+                                        fontFamily: 'Poppins',
+                                        color: Colors.grey.shade600,
+                                      ),
+                                    ),
+                                  );
+                                } else {
+                                  return ListTile(
+                                    leading: Icon(
+                                      Icons.check_circle,
+                                      color: accentRed,
+                                    ),
+                                    title: Text(
+                                      date,
+                                      style: TextStyle(
+                                        fontFamily: 'Poppins',
+                                        fontWeight: FontWeight.w600,
+                                        color: blackText,
+                                      ),
+                                    ),
+                                    trailing: Text(
+                                      '${duration.toStringAsFixed(2)} hours',
+                                      style: TextStyle(
+                                        fontFamily: 'Poppins',
+                                        color: accentRed,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  );
+                                }
+                              },
+                            ),
+                    ),
+                  ],
+                ),
+              ),
       ),
     );
   }
@@ -458,7 +545,11 @@ class StylishCircularIndicator extends StatelessWidget {
         children: [
           CustomPaint(
             size: Size(size, size),
-            painter: _GradientCirclePainter(clampedPercent, primaryRed, accentRed),
+            painter: _GradientCirclePainter(
+              clampedPercent,
+              primaryRed,
+              accentRed,
+            ),
           ),
           Column(
             mainAxisSize: MainAxisSize.min,
@@ -515,10 +606,7 @@ class _GradientCirclePainter extends CustomPainter {
     final gradient = SweepGradient(
       startAngle: -math.pi / 2,
       endAngle: -math.pi / 2 + 2 * math.pi * progress,
-      colors: [
-        primaryRed,
-        accentRed,
-      ],
+      colors: [primaryRed, accentRed],
       stops: const [0.0, 1.0],
     );
 

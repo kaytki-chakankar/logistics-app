@@ -34,8 +34,7 @@ class _SignInPageState extends State<SignInPage> {
           ),
         );
       }
-    } catch (e) {
-      print('Google sign-in error: $e');
+    } catch (_) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Sign-in failed. Please try again.')),
       );

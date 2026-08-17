@@ -126,8 +126,6 @@ void loadCurrentEntry() {
       //   {'date': date, 'hours': meetingHours.toString()},
       // );
 
-      print("UPDATE REQUEST URL: $url");
-
       final r = await http.get(url);
 
       if (r.statusCode != 200) {
@@ -175,12 +173,6 @@ void loadCurrentEntry() {
       if (r.statusCode == 200) {
         final decoded = json.decode(r.body);
         allSheetRows = decoded["results"] ?? [];
-        print("allSheetRows (${allSheetRows.length} rows):");
-        for (var row in allSheetRows) {
-          print("timestamp: ${row[sheetTimestampKey]}, "
-                "email: ${row[sheetEmailKey]}, "
-                "comments: ${row[sheetCommentKey]}");
-        }
       } else {
         allSheetRows = [];
       }

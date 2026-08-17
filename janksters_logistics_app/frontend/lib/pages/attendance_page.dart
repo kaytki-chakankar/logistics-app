@@ -10,6 +10,7 @@ import 'dev_pages/dev_page.dart';
 import 'attendance_adjustment_request_page.dart';
 import 'links_page.dart';
 import 'preseason_stats.dart';
+import 'attendance_calculator_page.dart';
 
 class AttendancePage extends StatefulWidget {
   const AttendancePage({super.key});
@@ -21,6 +22,7 @@ class AttendancePage extends StatefulWidget {
 class _AttendancePageState extends State<AttendancePage> {
   double? totalHours = 0;
   double? attendancePercentage;
+  double fullSemesterRequiredHours = 235;
   List<dynamic> meetings = [];
   bool isLoading = false;
   String? userEmail;
@@ -93,7 +95,7 @@ class _AttendancePageState extends State<AttendancePage> {
 
   Future<void> _loadCachedAttendance() async {
     final prefs = await SharedPreferences.getInstance();
-    final cached = prefs.getString('attendanceData');
+    final cached = prefs.getString('currentAttendanceData');
     if (cached != null && mounted) {
       try {
         final cachedData = json.decode(cached);
@@ -102,6 +104,9 @@ class _AttendancePageState extends State<AttendancePage> {
               (cachedData['totalHoursAttended'] as num?)?.toDouble() ?? 0.0;
           attendancePercentage =
               (cachedData['attendancePercentage'] as num?)?.toDouble() ?? 0.0;
+          fullSemesterRequiredHours =
+              (cachedData['fullSemesterRequiredHours'] as num?)?.toDouble() ??
+              235;
           meetings =
               (cachedData['meetings'] as List<dynamic>?)
                   ?.where(
@@ -122,10 +127,7 @@ class _AttendancePageState extends State<AttendancePage> {
 
           errorMessage = 'Showing cached data';
         });
-        print('Loaded cached meetings: $meetings');
-      } catch (e) {
-        print('Failed to parse cached attendance: $e');
-      }
+      } catch (_) {}
     }
   }
 
@@ -160,6 +162,8 @@ class _AttendancePageState extends State<AttendancePage> {
           totalHours = (data['totalHoursAttended'] as num?)?.toDouble() ?? 0.0;
           attendancePercentage =
               (data['attendancePercentage'] as num?)?.toDouble() ?? 0.0;
+          fullSemesterRequiredHours =
+              (data['fullSemesterRequiredHours'] as num?)?.toDouble() ?? 235;
           meetings =
               (data['meetings'] as List<dynamic>?)
                   ?.where(
@@ -181,10 +185,8 @@ class _AttendancePageState extends State<AttendancePage> {
           errorMessage = '';
         });
 
-        print('Fetched meetings: $meetings');
-
         final prefs = await SharedPreferences.getInstance();
-        await prefs.setString('attendanceData', response.body);
+        await prefs.setString('currentAttendanceData', response.body);
       } else {
         setState(() {
           errorMessage =
@@ -193,7 +195,7 @@ class _AttendancePageState extends State<AttendancePage> {
       }
     } catch (e) {
       final prefs = await SharedPreferences.getInstance();
-      final cached = prefs.getString('attendanceData');
+      final cached = prefs.getString('currentAttendanceData');
       if (cached != null && mounted) {
         try {
           final cachedData = json.decode(cached);
@@ -202,6 +204,9 @@ class _AttendancePageState extends State<AttendancePage> {
                 (cachedData['totalHoursAttended'] as num?)?.toDouble() ?? 0.0;
             attendancePercentage =
                 (cachedData['attendancePercentage'] as num?)?.toDouble() ?? 0.0;
+            fullSemesterRequiredHours =
+                (cachedData['fullSemesterRequiredHours'] as num?)?.toDouble() ??
+                235;
             meetings =
                 (cachedData['meetings'] as List<dynamic>?)
                     ?.where(
@@ -224,7 +229,6 @@ class _AttendancePageState extends State<AttendancePage> {
 
             errorMessage = 'Showing cached data (offline or error)';
           });
-          print('Loaded cached meetings after fetch error: $meetings');
         } catch (e) {
           setState(() {
             errorMessage = 'Error fetching attendance: $e';
@@ -243,14 +247,12 @@ class _AttendancePageState extends State<AttendancePage> {
   double calculateFullSemesterAttendance() {
     if (meetings.isEmpty) return 0.0;
 
-    const totalHoursExpected = 235;
-
     final attendedHours = meetings.fold<double>(0.0, (sum, m) {
       if (m['error'] == true || m['error']?.toString() == 'true') return sum;
       return sum + ((m['durationHours'] ?? 0.0) as double);
     });
 
-    return (attendedHours / totalHoursExpected * 100).clamp(0.0, 100.0);
+    return (attendedHours / fullSemesterRequiredHours * 100).clamp(0.0, 100.0);
   }
 
   bool get isDeveloper => developerEmails.contains(userEmail);
@@ -329,9 +331,29 @@ class _AttendancePageState extends State<AttendancePage> {
                 },
               ),
               ListTile(
+                leading: Icon(Icons.calculate_outlined, color: primaryRed),
+                title: Text(
+                  'Attendance Calculator',
+                  style: TextStyle(
+                    fontFamily: 'Poppins',
+                    color: blackText,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const AttendanceCalculatorPage(),
+                    ),
+                  );
+                },
+              ),
+              ListTile(
                 leading: Icon(Icons.calendar_month, color: primaryRed),
                 title: Text(
-                  'Preseason Attendance',
+                  'Attendance History',
                   style: TextStyle(
                     fontFamily: 'Poppins',
                     color: blackText,

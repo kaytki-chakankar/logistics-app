@@ -4,6 +4,9 @@ import 'view_team_page.dart';
 import 'update_attendance_page.dart';
 import 'adjust_attendance_page.dart';
 import 'manage_members_page.dart';
+import 'manage_seasons_page.dart';
+import 'manage_calendar_page.dart';
+import 'manage_links_page.dart';
 
 class DeveloperPage extends StatefulWidget {
   const DeveloperPage({super.key});
@@ -29,10 +32,7 @@ class _DeveloperPageState extends State<DeveloperPage> {
         backgroundColor: primaryRed,
         title: const Text(
           "Developer Dashboard",
-          style: TextStyle(
-            fontFamily: 'Poppins',
-            fontWeight: FontWeight.bold,
-          ),
+          style: TextStyle(fontFamily: 'Poppins', fontWeight: FontWeight.bold),
         ),
       ),
       body: Padding(
@@ -64,7 +64,7 @@ class _DeveloperPageState extends State<DeveloperPage> {
                 crossAxisCount: 2,
                 crossAxisSpacing: 14,
                 mainAxisSpacing: 14,
-                childAspectRatio: 6, 
+                childAspectRatio: 6,
                 children: [
                   _buildDashboardCard(
                     title: "Update Meetings",
@@ -73,7 +73,9 @@ class _DeveloperPageState extends State<DeveloperPage> {
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (_) => UpdateAttendancePage()),
+                        MaterialPageRoute(
+                          builder: (_) => UpdateAttendancePage(),
+                        ),
                       );
                     },
                   ),
@@ -95,7 +97,9 @@ class _DeveloperPageState extends State<DeveloperPage> {
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (_) => ViewFullTeamAttendancePage()),
+                        MaterialPageRoute(
+                          builder: (_) => ViewFullTeamAttendancePage(),
+                        ),
                       );
                     },
                   ),
@@ -106,7 +110,9 @@ class _DeveloperPageState extends State<DeveloperPage> {
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (_) => const AdjustAttendancePage()),
+                        MaterialPageRoute(
+                          builder: (_) => const AdjustAttendancePage(),
+                        ),
                       );
                     },
                   ),
@@ -117,14 +123,54 @@ class _DeveloperPageState extends State<DeveloperPage> {
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (_) => const ManageMembersPage()),
+                        MaterialPageRoute(
+                          builder: (_) => const ManageMembersPage(),
+                        ),
+                      );
+                    },
+                  ),
+                  _buildDashboardCard(
+                    title: "Manage Seasons",
+                    subtitle: "Archive a season and start fresh",
+                    icon: Icons.archive_outlined,
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const ManageSeasonsPage(),
+                        ),
+                      );
+                    },
+                  ),
+                  _buildDashboardCard(
+                    title: "Meeting Calendar",
+                    subtitle: "Plan and publish calculator meetings",
+                    icon: Icons.calendar_month,
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const ManageCalendarPage(),
+                        ),
+                      );
+                    },
+                  ),
+                  _buildDashboardCard(
+                    title: "Manage Links",
+                    subtitle: "Add or remove member resource links",
+                    icon: Icons.link,
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const ManageLinksPage(),
+                        ),
                       );
                     },
                   ),
                 ],
               ),
             ),
-
 
             if (isLoading)
               const Padding(
@@ -199,7 +245,7 @@ class _DeveloperPageState extends State<DeveloperPage> {
                 subtitle,
                 style: TextStyle(
                   fontFamily: 'Poppins',
-                  fontSize: 14, 
+                  fontSize: 14,
                   color: Colors.grey.shade700,
                 ),
               ),

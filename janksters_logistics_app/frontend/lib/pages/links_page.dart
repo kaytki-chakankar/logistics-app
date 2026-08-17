@@ -2,9 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:janksters_logistics_app/pages/attendance_page.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 import 'dev_pages/dev_page.dart';
 import 'preseason_stats.dart';
+import '../developer_access.dart';
 
 class LinksPage extends StatefulWidget {
   const LinksPage({super.key});
@@ -15,42 +18,59 @@ class LinksPage extends StatefulWidget {
 
 class _LinksPageState extends State<LinksPage> {
   String? userEmail;
+  List<Map<String, String>> links = [];
+  bool isLoadingLinks = true;
+  String? linksError;
 
   @override
   void initState() {
     super.initState();
     userEmail = FirebaseAuth.instance.currentUser?.email?.toLowerCase();
+    DeveloperAccess.load().then((emails) {
+      if (mounted) setState(() => developerEmails = emails);
+    });
+    _loadLinks();
   }
 
-  static const List<Map<String, String>> links = [
-    {
-      'title': 'Leadership Drive',
-      'url': 'https://drive.google.com/drive/folders/0ANydg9_JDsrrUk9PVA',
-    },
-    {
-      'title': 'Team Calendar',
-      'url': 'https://docs.google.com/spreadsheets/d/1VH-h4vqi3WZ0dV_-8Qf2T6R2lpBFExDJWNmpr447Zds/edit?gid=0#gid=0',
-    },
-    {
-      'title': 'Team Resource Website',
-      'url': 'https://sites.google.com/ndsj.org/jankster-resources/home',
-    },
-  ];
+  Future<void> _loadLinks() async {
+    try {
+      final response = await http.get(
+        Uri.parse(
+          'https://logistics-app-backend-o9t7.onrender.com/important-links',
+        ),
+      );
+      if (response.statusCode != 200) throw Exception('Unable to load links.');
+      final data = jsonDecode(response.body);
+      final loadedLinks = (data['links'] as List<dynamic>? ?? [])
+          .map(
+            (link) => {
+              'title': link['title'].toString(),
+              'url': link['url'].toString(),
+            },
+          )
+          .toList();
+      if (mounted) {
+        setState(() {
+          links = loadedLinks;
+          isLoadingLinks = false;
+        });
+      }
+    } catch (_) {
+      if (mounted) {
+        setState(() {
+          linksError = 'Unable to load links. Please try again later.';
+          isLoadingLinks = false;
+        });
+      }
+    }
+  }
 
   final Color primaryRed = const Color(0xFFE30F13);
   final Color accentRed = const Color(0xFF6C1016);
   final Color backgroundWhite = Colors.white;
   final Color blackText = Colors.black87;
 
-  final List<String> developerEmails = [
-    'kchakankar27@ndsj.org',
-    'aferrer@ndsj.org',
-    'bfarrer@ndsj.org',
-    'mcarrillo@ndsj.org',
-    'abhardwaj26@ndsj.org',
-    'thensley26@ndsj.org',
-    'aarjun27@ndsj.org'
-  ];
+  List<String> developerEmails = [];
 
   bool get isDeveloper => developerEmails.contains(userEmail);
 
@@ -92,16 +112,16 @@ class _LinksPageState extends State<LinksPage> {
                 title: Text(
                   'Attendance',
                   style: TextStyle(
-                      fontFamily: 'Poppins',
-                      color: blackText,
-                      fontWeight: FontWeight.w600),
+                    fontFamily: 'Poppins',
+                    color: blackText,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
                 onTap: () {
                   Navigator.pop(context);
                   Navigator.push(
                     context,
-                    MaterialPageRoute(
-                        builder: (_) => const AttendancePage()),
+                    MaterialPageRoute(builder: (_) => const AttendancePage()),
                   );
                 },
               ),
@@ -111,16 +131,16 @@ class _LinksPageState extends State<LinksPage> {
                   title: Text(
                     'Developer Tools',
                     style: TextStyle(
-                        fontFamily: 'Poppins',
-                        color: blackText,
-                        fontWeight: FontWeight.w600),
+                      fontFamily: 'Poppins',
+                      color: blackText,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                   onTap: () {
                     Navigator.pop(context);
                     Navigator.push(
                       context,
-                      MaterialPageRoute(
-                          builder: (_) => const DeveloperPage()),
+                      MaterialPageRoute(builder: (_) => const DeveloperPage()),
                     );
                   },
                 ),
@@ -129,9 +149,10 @@ class _LinksPageState extends State<LinksPage> {
                 title: Text(
                   'Important Links',
                   style: TextStyle(
-                      fontFamily: 'Poppins',
-                      color: blackText,
-                      fontWeight: FontWeight.w600),
+                    fontFamily: 'Poppins',
+                    color: blackText,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
                 onTap: () {
                   Navigator.pop(context);
@@ -146,9 +167,10 @@ class _LinksPageState extends State<LinksPage> {
                 title: Text(
                   'Preseason Attendance',
                   style: TextStyle(
-                      fontFamily: 'Poppins',
-                      color: blackText,
-                      fontWeight: FontWeight.w600),
+                    fontFamily: 'Poppins',
+                    color: blackText,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
                 onTap: () {
                   Navigator.pop(context);
@@ -163,9 +185,10 @@ class _LinksPageState extends State<LinksPage> {
                 title: Text(
                   'Logout',
                   style: TextStyle(
-                      fontFamily: 'Poppins',
-                      color: blackText,
-                      fontWeight: FontWeight.w600),
+                    fontFamily: 'Poppins',
+                    color: blackText,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
                 onTap: () async {
                   await FirebaseAuth.instance.signOut();
@@ -187,42 +210,64 @@ class _LinksPageState extends State<LinksPage> {
         ),
         iconTheme: const IconThemeData(color: Colors.white),
       ),
-      body: ListView.separated(
-        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-        itemCount: links.length,
-        separatorBuilder: (_, __) =>
-            Divider(color: accentRed.withOpacity(0.3), thickness: 1),
-        itemBuilder: (context, index) {
-          final link = links[index];
-          return Card(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-              side: BorderSide(color: accentRed.withOpacity(0.4), width: 1),
-            ),
-            elevation: 3,
-            shadowColor: accentRed.withOpacity(0.25),
-            child: ListTile(
-              contentPadding:
-                  const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-              leading: Icon(Icons.link, color: primaryRed, size: 32),
-              title: Text(
-                link['title'] ?? 'Untitled',
-                style: const TextStyle(
-                  fontFamily: 'Poppins',
-                  fontSize: 18,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.black87,
-                ),
+      body: isLoadingLinks
+          ? const Center(child: CircularProgressIndicator())
+          : linksError != null
+          ? Center(
+              child: Text(
+                linksError!,
+                style: TextStyle(fontFamily: 'Poppins', color: accentRed),
               ),
-              trailing: const Icon(Icons.open_in_new, color: Colors.grey),
-              onTap: () => _openLink(link['url'] ?? ''),
-              hoverColor: primaryRed.withOpacity(0.1),
-              shape:
-                  RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            )
+          : links.isEmpty
+          ? const Center(
+              child: Text(
+                'No links have been added yet.',
+                style: TextStyle(fontFamily: 'Poppins'),
+              ),
+            )
+          : ListView.separated(
+              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+              itemCount: links.length,
+              separatorBuilder: (_, __) =>
+                  Divider(color: accentRed.withOpacity(0.3), thickness: 1),
+              itemBuilder: (context, index) {
+                final link = links[index];
+                return Card(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    side: BorderSide(
+                      color: accentRed.withOpacity(0.4),
+                      width: 1,
+                    ),
+                  ),
+                  elevation: 3,
+                  shadowColor: accentRed.withOpacity(0.25),
+                  child: ListTile(
+                    contentPadding: const EdgeInsets.symmetric(
+                      vertical: 10,
+                      horizontal: 20,
+                    ),
+                    leading: Icon(Icons.link, color: primaryRed, size: 32),
+                    title: Text(
+                      link['title'] ?? 'Untitled',
+                      style: const TextStyle(
+                        fontFamily: 'Poppins',
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.black87,
+                      ),
+                    ),
+                    trailing: const Icon(Icons.open_in_new, color: Colors.grey),
+                    onTap: () => _openLink(link['url'] ?? ''),
+                    hoverColor: primaryRed.withOpacity(0.1),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                );
+              },
             ),
-          );
-        },
-      ),
     );
   }
 }

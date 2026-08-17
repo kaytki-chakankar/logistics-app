@@ -8,9 +8,7 @@ import 'pages/attendance_page.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   runApp(const MyApp());
 }
@@ -22,7 +20,15 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Attendance App',
-      theme: ThemeData(primarySwatch: Colors.blue),
+      theme: ThemeData(
+        useMaterial3: true,
+        fontFamily: 'Poppins',
+        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFFE30F13)),
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Color(0xFFE30F13),
+          foregroundColor: Colors.white,
+        ),
+      ),
       home: const AuthenticationWrapper(),
     );
   }
@@ -40,15 +46,13 @@ class AuthenticationWrapper extends StatelessWidget {
           final user = snapshot.data;
 
           if (user == null) {
-            return const SignInPage(); 
+            return const SignInPage();
           } else {
-            return const AttendancePage(); 
+            return const AttendancePage();
           }
         }
 
-        return const Scaffold(
-          body: Center(child: CircularProgressIndicator()),
-        );
+        return const Scaffold(body: Center(child: CircularProgressIndicator()));
       },
     );
   }

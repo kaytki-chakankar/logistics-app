@@ -22,10 +22,10 @@ const auth = new google.auth.GoogleAuth({
 const sheets = google.sheets({ version: 'v4', auth });
 
 const SPREADSHEET_ID = '1Id2lRQbEzeTJwza9LPYUeSJOhUvfUduTi_inNMeBaS8';
-const RANGE = '1/9/2025!A2:C1000';
 const ATTENDANCE_RESPONSE_SHEET = process.env.ATTENDANCE_RESPONSE_SHEET || 'Form Responses 1';
 
 const TOTAL_HOURS_PATH = path.join(__dirname, 'total_meeting_hours.json');
+const DEFAULT_FULL_SEMESTER_HOURS = 235;
 const DEFAULT_DEVELOPERS = [
   'kchakankar27@ndsj.org',
   'aferrer@ndsj.org',
@@ -34,6 +34,20 @@ const DEFAULT_DEVELOPERS = [
   'abhardwaj26@ndsj.org',
   'thensley26@ndsj.org',
   'aarjun27@ndsj.org',
+];
+const DEFAULT_LINKS = [
+  {
+    title: 'Leadership Drive',
+    url: 'https://drive.google.com/drive/folders/0ANydg9_JDsrrUk9PVA',
+  },
+  {
+    title: 'Team Calendar',
+    url: 'https://docs.google.com/spreadsheets/d/1VH-h4vqi3WZ0dV_-8Qf2T6R2lpBFExDJWNmpr447Zds/edit?gid=0#gid=0',
+  },
+  {
+    title: 'Team Resource Website',
+    url: 'https://sites.google.com/ndsj.org/jankster-resources/home',
+  },
 ];
 
 let firestore;
@@ -84,6 +98,34 @@ async function getMembers() {
 
 async function saveMembers(members) {
   await settingsDocument().set({ members }, { merge: true });
+}
+
+function normalizeLink(link) {
+  const title = String(link?.title || '').trim();
+  const url = String(link?.url || '').trim();
+  try {
+    const parsedUrl = new URL(url);
+    if (!title || !['http:', 'https:'].includes(parsedUrl.protocol)) return null;
+    return { title, url: parsedUrl.toString() };
+  } catch (_) {
+    return null;
+  }
+}
+
+async function getImportantLinks() {
+  const snapshot = await settingsDocument().get();
+  const links = snapshot.get('importantLinks');
+  if (Array.isArray(links)) {
+    return links.map(normalizeLink).filter(Boolean);
+  }
+
+  // Preserve the existing bundled links as the one-time initial list.
+  await settingsDocument().set({ importantLinks: DEFAULT_LINKS }, { merge: true });
+  return DEFAULT_LINKS;
+}
+
+async function saveImportantLinks(links) {
+  await settingsDocument().set({ importantLinks: links }, { merge: true });
 }
 
 async function getAttendanceAdjustmentSettings() {
@@ -138,6 +180,12 @@ async function getBuildAttendanceMaster() {
     return master;
   }
 
+  // Once this store has been initialized, an empty collection is intentional
+  // (for example, after the last member is removed), not a reason to restore
+  // the repository copy.
+  const meta = await buildAttendanceMetaDocument().get();
+  if (meta.get('initialized') === true) return {};
+
   // One-time migration: seed Firestore from the repository JSON only when
   // Firestore has no attendance records yet. Future deploys never overwrite it.
   const legacyMasterPath = path.join(__dirname, 'attendance_master.json');
@@ -148,6 +196,226 @@ async function getBuildAttendanceMaster() {
     await saveBuildAttendanceMaster(legacyMaster);
   }
   return legacyMaster;
+}
+
+async function createBuildAttendanceMember(email) {
+  await buildAttendanceCollection().doc(email).set({ meetings: [] });
+  await buildAttendanceMetaDocument().set({ initialized: true }, { merge: true });
+}
+
+async function deleteBuildAttendanceMember(email) {
+  await buildAttendanceCollection().doc(email).delete();
+  await buildAttendanceMetaDocument().set({ initialized: true }, { merge: true });
+}
+
+async function saveBuildAttendanceMember(email, meetings) {
+  await buildAttendanceCollection().doc(email).set({ meetings });
+  await buildAttendanceMetaDocument().set({ initialized: true }, { merge: true });
+}
+
+function attendanceSeasonsCollection() {
+  return getFirestore().collection('attendanceSeasons');
+}
+
+async function getArchivedAttendanceSeasons() {
+  const snapshot = await attendanceSeasonsCollection().orderBy('archivedAt', 'desc').get();
+  return snapshot.docs.map(document => ({ id: document.id, ...document.data() }));
+}
+
+async function getArchivedAttendanceSeason(id) {
+  const seasonDocument = await attendanceSeasonsCollection().doc(id).get();
+  if (!seasonDocument.exists) return null;
+  const records = {};
+  const memberDocuments = await seasonDocument.ref.collection('members').get();
+  memberDocuments.forEach(document => {
+    records[document.id] = Array.isArray(document.get('meetings')) ? document.get('meetings') : [];
+  });
+  return { id: seasonDocument.id, ...seasonDocument.data(), records };
+}
+
+async function resetBuildAttendanceForMembers(members) {
+  const existingDocuments = await buildAttendanceCollection().listDocuments();
+  for (let start = 0; start < existingDocuments.length; start += 450) {
+    const batch = getFirestore().batch();
+    existingDocuments.slice(start, start + 450).forEach(document => batch.delete(document));
+    await batch.commit();
+  }
+  for (let start = 0; start < members.length; start += 450) {
+    const batch = getFirestore().batch();
+    members.slice(start, start + 450).forEach(email => {
+      batch.set(buildAttendanceCollection().doc(email), { meetings: [] });
+    });
+    await batch.commit();
+  }
+  await buildAttendanceMetaDocument().set(
+    { initialized: true, totalMeetingHours: 0 },
+    { merge: true }
+  );
+}
+
+async function archiveAndResetBuildAttendance(name) {
+  const normalizedName = String(name || '').trim();
+  if (!normalizedName) throw new Error('A season name is required.');
+
+  const existingSeasons = await getArchivedAttendanceSeasons();
+  if (existingSeasons.some(season => String(season.name).toLowerCase() === normalizedName.toLowerCase())) {
+    throw new Error('A saved season already has that name.');
+  }
+
+  const [master, totalMeetingHours, fullSemesterRequiredHours, members] = await Promise.all([
+    getBuildAttendanceMaster(),
+    getTotalMeetingHours(),
+    getFullSemesterRequiredHours(),
+    getMembers(),
+  ]);
+  const seasonDocument = attendanceSeasonsCollection().doc();
+  const archivedAt = new Date().toISOString();
+  await seasonDocument.set({
+    name: normalizedName,
+    type: 'build',
+    totalMeetingHours,
+    fullSemesterRequiredHours,
+    archivedAt,
+  });
+
+  const entries = Object.entries(master);
+  for (let start = 0; start < entries.length; start += 450) {
+    const batch = getFirestore().batch();
+    entries.slice(start, start + 450).forEach(([email, meetings]) => {
+      batch.set(seasonDocument.collection('members').doc(email), { meetings });
+    });
+    await batch.commit();
+  }
+
+  const calendarDocuments = await attendanceCalendarCollection().listDocuments();
+  const calendarSnapshots = await Promise.all(calendarDocuments.map(document => document.get()));
+  for (let start = 0; start < calendarSnapshots.length; start += 450) {
+    const batch = getFirestore().batch();
+    calendarSnapshots.slice(start, start + 450).forEach(snapshot => {
+      batch.set(seasonDocument.collection('calendar').doc(snapshot.id), snapshot.data());
+      batch.delete(snapshot.ref);
+    });
+    await batch.commit();
+  }
+
+  await resetBuildAttendanceForMembers(members);
+  return { id: seasonDocument.id, name: normalizedName, type: 'build', totalMeetingHours, fullSemesterRequiredHours, archivedAt };
+}
+
+function preseasonAttendanceCollection() {
+  return getFirestore().collection('preseasonAttendance');
+}
+
+function preseasonAttendanceMetaDocument() {
+  return getFirestore().collection('logisticsApp').doc('preseasonAttendanceMeta');
+}
+
+async function savePreseasonAttendanceMaster(master) {
+  const entries = Object.entries(master);
+  for (let start = 0; start < entries.length; start += 450) {
+    const batch = getFirestore().batch();
+    entries.slice(start, start + 450).forEach(([email, meetings]) => {
+      batch.set(preseasonAttendanceCollection().doc(email), { meetings });
+    });
+    await batch.commit();
+  }
+  await preseasonAttendanceMetaDocument().set({ initialized: true }, { merge: true });
+}
+
+async function getPreseasonAttendanceMaster() {
+  const snapshot = await preseasonAttendanceCollection().get();
+  if (!snapshot.empty) {
+    const master = {};
+    snapshot.forEach(document => {
+      master[document.id] = Array.isArray(document.get('meetings')) ? document.get('meetings') : [];
+    });
+    return master;
+  }
+
+  const meta = await preseasonAttendanceMetaDocument().get();
+  if (meta.get('initialized') === true) return {};
+
+  const legacyMasterPath = path.join(__dirname, 'preseason_master.json');
+  const legacyMaster = fs.existsSync(legacyMasterPath)
+    ? JSON.parse(fs.readFileSync(legacyMasterPath, 'utf8'))
+    : {};
+  if (Object.keys(legacyMaster).length > 0) {
+    await savePreseasonAttendanceMaster(legacyMaster);
+  } else {
+    await preseasonAttendanceMetaDocument().set({ initialized: true }, { merge: true });
+  }
+  return legacyMaster;
+}
+
+async function ensureLegacyPreseasonHistory() {
+  const settings = await settingsDocument().get();
+  if (settings.get('legacyPreseasonHistoryArchived') === true) return;
+  const master = await getPreseasonAttendanceMaster();
+  const seasonDocument = attendanceSeasonsCollection().doc();
+  await seasonDocument.set({
+    name: 'Preseason 2025',
+    type: 'preseason',
+    totalMeetingHours: 83.5,
+    archivedAt: new Date().toISOString(),
+  });
+  const entries = Object.entries(master);
+  for (let start = 0; start < entries.length; start += 450) {
+    const batch = getFirestore().batch();
+    entries.slice(start, start + 450).forEach(([email, meetings]) => {
+      batch.set(seasonDocument.collection('members').doc(email), { meetings });
+    });
+    await batch.commit();
+  }
+  await settingsDocument().set({ legacyPreseasonHistoryArchived: true }, { merge: true });
+}
+
+async function createPreseasonAttendanceMember(email, isRookie) {
+  await preseasonAttendanceCollection().doc(email).set({
+    meetings: isRookie ? [{ rookie: true }] : [],
+  });
+  await preseasonAttendanceMetaDocument().set({ initialized: true }, { merge: true });
+}
+
+async function setMemberRookieStatus(email, isRookie) {
+  const document = await preseasonAttendanceCollection().doc(email).get();
+  const meetings = document.exists && Array.isArray(document.get('meetings'))
+    ? document.get('meetings').filter(entry => entry?.rookie !== true)
+    : [];
+  const updatedMeetings = isRookie ? [{ rookie: true }, ...meetings] : meetings;
+  await preseasonAttendanceCollection().doc(email).set({ meetings: updatedMeetings });
+  await preseasonAttendanceMetaDocument().set({ initialized: true }, { merge: true });
+}
+
+async function deletePreseasonAttendanceMember(email) {
+  await preseasonAttendanceCollection().doc(email).delete();
+  await preseasonAttendanceMetaDocument().set({ initialized: true }, { merge: true });
+}
+
+function attendanceCalendarCollection() {
+  return getFirestore().collection('attendanceCalendar');
+}
+
+function normalizeCalendarMeeting(document) {
+  const data = document.data();
+  return {
+    id: document.id,
+    title: data.title || 'Meeting',
+    date: data.date,
+    startTime: data.startTime || '',
+    endTime: data.endTime || '',
+    totalHours: Number(data.totalHours) || 0,
+    notes: data.notes || '',
+    published: data.published === true,
+    createdAt: data.createdAt || '',
+  };
+}
+
+async function getCalendarMeetings({ publishedOnly = false } = {}) {
+  const snapshot = await attendanceCalendarCollection().get();
+  return snapshot.docs
+    .map(normalizeCalendarMeeting)
+    .filter(meeting => !publishedOnly || meeting.published)
+    .sort((a, b) => new Date(a.date) - new Date(b.date));
 }
 
 async function getTotalMeetingHours() {
@@ -165,6 +433,21 @@ async function getTotalMeetingHours() {
 async function setTotalMeetingHours(hours) {
   await buildAttendanceMetaDocument().set(
     { totalMeetingHours: Number(hours) || 0 },
+    { merge: true }
+  );
+}
+
+async function getFullSemesterRequiredHours() {
+  const snapshot = await buildAttendanceMetaDocument().get();
+  const storedHours = Number(snapshot.get('fullSemesterRequiredHours'));
+  if (Number.isFinite(storedHours) && storedHours > 0) return storedHours;
+  await setFullSemesterRequiredHours(DEFAULT_FULL_SEMESTER_HOURS);
+  return DEFAULT_FULL_SEMESTER_HOURS;
+}
+
+async function setFullSemesterRequiredHours(hours) {
+  await buildAttendanceMetaDocument().set(
+    { fullSemesterRequiredHours: Number(hours) },
     { merge: true }
   );
 }
@@ -240,13 +523,65 @@ app.delete('/developers/:email', async (req, res) => {
   }
 });
 
-// Active members determine who receives new attendance records. Removing a
-// member preserves their historical attendance in Firestore.
+app.get('/important-links', async (req, res) => {
+  try {
+    res.json({ links: await getImportantLinks() });
+  } catch (err) {
+    console.error('Error loading important links:', err);
+    res.status(500).json({ error: 'Unable to load important links.' });
+  }
+});
+
+app.post('/important-links', async (req, res) => {
+  const link = normalizeLink(req.body);
+  if (!link) {
+    return res.status(400).json({ error: 'Enter a title and a valid http or https URL.' });
+  }
+  try {
+    const links = await getImportantLinks();
+    if (links.some(item => item.url === link.url)) {
+      return res.status(409).json({ error: 'That link is already listed.' });
+    }
+    links.push(link);
+    await saveImportantLinks(links);
+    res.status(201).json({ links });
+  } catch (err) {
+    console.error('Error adding important link:', err);
+    res.status(500).json({ error: 'Unable to add important link.' });
+  }
+});
+
+app.delete('/important-links/:index', async (req, res) => {
+  const index = Number.parseInt(req.params.index, 10);
+  try {
+    const links = await getImportantLinks();
+    if (!Number.isInteger(index) || index < 0 || index >= links.length) {
+      return res.status(404).json({ error: 'Link not found.' });
+    }
+    const [removed] = links.splice(index, 1);
+    await saveImportantLinks(links);
+    res.json({ removed, links });
+  } catch (err) {
+    console.error('Error removing important link:', err);
+    res.status(500).json({ error: 'Unable to remove important link.' });
+  }
+});
+
+// Active members determine who receives new attendance records.
 app.get('/members', async (req, res) => {
   try {
-    const [members, developers] = await Promise.all([getMembers(), getDevelopers()]);
+    const [members, developers, preseasonMaster] = await Promise.all([
+      getMembers(),
+      getDevelopers(),
+      getPreseasonAttendanceMaster(),
+    ]);
     res.json({
-      members: members.filter(email => !developers.includes(email)),
+      members: members
+        .filter(email => !developers.includes(email))
+        .map(email => ({
+          email,
+          rookie: (preseasonMaster[email] || []).some(entry => entry?.rookie === true),
+        })),
     });
   } catch (err) {
     console.error('Error loading members:', err);
@@ -256,6 +591,7 @@ app.get('/members', async (req, res) => {
 
 app.post('/members', async (req, res) => {
   const email = String(req.body?.email || '').trim().toLowerCase();
+  const rookie = req.body?.rookie === true;
   if (!/^\S+@\S+\.\S+$/.test(email)) {
     return res.status(400).json({ error: 'Enter a valid email address.' });
   }
@@ -267,8 +603,11 @@ app.post('/members', async (req, res) => {
     members.push(email);
     members.sort();
     await saveMembers(members);
-    const developers = await getDevelopers();
-    res.status(201).json({ members: members.filter(item => !developers.includes(item)) });
+    await Promise.all([
+      createBuildAttendanceMember(email),
+      createPreseasonAttendanceMember(email, rookie),
+    ]);
+    res.status(201).json({ member: { email, rookie } });
   } catch (err) {
     console.error('Error adding member:', err);
     res.status(500).json({ error: 'Unable to add member.' });
@@ -284,11 +623,33 @@ app.delete('/members/:email', async (req, res) => {
     }
     const updatedMembers = members.filter(item => item !== email);
     await saveMembers(updatedMembers);
-    const developers = await getDevelopers();
-    res.json({ members: updatedMembers.filter(item => !developers.includes(item)) });
+    await Promise.all([
+      deleteBuildAttendanceMember(email),
+      deletePreseasonAttendanceMember(email),
+    ]);
+    res.json({ deleted: email });
   } catch (err) {
     console.error('Error removing member:', err);
     res.status(500).json({ error: 'Unable to remove member.' });
+  }
+});
+
+app.put('/members/:email/rookie', async (req, res) => {
+  const email = decodeURIComponent(req.params.email).trim().toLowerCase();
+  const rookie = req.body?.rookie;
+  if (typeof rookie !== 'boolean') {
+    return res.status(400).json({ error: 'Rookie status is required.' });
+  }
+  try {
+    const members = await getMembers();
+    if (!members.includes(email)) {
+      return res.status(404).json({ error: 'Member not found.' });
+    }
+    await setMemberRookieStatus(email, rookie);
+    res.json({ member: { email, rookie } });
+  } catch (err) {
+    console.error('Error updating rookie status:', err);
+    res.status(500).json({ error: 'Unable to update rookie status.' });
   }
 });
 
@@ -338,6 +699,29 @@ app.post('/attendance/adjustments/settings', async (req, res) => {
   }
 });
 
+app.get('/attendance/settings/full-semester-hours', async (req, res) => {
+  try {
+    res.json({ fullSemesterRequiredHours: await getFullSemesterRequiredHours() });
+  } catch (err) {
+    console.error('Error loading full-semester requirement:', err);
+    res.status(500).json({ error: 'Unable to load full-semester requirement.' });
+  }
+});
+
+app.put('/attendance/settings/full-semester-hours', async (req, res) => {
+  const hours = Number(req.body?.fullSemesterRequiredHours);
+  if (!Number.isFinite(hours) || hours <= 0) {
+    return res.status(400).json({ error: 'Enter a required-hours value greater than zero.' });
+  }
+  try {
+    await setFullSemesterRequiredHours(hours);
+    res.json({ fullSemesterRequiredHours: hours });
+  } catch (err) {
+    console.error('Error saving full-semester requirement:', err);
+    res.status(500).json({ error: 'Unable to save full-semester requirement.' });
+  }
+});
+
 // Updates master attendance from the shared response sheet for one selected date.
 app.get('/attendance/update', async (req, res) => {
   const meetingDate = normalizeMeetingDate(req.query.date);
@@ -347,7 +731,6 @@ app.get('/attendance/update', async (req, res) => {
   if (!meetingDate) {
     return res.status(400).json({ error: 'A valid meeting date is required as ?date=M/D/YYYY.' });
   }
-  console.log(`/attendance/update for ${meetingDate} in "${ATTENDANCE_RESPONSE_SHEET}"`);
   const RANGE = `${ATTENDANCE_RESPONSE_SHEET}!A2:C1000`;
 
   try {
@@ -391,7 +774,6 @@ app.get('/attendance/update', async (req, res) => {
     totalMeetingHours += officialMeetingHours;
     await setTotalMeetingHours(totalMeetingHours);
 
-    console.log(`Meeting date: ${currentSessionDate}, official meeting hours from "hours" sheet: ${officialMeetingHours}`);
     if (officialMeetingHours === 0) {
       console.warn('Warning: Official meeting hours is zero or missing for this session date.');
     }
@@ -483,7 +865,6 @@ app.get('/attendance/update', async (req, res) => {
     
     await saveBuildAttendanceMaster(masterData);
 
-    console.log(`Master file updated for ${currentSessionDate}`);
 
     return res.json({
       message: `Attendance logged for ${currentSessionDate}`,
@@ -543,21 +924,90 @@ app.get('/attendance/flagged', async (req, res) => {
   }
 });
 
+function calendarMeetingFromRequest(body) {
+  const date = normalizeMeetingDate(body?.date);
+  const totalHours = Number(body?.totalHours);
+  if (!date || !Number.isFinite(totalHours) || totalHours < 0) return null;
+  return {
+    title: String(body?.title || 'Meeting').trim() || 'Meeting',
+    date,
+    startTime: String(body?.startTime || '').trim(),
+    endTime: String(body?.endTime || '').trim(),
+    totalHours,
+    notes: String(body?.notes || '').trim(),
+    published: body?.published === true,
+  };
+}
+
+// Published meeting plans are visible to every member and power the personal
+// attendance calculator. They are separate from official attendance records.
+app.get('/attendance/calendar', async (req, res) => {
+  try {
+    res.json({ meetings: await getCalendarMeetings({ publishedOnly: true }) });
+  } catch (err) {
+    console.error('Error loading published calendar:', err);
+    res.status(500).json({ error: 'Unable to load meeting calendar.' });
+  }
+});
+
+app.get('/attendance/calendar/manage', async (req, res) => {
+  try {
+    res.json({ meetings: await getCalendarMeetings() });
+  } catch (err) {
+    console.error('Error loading managed calendar:', err);
+    res.status(500).json({ error: 'Unable to load meeting calendar.' });
+  }
+});
+
+app.post('/attendance/calendar', async (req, res) => {
+  const meeting = calendarMeetingFromRequest(req.body);
+  if (!meeting) return res.status(400).json({ error: 'Enter a valid date and non-negative total hours.' });
+  try {
+    const document = attendanceCalendarCollection().doc();
+    const createdAt = new Date().toISOString();
+    await document.set({ ...meeting, createdAt });
+    res.status(201).json({ meeting: { id: document.id, ...meeting, createdAt } });
+  } catch (err) {
+    console.error('Error adding calendar meeting:', err);
+    res.status(500).json({ error: 'Unable to add meeting.' });
+  }
+});
+
+app.put('/attendance/calendar/:id', async (req, res) => {
+  const meeting = calendarMeetingFromRequest(req.body);
+  if (!meeting) return res.status(400).json({ error: 'Enter a valid date and non-negative total hours.' });
+  try {
+    const document = attendanceCalendarCollection().doc(req.params.id);
+    if (!(await document.get()).exists) return res.status(404).json({ error: 'Meeting not found.' });
+    await document.set(meeting, { merge: true });
+    res.json({ meeting: { id: document.id, ...meeting } });
+  } catch (err) {
+    console.error('Error updating calendar meeting:', err);
+    res.status(500).json({ error: 'Unable to update meeting.' });
+  }
+});
+
+app.delete('/attendance/calendar/:id', async (req, res) => {
+  try {
+    const document = attendanceCalendarCollection().doc(req.params.id);
+    if (!(await document.get()).exists) return res.status(404).json({ error: 'Meeting not found.' });
+    await document.delete();
+    res.json({ deleted: req.params.id });
+  } catch (err) {
+    console.error('Error deleting calendar meeting:', err);
+    res.status(500).json({ error: 'Unable to delete meeting.' });
+  }
+});
+
 
 
 // get attendance for a single user by email using preseason_master + different hours
 app.get('/attendance/preseason/:email', async (req, res) => {
-  console.log('HIT /attendance/preseason/:email for:', req.params.email);
   const email = req.params.email?.toLowerCase();
   if (!email) return res.status(400).json({ error: 'Email required' });
 
   try {
-    const masterPath = path.join(__dirname, 'preseason_master.json');
-    if (!fs.existsSync(masterPath)) {
-      return res.status(500).json({ error: 'Master attendance file not found. Run /attendance/update first.' });
-    }
-
-    const masterData = JSON.parse(fs.readFileSync(masterPath, 'utf8'));
+    const masterData = await getPreseasonAttendanceMaster();
     let userData = masterData[email] || [];
 
     const isRookie = userData.some(entry => entry.rookie === true);
@@ -590,10 +1040,76 @@ app.get('/attendance/preseason/:email', async (req, res) => {
   }
 });
 
+// Saved seasons are read-only snapshots. The legacy preseason source remains
+// available as the first selectable history season while it is being used.
+app.get('/attendance/seasons', async (req, res) => {
+  try {
+    await ensureLegacyPreseasonHistory();
+    const seasons = await getArchivedAttendanceSeasons();
+    res.json({ seasons: seasons.map(({ id, name, type, archivedAt }) => ({ id, name, type, archivedAt })) });
+  } catch (err) {
+    console.error('Error loading attendance seasons:', err);
+    res.status(500).json({ error: 'Unable to load attendance seasons.' });
+  }
+});
+
+app.get('/attendance/seasons/:id/:email', async (req, res) => {
+  const email = req.params.email?.toLowerCase();
+  if (!email) return res.status(400).json({ error: 'Email required' });
+  try {
+    let season;
+    let records;
+    const archivedSeason = await getArchivedAttendanceSeason(req.params.id);
+    if (!archivedSeason) return res.status(404).json({ error: 'Saved season not found.' });
+    records = archivedSeason.records[email] || [];
+    season = archivedSeason;
+
+    const isRookie = records.some(entry => entry?.rookie === true);
+    const meetings = records
+      .filter(entry => entry?.date && (typeof entry.durationHours === 'number' || entry.error === true))
+      .sort((a, b) => new Date(a.date) - new Date(b.date));
+    const totalHoursAttended = meetings.reduce(
+      (sum, entry) => sum + (typeof entry.durationHours === 'number' ? entry.durationHours : 0),
+      0
+    );
+    const totalMeetingHours = season.type === 'preseason'
+      ? 83.5 - (isRookie ? 3.5 : 0)
+      : Number(season.totalMeetingHours) || 0;
+    const attendancePercentage = totalMeetingHours > 0
+      ? parseFloat(((totalHoursAttended / totalMeetingHours) * 100).toFixed(2))
+      : 0;
+
+    res.json({
+      season: { id: req.params.id, name: season.name, type: season.type },
+      email,
+      meetings,
+      totalHoursAttended,
+      totalMeetingHours,
+      attendancePercentage,
+    });
+  } catch (err) {
+    console.error('Error loading saved season attendance:', err);
+    res.status(500).json({ error: 'Unable to load saved season attendance.' });
+  }
+});
+
+app.post('/attendance/seasons/archive', async (req, res) => {
+  try {
+    const season = await archiveAndResetBuildAttendance(req.body?.name);
+    res.status(201).json({ season });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Unable to archive current season.';
+    const status = message === 'A season name is required.' || message === 'A saved season already has that name.'
+      ? 400
+      : 500;
+    if (status === 500) console.error('Error archiving attendance season:', err);
+    res.status(status).json({ error: message });
+  }
+});
+
 
 // get attendance for a single user by email using attendance_master
 app.get('/attendance/:email', async (req, res) => {
-  console.log('HIT /attendance/:email for:', req.params.email);
   const email = req.params.email?.toLowerCase();
   if (!email) return res.status(400).json({ error: 'Email required' });
 
@@ -610,6 +1126,7 @@ app.get('/attendance/:email', async (req, res) => {
       });   
       
     let totalMeetingHours = await getTotalMeetingHours();
+    const fullSemesterRequiredHours = await getFullSemesterRequiredHours();
 
     const totalHoursAttended = meetings.reduce(
       (sum, m) => sum + (typeof m.durationHours === 'number' ? m.durationHours : 0),
@@ -625,6 +1142,7 @@ app.get('/attendance/:email', async (req, res) => {
       meetings,
       totalHoursAttended,
       totalMeetingHours,
+      fullSemesterRequiredHours,
       attendancePercentage
     });
 
@@ -688,8 +1206,7 @@ app.post("/attendance/resolve", async (req, res) => {
         : { date, durationHours: parseFloat(durationHours) || 0 };
     }
 
-    await saveBuildAttendanceMaster(master);
-    console.log(`Resolved entry for ${email} on ${date}`);
+    await saveBuildAttendanceMember(email, master[email]);
     res.json({ message: "Entry updated successfully" });
 
   } catch (err) {
@@ -776,11 +1293,8 @@ app.post("/attendance/manual-update", async (req, res) => {
 
     masterData[normalizedEmail].push(payload);
 
-    await saveBuildAttendanceMaster(masterData);
+    await saveBuildAttendanceMember(normalizedEmail, masterData[normalizedEmail]);
 
-    console.log(
-      `Manual attendance update -> ${normalizedEmail} / ${date}`
-    );
 
     return res.json({ success: true });
   } catch (err) {
@@ -872,7 +1386,7 @@ app.post('/attendance/adjustments/:id/resolve', async (req, res) => {
       if (entryIndex === -1) masterData[email].push(updatedEntry);
       else masterData[email][entryIndex] = updatedEntry;
 
-      await saveBuildAttendanceMaster(masterData);
+      await saveBuildAttendanceMember(email, masterData[email]);
     }
 
     adjustment.status = status;
@@ -890,7 +1404,7 @@ app.get("/attendance/team/full", async (req, res) => {
   try {
     const isPreseason = req.query.isPreseason === "true";
     const master = isPreseason
-      ? JSON.parse(fs.readFileSync(path.join(__dirname, "preseason_master.json"), "utf8"))
+      ? await getPreseasonAttendanceMaster()
       : await getBuildAttendanceMaster();
 
     // normalize date safely (prevents duplicate "fake different dates")
@@ -1080,93 +1594,6 @@ app.get("/attendance/team/hours", async (req, res) => {
 app.get('/', (req, res) => {
   res.send('backend is running');
 });
-
-
-
-// app.get('/attendance/master', async (req, res) => {
-//   console.log('HIT /attendance/master');
-
-//   try {
-//     const response = await sheets.spreadsheets.values.get({
-//       spreadsheetId: SPREADSHEET_ID,
-//       range: RANGE,
-//     });
-
-//     const rows = response.data.values || [];
-//     const attendanceMap = new Map();
-
-//     rows.forEach(row => {
-//       const timestamp = row[0];
-//       const email = row[1]?.trim().toLowerCase();
-//       const comment = row[2]?.trim();
-
-//       if (!email || !timestamp) return;
-
-//       if (!attendanceMap.has(email)) {
-//         attendanceMap.set(email, []);
-//       }
-
-//       attendanceMap.get(email).push({
-//         timestamp,
-//         comment,
-//       });
-//     });
-
-//     const masterData = {};
-
-//     attendanceMap.forEach((entries, email) => {
-//       const sorted = entries.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
-//       const meetings = [];
-
-//       for (let i = 0; i < sorted.length; i += 2) {
-//         const start = sorted[i];
-//         const end = sorted[i + 1];
-
-//         if (!end || start.comment || end.comment) {
-//           meetings.push({
-//             date: start.timestamp,
-//             error: true,
-//             reason: 'Missing pair or comment present',
-//           });
-//           continue;
-//         }
-
-//         const startTime = new Date(start.timestamp);
-//         const endTime = new Date(end.timestamp);
-
-//         if (isNaN(startTime) || isNaN(endTime)) {
-//           meetings.push({
-//             date: start.timestamp,
-//             error: true,
-//             reason: 'Invalid timestamp',
-//           });
-//           continue;
-//         }
-
-//         let durationMin = Math.abs(endTime - startTime) / (1000 * 60);
-//         if (140 <= durationMin && durationMin <= 160) durationMin = 150;
-
-//         meetings.push({
-//           date: start.timestamp,
-//           durationHours: parseFloat((durationMin / 60).toFixed(2)),
-//         });
-//       }
-
-//       masterData[email] = meetings;
-//     });
-
-//     const MASTER_JSON_PATH = path.join(__dirname, 'attendance_master.json');
-//     fs.writeFileSync(MASTER_JSON_PATH, JSON.stringify(masterData, null, 2));
-//     console.log(JSON.stringify(masterData[email], null, 2)); // log just one email’s data
-//     console.log(`Wrote master attendance to ${MASTER_JSON_PATH}`);
-//     res.json({ message: 'Master attendance written successfully.', file: MASTER_JSON_PATH });
-//   } catch (error) {
-//     console.error('Error writing master attendance:', error);
-//     res.status(500).json({ error: 'Failed to write master attendance.' });
-//   }
-// });
-
-
 app.listen(PORT, () => {
   console.log(`Backend running on port ${PORT}`);
 });

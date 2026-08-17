@@ -85,11 +85,11 @@ function getFirestore() {
   if (!fs.existsSync(serviceAccountPath)) {
     throw new Error(`Firestore service account was not found at ${serviceAccountPath}.`);
   }
-  if (!admin.apps.length) {
-    admin.initializeApp({
-      credential: admin.credential.cert(JSON.parse(fs.readFileSync(serviceAccountPath, 'utf8'))),
-    });
-  }
+  // firebase-admin v14 no longer exposes the legacy admin.apps array.
+  // The module-level Firestore cache above ensures this runs only once.
+  admin.initializeApp({
+    credential: admin.credential.cert(JSON.parse(fs.readFileSync(serviceAccountPath, 'utf8'))),
+  });
   firestore = admin.firestore();
   return firestore;
 }

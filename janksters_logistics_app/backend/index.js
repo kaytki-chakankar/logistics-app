@@ -21,8 +21,8 @@ const auth = new google.auth.GoogleAuth({
 
 const sheets = google.sheets({ version: 'v4', auth });
 
-const SPREADSHEET_ID = '1Id2lRQbEzeTJwza9LPYUeSJOhUvfUduTi_inNMeBaS8';
-const ATTENDANCE_RESPONSE_SHEET = process.env.ATTENDANCE_RESPONSE_SHEET || 'Form Responses 1';
+const SPREADSHEET_ID = process.env.ATTENDANCE_SPREADSHEET_ID || '16f6--RBENkuW3eE5-EDAyYZtX_u6QW6w1T54G8Qt3Z0';
+const FORM_RESPONSE_TAB_PREFIX = 'form responses';
 
 const TOTAL_HOURS_PATH = path.join(__dirname, 'total_meeting_hours.json');
 const DEFAULT_FULL_SEMESTER_HOURS = 235;
@@ -35,6 +35,33 @@ const DEFAULT_DEVELOPERS = [
   'thensley26@ndsj.org',
   'aarjun27@ndsj.org',
 ];
+
+function quotedSheetRange(sheetName, range) {
+  return `'${sheetName.replace(/'/g, "''")}'!${range}`;
+}
+
+async function getFormResponseSheetValues(range) {
+  const spreadsheet = await sheets.spreadsheets.get({
+    spreadsheetId: SPREADSHEET_ID,
+    fields: 'sheets.properties.title',
+  });
+  const sheetNames = (spreadsheet.data.sheets || [])
+    .map(sheet => sheet.properties?.title || '')
+    .filter(title => title.trim().toLowerCase().startsWith(FORM_RESPONSE_TAB_PREFIX));
+
+  if (sheetNames.length === 0) {
+    return [];
+  }
+
+  const response = await sheets.spreadsheets.values.batchGet({
+    spreadsheetId: SPREADSHEET_ID,
+    ranges: sheetNames.map(sheetName => quotedSheetRange(sheetName, range)),
+  });
+  return sheetNames.map((sheetName, index) => ({
+    sheetName,
+    values: response.data.valueRanges?.[index]?.values || [],
+  }));
+}
 const DEFAULT_LINKS = [
   {
     title: 'Leadership Drive',
@@ -722,30 +749,27 @@ app.put('/attendance/settings/full-semester-hours', async (req, res) => {
   }
 });
 
-// Updates master attendance from the shared response sheet for one selected date.
+// Updates master attendance from every linked Google Form response tab for one selected date.
 app.get('/attendance/update', async (req, res) => {
   const meetingDate = normalizeMeetingDate(req.query.date);
-  let meetingHoursInput = parseFloat(req.query.hours); 
-  
-  if (isNaN(meetingHoursInput)) meetingHoursInput = 0; 
+  let meetingHoursInput = parseFloat(req.query.hours);
+
+  if (isNaN(meetingHoursInput)) meetingHoursInput = 0;
   if (!meetingDate) {
     return res.status(400).json({ error: 'A valid meeting date is required as ?date=M/D/YYYY.' });
   }
-  const RANGE = `${ATTENDANCE_RESPONSE_SHEET}!A2:C1000`;
 
   try {
     const masterData = await getBuildAttendanceMaster();
 
-    // Read the shared form-response sheet, then keep only rows for this meeting.
-    const response = await sheets.spreadsheets.values.get({
-      spreadsheetId: SPREADSHEET_ID,
-      range: RANGE,
-    });
-
-    const rows = response.data.values || [];
+    // Read all linked Form Responses tabs, then keep only rows for this meeting.
+    const responseSheets = await getFormResponseSheetValues('A2:C1000');
+    const rows = responseSheets.flatMap(({ values }) => values);
     const rowsForMeeting = rows.filter(row => formatMeetingDate(row[0]) === meetingDate);
     if (rowsForMeeting.length === 0) {
-      return res.status(404).json({ error: `No attendance rows found for ${meetingDate} in ${ATTENDANCE_RESPONSE_SHEET}.` });
+      return res.status(404).json({
+        error: `No attendance rows found for ${meetingDate} in any Form Responses tab.`,
+      });
     }
 
     const attendanceMap = new Map();
@@ -1220,32 +1244,23 @@ app.post("/attendance/resolve", async (req, res) => {
 app.get("/attendance/raw/:email", async (req, res) => {
   try {
     const email = req.params.email.toLowerCase();
-    const sheetName = req.query.sheet || ATTENDANCE_RESPONSE_SHEET;
     const meetingDate = req.query.date ? normalizeMeetingDate(req.query.date) : null;
     if (req.query.date && !meetingDate) {
       return res.status(400).json({ error: 'Date must use M/D/YYYY.' });
     }
 
-    const response = await sheets.spreadsheets.values.get({
-      spreadsheetId: SPREADSHEET_ID,
-      range: `${sheetName}!A1:Z1000`,
-    });
-
-    const values = response.data.values || [];
-    if (values.length < 2) {
-      return res.status(404).json({ email, message: "No rows found in sheet" });
-    }
-
-    const headers = values[0];
-    const dataRows = values.slice(1);
-
-    const mappedRows = dataRows.map(row => {
-      const obj = {};
-      headers.forEach((header, i) => {
-        const cleanHeader = header.trim(); 
-        obj[cleanHeader] = row[i] ?? ""; 
+    const responseSheets = await getFormResponseSheetValues('A1:Z1000');
+    const mappedRows = responseSheets.flatMap(({ sheetName, values }) => {
+      if (values.length < 2) return [];
+      const headers = values[0];
+      return values.slice(1).map(row => {
+        const obj = { 'Source Sheet': sheetName };
+        headers.forEach((header, i) => {
+          const cleanHeader = header.trim();
+          obj[cleanHeader] = row[i] ?? '';
+        });
+        return obj;
       });
-      return obj;
     });
 
     const filtered = mappedRows.filter(r =>
@@ -1255,7 +1270,7 @@ app.get("/attendance/raw/:email", async (req, res) => {
 
     res.json({
       email,
-      sheet: sheetName,
+      sheet: 'All Form Responses tabs',
       date: meetingDate,
       count: filtered.length,
       results: filtered

@@ -1,7 +1,8 @@
 const express = require('express');
 const cors = require('cors');
 const { google } = require('googleapis');
-const admin = require('firebase-admin');
+const { initializeApp, cert, getApps } = require('firebase-admin/app');
+const { getFirestore: getAdminFirestore } = require('firebase-admin/firestore');
 const fs = require('fs');
 const path = require('path');
 const { parse } = require('json2csv');
@@ -85,12 +86,12 @@ function getFirestore() {
   if (!fs.existsSync(serviceAccountPath)) {
     throw new Error(`Firestore service account was not found at ${serviceAccountPath}.`);
   }
-  // firebase-admin v14 no longer exposes the legacy admin.apps array.
-  // The module-level Firestore cache above ensures this runs only once.
-  admin.initializeApp({
-    credential: admin.credential.cert(JSON.parse(fs.readFileSync(serviceAccountPath, 'utf8'))),
-  });
-  firestore = admin.firestore();
+  if (getApps().length === 0) {
+    initializeApp({
+      credential: cert(JSON.parse(fs.readFileSync(serviceAccountPath, 'utf8'))),
+    });
+  }
+  firestore = getAdminFirestore();
   return firestore;
 }
 
